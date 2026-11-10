@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# syslive: live machine status, refreshed about every 2 s (quit: q or Ctrl+C)
+export LC_ALL=C
+M="$HOME/.local/bin/sysmetrics"
+sudo -v || exit 1
+( while true; do sudo -n -v 2>/dev/null; sleep 50; done ) &
+keep=$!
+cleanup() { kill "$keep" 2>/dev/null; tput rmcup; tput cnorm; }
+trap cleanup EXIT
+trap 'exit 0' INT TERM
+tput smcup; tput civis; clear
+G=$'\e[32m'; Y=$'\e[33m'; R=$'\e[31m'; D=$'\e[2m'; B=$'\e[1m'; N=$'\e[0m'
+dot() { case $1 in ok) printf '%s●%s' "$G" "$N";; warn) printf '%s●%s' "$Y" "$N";; bad) printf '%s●%s' "$R" "$N";; esac; }
+hi() { awk -v v="$1" -v w="$2" -v r="$3" 'BEGIN { print (v>=r) ? "bad" : (v>=w) ? "warn" : "ok" }'; }
+lo() { awk -v v="$1" -v w="$2" -v r="$3" 'BEGIN { print (v<=r) ? "bad" : (v<=w) ? "warn" : "ok" }'; }
+gib() { awk -v a="$1" 'BEGIN { printf "%.1f", a/1024 }'; }
+row() { printf '%s%-9s%s %s %s\e[K\n' "$B" "$1" "$N" "$2" "$(dot "$3")"; }
+. /etc/os-release; kern=$(uname -r); host=$(</proc/sys/kernel/hostname)
+n=0
+while true; do
+  unset m; declare -A m
+  while IFS='=' read -r k v; do m[$k]=$v; done < <("$M")
+  if (( n % 30 == 0 )); then
+    out=$(sudo -n smartctl -H -A /dev/nvme0n1 2>/dev/null)
+    if grep -q PASSED <<<"$out"; then sm_st=ok
+    elif grep -q "overall-health" <<<"$out"; then sm_st=fail
+    else sm_st=na; fi
+    if [ "$sm_st" != na ]; then
+      sm_used=$(awk -F: '/Percentage Used/ {gsub(/[ %]/,"",$2); print $2}' <<<"$out")
+    fi
+  fi
+  cpu=${m[cpu_temp]}; use=${m[cpu_usage]}; fan=${m[fan_rpm]}
+  [ "$fan" = 0 ] && fant="fan off" || fant="fan $fan RPM"
+  swp=$(awk -v u="${m[swap_used_mb]}" -v t="${m[swap_total_mb]}" 'BEGIN { print (t>0) ? int(u*100/t) : 0 }')
+  pct=${m[bat_percent]%\%}; pw=${m[bat_power]% W}
+  case ${m[bat_state]} in
+    charging) bst="charging";; discharging) bst="discharging";;
+    fully-charged) bst="fully charged";; pending-charge) bst="pending charge";; *) bst=${m[bat_state]};;
+  esac
+  l_cpu=$(hi "$cpu" 75 90)
+  l_ram=$(lo "${m[ram_avail_mb]}" 2048 1024)
+  l_swap=$(hi "$swp" 70 90)
+  if [ "${m[bat_state]}" = discharging ]; then l_bat=$(lo "$pct" 30 15); else l_bat=ok; fi
+  l_ssd=$(hi "${m[ssd_temp]}" 70 80)
+  case $sm_st in ok) smt=PASSED;; fail) smt=FAILED; l_ssd=bad;; *) smt="n/a (no sudo)";; esac
+  [ -z "$sm_used" ] && sm_used=-
+  l_svc=$(hi "${m[failed_units]}" 1 1)
+  tput cup 0 0
+  printf '%s%s@%s%s\e[K\n' "$B" "$USER" "$host" "$N"
+  printf '─────────────────────────────\e[K\n'
+  row "System" "$NAME · $kern · $(uptime -p)" ""
+  row "CPU" "${cpu}°C · ${use}% · $fant" "$l_cpu"
+  row "RAM" "$(gib "${m[ram_used_mb]}") / $(gib "${m[ram_total_mb]}") GiB ($(gib "${m[ram_avail_mb]}") available)" "$l_ram"
+  row "Swap" "$(gib "${m[swap_used_mb]}") GiB (${swp}%)" "$l_swap"
+  row "Battery" "${m[bat_percent]} · $bst · ${pw} W · limit ${m[bat_limit]}" "$l_bat"
+  row "SSD" "${m[ssd_temp]}°C · SMART $smt · ${sm_used}% used" "$l_ssd"
+  row "Services" "${m[failed_units]} failed" "$l_svc"
+  printf '\n%sUpdates every ~2 s · press q to quit%s\e[K\n' "$D" "$N"
+  tput ed
+  key=; read -t 2 -n 1 key
+  [ "$key" = q ] && break
+  n=$((n+1))
+done

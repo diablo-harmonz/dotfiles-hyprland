@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# sysmetrics: in số liệu chính dạng tên=giá trị (cho sysreport -l, sau này cho Waybar)
+export LC_ALL=C
+sens=$(sensors 2>/dev/null)
+sget() { awk -v k="$1" '$1==k {gsub(/[+°C]/,"",$2); print $2; exit}' <<<"$sens"; }
+echo "cpu_temp=$(sget 'Tctl:')"
+echo "fan_rpm=$(awk '/^speed:/ {print $2}' /proc/acpi/ibm/fan 2>/dev/null)"
+free -m | awk '/^Mem:/ {print "ram_total_mb=" $2; print "ram_used_mb=" $3; print "ram_avail_mb=" $7}'
+free -m | awk '/^Swap:/ {print "swap_total_mb=" $2; print "swap_used_mb=" $3}'
+bat=$(upower -e | grep -m1 BAT)
+bi=$(upower -i "$bat" 2>/dev/null)
+bget() { awk -F: -v k="^[ \t]*$1$" '$1 ~ k {gsub(/^[ \t]+|[ \t]+$/,"",$2); print $2; exit}' <<<"$bi"; }
+echo "bat_state=$(bget state)"
+echo "bat_percent=$(bget percentage)"
+echo "bat_power=$(bget energy-rate)"
+bp=/sys/class/power_supply/BAT0
+echo "bat_limit=$(cat $bp/charge_control_start_threshold 2>/dev/null)-$(cat $bp/charge_control_end_threshold 2>/dev/null)"
+echo "ssd_temp=$(sget 'Composite:')"
+echo "failed_units=$(systemctl --failed --no-legend --plain 2>/dev/null | wc -l)"
+read -r _ u1 n1 s1 i1 w1 q1 sq1 st1 _ < /proc/stat
+sleep 0.3
+read -r _ u2 n2 s2 i2 w2 q2 sq2 st2 _ < /proc/stat
+t1=$((u1+n1+s1+i1+w1+q1+sq1+st1)); t2=$((u2+n2+s2+i2+w2+q2+sq2+st2))
+dt=$((t2-t1)); di=$(( (i2+w2)-(i1+w1) ))
+echo "cpu_usage=$(( dt>0 ? 100*(dt-di)/dt : 0 ))"
