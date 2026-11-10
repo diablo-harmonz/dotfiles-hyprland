@@ -1,8 +1,8 @@
 {
     "custom/quicklink1": {
         "format": " ",
-        "on-click": "flatpak run com.ml4w.hyprlandsettings",
-        "tooltip-format": "Open Hyprland Settings"
+        "on-click": "kitty -e $HOME/.local/bin/syslive",
+        "tooltip-format": "Open syslive"
     }, 
     "custom/quicklink2": {
         "format": " ",
