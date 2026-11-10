@@ -10,7 +10,7 @@
 	"subfolder": "dotfiles",
 	"setupscript":"setup/setup.sh",
 	"dev":{
-		"ignore":"input.conf"
+		"ignore":"input.lua"
 	},
 	"restore":[
 		{
@@ -20,12 +20,12 @@
 		},
 		{
 			"title":"Keyboard settings",
-			"source":".config/hypr/conf/input.conf",
+			"source":".config/hypr/conf/input.lua",
 			"value":true
 		},
 		{
 			"title":"Monitor settings",
-			"source":".config/hypr/conf/monitor.conf",
+			"source":".config/hypr/conf/monitor.lua",
 			"value":true
 		}
 	],
@@ -34,31 +34,31 @@
 			"type":"text",
 			"mode":"replacesingleline",
 			"title":"Keyboard Layout",
-			"file":".config/hypr/conf/input.conf",
+			"file":".config/hypr/conf/input.lua",
 			"checkpoint":"Check",
 			"search":"kb_layout",
 			"value":"us",
-			"template":"    kb_layout = [VALUE]"
+			"template":"        kb_layout  = \"[VALUE]\","
 		},
 		{
 			"type":"text",
 			"mode":"replacesingleline",
 			"title":"Keyboard Variant",
-			"file":".config/hypr/conf/input.conf",
+			"file":".config/hypr/conf/input.lua",
 			"checkpoint":"Check",
 			"search":"kb_variant",
 			"value":"",
-			"template":"    kb_variant = [VALUE]"
+			"template":"        kb_variant = \"[VALUE]\","
 		},
 		{
 			"type":"text",
 			"mode":"replacesingleline",
 			"title":"Screen Resolution",
-			"file":".config/hypr/conf/monitor.conf",
+			"file":".config/hypr/conf/monitor.lua",
 			"checkpoint":"Check",
-			"search":"monitor=,preferred,",
+			"search":"mode     =",
 			"value":"preferred",
-			"template":"monitor=,[VALUE],auto,1"
+			"template":"    mode     = \"[VALUE]\","
 		},
 		{
 			"type":"text",

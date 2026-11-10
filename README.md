@@ -70,7 +70,7 @@ The script will install the following packages and the corresponding configurati
 
 ## Key Bindings
 
-The following custom key bindings are enabled (can be customized in ~/.config/hypr/hyprland.conf)
+The following custom key bindings are enabled (can be customized in ~/.config/hypr/conf/binds.lua)
 
 - <kbd>SUPER</kbd> + <kbd>RETURN</kbd> to start terminal
 - <kbd>SUPER</kbd> + <kbd>Q</kbd> to quit an application
@@ -81,6 +81,6 @@ The following custom key bindings are enabled (can be customized in ~/.config/hy
 - <kbd>SUPER</kbd> + <kbd>T</kbd> to toggle floating
 - <kbd>SUPER</kbd> + <kbd>F</kbd> to toggle fullscreen
 - <kbd>SUPER</kbd> + <kbd>1-9</kbd> to switch workspaces
-- more key bindings in ~/.config/hypr/conf/binds.conf
+- more key bindings in ~/.config/hypr/conf/binds.lua
 
 or after the installation with right mouse click on Apps in the status bar.
