@@ -25,7 +25,8 @@ Please run the setup script offered by the Dotfiles Installer to install all dep
 - hyprland
 - waybar
 - rofi-wayland
-- kitty
+- wezterm
+- yakuake
 - dunst
 - thunar
 - xdg-desktop-portal-hyprland
@@ -59,7 +60,7 @@ The script will install the following packages and the corresponding configurati
 - Status Bar: waybar 
 - Launcher: rofi-wayland 
 - Browser: Firefox
-- Terminal: kitty
+- Terminal: wezterm (Yakuake drop-down on Ctrl+Shift+Down)
 - Notification Service: dunst 
 - File Manager: Thunar
 - xdg-desktop-portal-hyprland 

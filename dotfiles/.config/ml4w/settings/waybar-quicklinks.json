@@ -1,7 +1,7 @@
 {
     "custom/quicklink1": {
         "format": " ",
-        "on-click": "kitty -e $HOME/.local/bin/syslive",
+        "on-click": "wezterm start -- $HOME/.local/bin/syslive",
         "tooltip-format": "Open syslive"
     }, 
     "custom/quicklink2": {
