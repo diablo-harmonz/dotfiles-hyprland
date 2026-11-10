@@ -32,7 +32,6 @@ packages=(
     "networkmanager"
     "wireplumber"
     "wlogout"
-    "flatpak"
 )
 
 # ----------------------------------------------------------
@@ -76,13 +75,11 @@ _isInstalled() {
 # ----------------------------------------------------------
 
 _installYay() {
-    _installPackages "base-devel"
-    SCRIPT=$(realpath "$0")
-    temp_path=$(dirname "$SCRIPT")
-    git clone https://aur.archlinux.org/yay.git $download_folder/yay
-    cd $download_folder/yay
-    makepkg -si
-    cd $temp_path
+    sudo pacman -S --needed --noconfirm base-devel git || exit 1
+    download_folder=$(mktemp -d)
+    git clone https://aur.archlinux.org/yay.git "$download_folder/yay" || exit 1
+    (cd "$download_folder/yay" && makepkg -si) || exit 1
+    rm -rf "$download_folder"
     echo ":: yay has been installed successfully."
 }
 
@@ -153,13 +150,6 @@ fi
 # Packages
 _installPackages "${packages[@]}"
 
-# Flatpaks
-
-# Hyprland Settings App
-ml4w_app="com.ml4w.hyprlandsettings"
-ml4w_app_repo="hyprland-settings"
-echo ":: Installing $ml4w_app"
-bash -c "$(curl -s https://raw.githubusercontent.com/mylinuxforwork/$ml4w_app_repo/master/setup.sh)"
 
 # ----------------------------------------------------------
 # Completed

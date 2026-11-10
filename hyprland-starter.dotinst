@@ -6,7 +6,7 @@
 	"author": "Stephan Raabe",
 	"homepage": "https://github.com/mylinuxforwork/hyprland-starter",
 	"dependencies": "https://github.com/mylinuxforwork/hyprland-starter?tab=readme-ov-file#dependencies",
-	"source": "https://github.com/mylinuxforwork/hyprland-starter.git",
+	"source": "https://github.com/diablo-harmonz/dotfiles-hyprland.git",
 	"subfolder": "dotfiles",
 	"setupscript":"setup/setup.sh",
 	"restore":[

@@ -26,4 +26,3 @@ else
     echo "Start Hyprland with command Hyprland"
 fi
 
-alias ml4w-hyprland='~/.config/ml4w/apps/ML4W_Hyprland_Settings-x86_64.AppImage'
