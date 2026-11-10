@@ -25,6 +25,7 @@ packages=(
     "firefox"
     "ttf-font-awesome"
     "vim"
+    "zsh"
     "fastfetch"
     "ttf-fira-sans" 
     "ttf-fira-code" 

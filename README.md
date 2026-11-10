@@ -48,6 +48,16 @@ Please run the setup script offered by the Dotfiles Installer to install all dep
 
 > Hyprland does not officially support NVIDIA hardware. But many users have reported a successful installation. Please read: https://wiki.hyprland.org/Nvidia/
 
+## Symlink install (this fork)
+
+To use the configs straight from this repository (edits apply immediately), clone it and run:
+
+```
+setup/link-dotfiles.sh
+```
+
+It links `dotfiles/.zshrc`, every folder in `dotfiles/.config/` and the scripts in `bin/` into `$HOME`. Existing files are moved to `*.bak-<timestamp>` first. The Hyprland config uses the Lua format (`~/.config/hypr/hyprland.lua`).
+
 ## Documentation (Wiki)
 
 You can find the complete documentation of the ML4W Starter in the Wiki. <b>[Open the Wiki here](https://github.com/mylinuxforwork/hyprland-starter/wiki)</b>
