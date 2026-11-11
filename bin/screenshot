@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# screenshot: take a screenshot on Hyprland with grim/slurp.
+#   screenshot area   select a region  -> saved file + clipboard
+#   screenshot full   whole screen     -> saved file + clipboard
+#   screenshot edit   select a region  -> open in satty to annotate (save/copy from satty)
+# Files go to ~/Pictures/Screenshots. Press Esc while selecting to cancel.
+set -euo pipefail
+
+dir="$HOME/Pictures/Screenshots"
+mkdir -p "$dir"
+file="$dir/$(date +%F_%H-%M-%S).png"
+mode="${1:-area}"
+
+notify() { command -v notify-send >/dev/null && notify-send -a screenshot -i "$file" "$@" || true; }
+
+select_region() {
+    # slurp exits non-zero when the selection is cancelled
+    slurp || exit 0
+}
+
+case "$mode" in
+    area)
+        geom=$(select_region)
+        grim -g "$geom" "$file"
+        wl-copy --type image/png < "$file"
+        notify "Region captured" "$file (copied to clipboard)"
+        ;;
+    full)
+        grim "$file"
+        wl-copy --type image/png < "$file"
+        notify "Screen captured" "$file (copied to clipboard)"
+        ;;
+    edit)
+        geom=$(select_region)
+        grim -g "$geom" - | satty --filename - --output-filename "$file" --copy-command wl-copy --early-exit all
+        ;;
+    *)
+        echo "usage: screenshot [area|full|edit]" >&2
+        exit 2
+        ;;
+esac

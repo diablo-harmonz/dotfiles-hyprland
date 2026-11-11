@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# screenrec: start/stop screen recording on Hyprland with wf-recorder.
+#   screenrec area   select a region and start recording (run again to stop)
+#   screenrec full   record the whole screen (run again to stop)
+# Add "audio" as second argument to also record the default audio output:
+#   screenrec area audio
+# Files go to ~/Videos/Recordings as .mp4.
+set -euo pipefail
+
+notify() { command -v notify-send >/dev/null && notify-send -a screenrec "$@" || true; }
+
+# Second press: stop the running recording (SIGINT lets wf-recorder finish the file)
+if pgrep -x wf-recorder >/dev/null; then
+    pkill -INT -x wf-recorder
+    notify "Recording stopped" "Saved in ~/Videos/Recordings"
+    exit 0
+fi
+
+dir="$HOME/Videos/Recordings"
+mkdir -p "$dir"
+file="$dir/$(date +%F_%H-%M-%S).mp4"
+mode="${1:-area}"
+args=(-f "$file")
+[ "${2:-}" = "audio" ] && args+=(--audio)
+
+case "$mode" in
+    area)
+        geom=$(slurp) || exit 0   # Esc cancels
+        args+=(-g "$geom")
+        ;;
+    full) ;;
+    *)
+        echo "usage: screenrec [area|full] [audio]" >&2
+        exit 2
+        ;;
+esac
+
+notify "Recording started" "Press the shortcut again to stop"
+exec wf-recorder "${args[@]}"
