@@ -10,6 +10,7 @@
 -- Modules live in ./conf/*.lua and are loaded with require("conf.<name>")
 
 require("conf.monitor")
+require("conf.workspaces")
 require("conf.autostart")
 require("conf.cursor")
 require("conf.environments")

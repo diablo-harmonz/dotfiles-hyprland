@@ -52,6 +52,20 @@ normal() {   # $1 = output: on, own position, not mirrored
 output_off() {
     apply "hl.monitor({ output = \"$1\", disabled = true, mirror = \"\" })"
 }
+# Workspaces 6-10 belong to the external monitor (conf/workspaces.lua). A mirrored output
+# shows no workspaces of its own, so mirror mode moves them to the laptop and "extend"
+# moves them back. The laptop keeps showing the workspace it showed before.
+workspaces_to() {   # $1 = output
+    local keep i
+    keep=$(hyprctl monitors -j | jq -r --arg p "$PANEL" '.[] | select(.name == $p) | .activeWorkspace.id')
+    for i in 10 9 8 7 6; do
+        apply "hl.workspace_rule({ workspace = \"$i\", monitor = \"$1\", persistent = true, default = ($i == 6) })"
+        hyprctl dispatch "hl.dsp.workspace.move({ workspace = $i, monitor = \"$1\" })" >/dev/null
+    done
+    if [ -n "$keep" ] && [ "$keep" -le 5 ] 2>/dev/null; then
+        hyprctl dispatch "hl.dsp.focus({ workspace = $keep })" >/dev/null
+    fi
+}
 
 monitors=$(hyprctl monitors all -j)
 external=$(jq -r --arg p "$PANEL" '[.[] | select(.name != $p)][0].name // empty' <<<"$monitors")
@@ -114,6 +128,7 @@ set_mirror() {   # $1 = 1 to turn the external output off first (fresh frame buf
     fi
     apply "hl.monitor({ output = \"$external\", mode = \"$res\", position = \"auto\", scale = 1, disabled = false, mirror = \"$PANEL\" })"
     damage_tracking 0
+    workspaces_to "$PANEL"
 }
 
 case "$mode" in
@@ -132,6 +147,8 @@ case "$mode" in
         output_off "$external"
         sleep 1
         normal "$external"
+        sleep 1
+        workspaces_to "$external"
         notify "Extended display" "Laptop and $external are separate screens. Fn+F7: turn $external off"
         ;;
     off|restore-off)
