@@ -11,7 +11,7 @@ packages=(
     "gum"    
     "hyprland"
     "waybar"
-    "rofi-wayland"
+    "rofi"
     "wezterm"
     "yakuake"
     "dunst"

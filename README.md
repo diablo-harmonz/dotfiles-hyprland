@@ -24,7 +24,7 @@ Please run the setup script offered by the Dotfiles Installer to install all dep
 
 - hyprland
 - waybar
-- rofi-wayland
+- rofi (2.0+, includes Wayland support)
 - wezterm
 - yakuake
 - dunst
@@ -68,7 +68,7 @@ The script will install the following packages and the corresponding configurati
 
 - Window Manager: hyprland 
 - Status Bar: waybar 
-- Launcher: rofi-wayland 
+- Launcher: rofi
 - Browser: Firefox
 - Terminal: wezterm
 - Notification Service: dunst 
