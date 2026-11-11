@@ -159,6 +159,9 @@ fi
 # Packages
 _installPackages "${packages[@]}"
 
+# Pacman hook: check the Hyprland config after every Hyprland upgrade
+"$(dirname "$(realpath "$0")")/install-pacman-hooks.sh"
+
 
 # ----------------------------------------------------------
 # Completed

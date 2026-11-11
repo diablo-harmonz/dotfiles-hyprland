@@ -1,0 +1,13 @@
+# Installed to /etc/pacman.d/hooks/ by setup/install-pacman-hooks.sh.
+# After Hyprland is installed or upgraded, check every user's Hyprland config with the
+# new version, so a breaking change shows up before the next login, not as a black screen.
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = hyprland
+
+[Action]
+Description = Checking Hyprland configs with the new Hyprland version...
+When = PostTransaction
+Exec = /usr/local/lib/dotfiles-hyprland/hyprland-verify-config

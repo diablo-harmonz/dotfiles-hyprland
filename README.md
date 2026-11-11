@@ -58,6 +58,10 @@ setup/link-dotfiles.sh
 
 It links `dotfiles/.zshrc`, every folder in `dotfiles/.config/` and the scripts in `bin/` into `$HOME`. Existing files are moved to `*.bak-<timestamp>` first. The Hyprland config uses the Lua format (`~/.config/hypr/hyprland.lua`).
 
+### Pacman hook
+
+`setup/install-pacman-hooks.sh` (run by `setup/setup-arch.sh`, needs sudo) installs a hook that runs `Hyprland --verify-config` on every user's Hyprland config after each Hyprland install or upgrade, so a breaking change shows up in the pacman output instead of as a black screen at the next login. The hook script is copied root-owned to `/usr/local/lib/dotfiles-hyprland/`, because a root hook must never execute a file inside `$HOME`. Run the script again after editing `setup/pacman-hooks/`. To check by hand: `setup/pacman-hooks/hyprland-verify-config`.
+
 ## Documentation (Wiki)
 
 You can find the complete documentation of the ML4W Starter in the Wiki. <b>[Open the Wiki here](https://github.com/mylinuxforwork/hyprland-starter/wiki)</b>

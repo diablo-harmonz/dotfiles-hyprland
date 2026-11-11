@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# hyprland-verify-config: run `Hyprland --verify-config` on users' Hyprland configs.
+# Run by the pacman hook as root (installed root-owned to /usr/local/lib/dotfiles-hyprland/);
+# it checks every /home/*/.config/hypr/hyprland.lua (or .conf) as that user.
+# Run without root, it checks only the current user's config.
+# Never fails, so it can never block a pacman transaction.
+
+check() {   # $1 = user, $2 = home, $3 = config file
+    local user="$1" home="$2" cfg="$3" uid out
+    uid=$(id -u "$user")
+    if [ "$(id -u)" = 0 ]; then
+        out=$(cd / && timeout 60 runuser -u "$user" -- env HOME="$home" \
+            XDG_RUNTIME_DIR="/run/user/$uid" Hyprland --verify-config --config "$cfg" 2>&1)
+    else
+        out=$(cd / && timeout 60 Hyprland --verify-config --config "$cfg" 2>&1)
+    fi
+    # Keep only the result part of the output
+    out=$(sed -n '/Config parsing result/,$p' <<<"$out" | sed '/Config parsing result/d; /^$/d')
+    if grep -qx 'config ok' <<<"$out"; then
+        echo ":: Hyprland config OK for $user ($cfg)"
+    else
+        echo "==> WARNING: Hyprland $(Hyprland --version 2>/dev/null | head -1 | awk '{print $2}') reports problems in $user's config ($cfg):"
+        sed 's/^/    /' <<<"${out:-no result (verify-config failed to run)}"
+        echo "    Fix it before logging out, or roll back with a Timeshift snapshot."
+    fi
+}
+
+command -v Hyprland >/dev/null || exit 0
+
+if [ "$(id -u)" = 0 ]; then
+    for home in /home/*; do
+        for cfg in "$home/.config/hypr/hyprland.lua" "$home/.config/hypr/hyprland.conf"; do
+            if [ -e "$cfg" ]; then
+                check "$(stat -c %U "$home")" "$home" "$cfg"
+                break
+            fi
+        done
+    done
+else
+    for cfg in "$HOME/.config/hypr/hyprland.lua" "$HOME/.config/hypr/hyprland.conf"; do
+        [ -e "$cfg" ] && { check "$(id -un)" "$HOME" "$cfg"; break; }
+    done
+fi
+exit 0
