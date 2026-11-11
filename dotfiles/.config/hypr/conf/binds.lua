@@ -7,7 +7,6 @@ local function exec(cmd) return hl.dsp.exec_cmd(cmd) end
 
 -- Actions
 hl.bind(mainMod .. " + RETURN",         exec("wezterm"))                                                   -- Open WezTerm
-hl.bind("CTRL + SHIFT + down",          exec("qdbus6 org.kde.yakuake /yakuake/window toggleWindowState")) -- Toggle Yakuake drop-down
 hl.bind(mainMod .. " + Q",              hl.dsp.window.close())                                             -- Close current window
 hl.bind(mainMod .. " + M",              hl.dsp.exit())                                                     -- Exit Hyprland
 hl.bind(mainMod .. " + E",              exec("~/.config/ml4w/settings/filemanager.sh"))                    -- Opens the filemanager

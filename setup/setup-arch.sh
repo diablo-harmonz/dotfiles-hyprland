@@ -14,7 +14,6 @@ packages=(
     "rofi-wayland"
     "wezterm"
     "yakuake"
-    "qt6-tools"
     "dunst"
     "thunar"
     "xdg-desktop-portal-hyprland"

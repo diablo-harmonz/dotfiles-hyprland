@@ -70,7 +70,7 @@ The script will install the following packages and the corresponding configurati
 - Status Bar: waybar 
 - Launcher: rofi-wayland 
 - Browser: Firefox
-- Terminal: wezterm (Yakuake drop-down on Ctrl+Shift+Down)
+- Terminal: wezterm
 - Notification Service: dunst 
 - File Manager: Thunar
 - xdg-desktop-portal-hyprland 
