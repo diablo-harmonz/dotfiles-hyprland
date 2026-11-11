@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# powermode-notify: show a notification whenever the power profile changes.
+# The ThinkPad Fn+F8 (Mode) key switches low-power / balanced / performance in
+# firmware without sending any key event, so this watches power-profiles-daemon
+# on D-Bus instead. Started once from conf/autostart.lua.
+set -euo pipefail
+
+# Only one watcher per session
+exec 9>"${XDG_RUNTIME_DIR:-/tmp}/powermode-notify.lock"
+flock -n 9 || exit 0
+
+label() {
+    case "$1" in
+        power-saver) echo "Power saver" ;;
+        balanced)    echo "Balanced" ;;
+        performance) echo "Performance" ;;
+        *)           echo "$1" ;;
+    esac
+}
+
+gdbus monitor --system \
+    --dest org.freedesktop.UPower.PowerProfiles \
+    --object-path /org/freedesktop/UPower/PowerProfiles |
+while read -r line; do
+    profile=$(grep -oP "'ActiveProfile': <'\K[^']+" <<<"$line" || true)
+    [ -n "$profile" ] || continue
+    notify-send -a powermode -h string:x-dunst-stack-tag:powermode \
+        "Power mode: $(label "$profile")"
+done

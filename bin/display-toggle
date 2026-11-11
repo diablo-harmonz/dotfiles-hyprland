@@ -1,0 +1,156 @@
+#!/usr/bin/env bash
+# display-toggle: basic external monitor control for the laptop.
+#   display-toggle          Fn+F7: cycle mirror -> extended -> external off -> mirror ...
+#   display-toggle mirror   show the laptop screen on the external monitor
+#   display-toggle extend   back to normal, as when the monitor was plugged in
+#                           (laptop screen on, external monitor as a separate screen)
+#   display-toggle off      turn the external monitor off without unplugging it
+#                           (e.g. hide the screen from a projector for a moment)
+#   display-toggle replug   called by conf/monitor.lua when a monitor connects: if it only
+#                           dropped out for a moment, restore the mode that was active
+# Does nothing when no external monitor is plugged in. SUPER+CTRL+R (hyprctl reload)
+# also restores the normal layout.
+#
+# Notes (all found on a BenQ GW2790QT over HDMI with Hyprland 0.56):
+# - Hyprland keeps earlier monitor rule fields, so going back to normal needs an
+#   explicit `disabled = false` and `mirror = ""`.
+# - Leaving mirror mode in place keeps the output hidden from Wayland clients (hyprpaper
+#   then leaves it grey), so "extend" turns the external output off and on again.
+# - Mirrored outputs flicker with old frames when Hyprland redraws only the changed parts
+#   of the screen, so mirror mode turns damage tracking off (full redraw every frame, a
+#   little more power) and the other modes turn it back on. Mirror mode also turns the
+#   external output off first so it starts with fresh frame buffers.
+# - Mirroring screens of different shapes (laptop 16:10, monitor 16:9) leaves side bars, so
+#   mirror mode puts BOTH screens on the largest resolution they share with the external
+#   monitor's shape (e.g. 1920x1080); "extend" puts the laptop back on its own resolution.
+# - The monitor may drop the connection for a moment after a mode change. $BUSY (kept for
+#   10 s) makes conf/monitor.lua ignore our own changes; a real drop-out that comes back
+#   within 15 s is undone by "replug".
+set -euo pipefail
+
+PANEL="eDP-1"
+RUN="${XDG_RUNTIME_DIR:-/tmp}"
+STATE="$RUN/display-toggle.state"          # last mode chosen with this script
+BUSY="$RUN/display-toggle.busy"            # our own off/on must not trigger monitor.lua
+UNPLUGGED="$RUN/display-toggle.unplugged"  # time of the last real disconnect (monitor.lua)
+REPLUG_WINDOW=15
+mode="${1:-toggle}"
+
+notify() {
+    # dunst can crash when a notification is on screen while outputs change; restart it
+    pgrep -x dunst >/dev/null || { setsid -f dunst >/dev/null 2>&1; sleep 0.5; }
+    # never let a missing notification daemon block the script
+    timeout 3 notify-send -a display-toggle -h string:x-dunst-stack-tag:display-toggle "$@" || true
+}
+apply() { hyprctl eval "$1" >/dev/null; }
+damage_tracking() {   # 0 = full redraw every frame (mirror), 2 = Hyprland default
+    apply "hl.config({ debug = { damage_tracking = $1 } })"
+}
+normal() {   # $1 = output: on, own position, not mirrored
+    apply "hl.monitor({ output = \"$1\", mode = \"preferred\", position = \"auto\", scale = 1, disabled = false, mirror = \"\" })"
+}
+output_off() {
+    apply "hl.monitor({ output = \"$1\", disabled = true, mirror = \"\" })"
+}
+
+monitors=$(hyprctl monitors all -j)
+external=$(jq -r --arg p "$PANEL" '[.[] | select(.name != $p)][0].name // empty' <<<"$monitors")
+
+# --- replug: decide between "came back after a drop-out" and "newly plugged in" ---------
+if [ "$mode" = "replug" ]; then
+    last=$(cat "$STATE" 2>/dev/null || true)
+    gone=$(cat "$UNPLUGGED" 2>/dev/null || echo 0)
+    rm -f "$UNPLUGGED"
+    if [ -n "$external" ] && [ $(( $(date +%s) - gone )) -le "$REPLUG_WINDOW" ] &&
+       { [ "$last" = "mirror" ] || [ "$last" = "off" ]; }; then
+        mode="restore-$last"
+    else
+        rm -f "$STATE"   # newly plugged in: the Fn+F7 cycle starts at mirror
+        exit 0
+    fi
+fi
+
+if [ -z "$external" ]; then
+    notify "No external monitor" "Connect an external monitor first"
+    exit 0
+fi
+
+touch "$BUSY"
+
+if [ "$mode" = "toggle" ]; then
+    ext_disabled=$(jq -r --arg e "$external" '.[] | select(.name == $e) | .disabled' <<<"$monitors")
+    mirror_of=$(jq -r --arg e "$external" '.[] | select(.name == $e) | .mirrorOf' <<<"$monitors")
+    last=$(cat "$STATE" 2>/dev/null || true)
+    if [ "$ext_disabled" = "true" ]; then
+        mode=mirror
+    elif [ -n "$mirror_of" ] && [ "$mirror_of" != "none" ]; then
+        mode=extend
+    elif [ "$last" = "extend" ]; then
+        mode=off
+    else
+        mode=mirror   # freshly plugged in
+    fi
+fi
+
+mirror_resolution() {   # largest resolution both screens support with the external shape
+    jq -r --arg p "$PANEL" --arg e "$external" '
+        def sizes($n): [.[] | select(.name == $n) | .availableModes[] | sub("@.*"; "")] | unique;
+        ([.[] | select(.name == $e)][0]) as $m
+        | (if $m.disabled or $m.height == 0 then 16/9 else $m.width / $m.height end) as $ratio
+        | [ (sizes($p) - (sizes($p) - sizes($e)))[]
+            | split("x") | map(tonumber)
+            | select(((.[0] / .[1]) - $ratio | fabs) < 0.01) ]
+        | max_by(.[0] * .[1]) // empty | "\(.[0])x\(.[1])"' <<<"$monitors"
+}
+set_mirror() {   # $1 = 1 to turn the external output off first (fresh frame buffers)
+    res=$(mirror_resolution); res="${res:-preferred}"
+    local panel_rule="hl.monitor({ output = \"$PANEL\", mode = \"$res\", position = \"auto\", scale = 1, disabled = false, mirror = \"\" })"
+    if [ "$1" = 1 ]; then
+        # One call for both changes, so the laptop screen re-arranges only once
+        apply "$panel_rule; hl.monitor({ output = \"$external\", disabled = true, mirror = \"\" })"
+        sleep 1
+    else
+        apply "$panel_rule"
+    fi
+    apply "hl.monitor({ output = \"$external\", mode = \"$res\", position = \"auto\", scale = 1, disabled = false, mirror = \"$PANEL\" })"
+    damage_tracking 0
+}
+
+case "$mode" in
+    mirror)
+        set_mirror 1
+        notify "Mirrored display ($res)" "$external shows the laptop screen. Fn+F7: extend"
+        ;;
+    restore-mirror)
+        set_mirror 0   # no off/on here: that could make the monitor drop out again
+        mode=mirror
+        ;;
+    extend)
+        damage_tracking 2
+        normal "$PANEL"
+        # Off and on again so Wayland clients (wallpaper, bar) see the screen again
+        output_off "$external"
+        sleep 1
+        normal "$external"
+        notify "Extended display" "Laptop and $external are separate screens. Fn+F7: turn $external off"
+        ;;
+    off|restore-off)
+        damage_tracking 2
+        normal "$PANEL"   # make sure the laptop screen is on before turning the other one off
+        output_off "$external"
+        [ "$mode" = off ] && notify "External monitor off" "$external shows nothing, the cable stays plugged in. Fn+F7: mirror"
+        mode=off
+        ;;
+    *)
+        echo "usage: display-toggle [toggle|mirror|extend|off]" >&2
+        rm -f "$BUSY"
+        exit 2
+        ;;
+esac
+
+echo "$mode" > "$STATE"
+
+# Keep the busy mark until the monitor has settled (it may drop out briefly after a mode
+# change), and check dunst again in case it crashed a moment after the change
+( sleep 2; pgrep -x dunst >/dev/null || setsid -f dunst >/dev/null 2>&1
+  sleep 8; rm -f "$BUSY" ) >/dev/null 2>&1 &
