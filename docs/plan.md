@@ -16,7 +16,7 @@ Cập nhật lần cuối: Nov 12, 2026 · @diablo harmonz
 - Ctrl + L: gõ địa chỉ hoặc tìm kiếm; gõ `% ` rồi tên trang để tìm trong các tab đang mở
 - Alt + 1…8: tới tab thứ 1–8; Alt + 9: tab cuối (trên Linux là Alt, không phải Ctrl)
 - Ctrl + Tab / Ctrl + Shift + Tab: tab sau / tab trước; Ctrl + T / Ctrl + W: mở / đóng tab
-- Ctrl + Alt + Z: bật/tắt cột tab; rê chuột ra mép trái (cột tab) hoặc mép trên (thanh công cụ)
+- Cột tab chỉ hiện khi rê chuột ra mép trái (Ctrl + Alt + Z không mở được khi cột tab đang tự ẩn); thanh công cụ hiện khi rê lên mép trên hoặc Ctrl + L
 - SUPER + S (ngoài Firefox): tìm nhanh trên web hoặc mở địa chỉ trong Firefox
 
 ## Tình trạng hiện tại
