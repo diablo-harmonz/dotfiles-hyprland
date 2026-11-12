@@ -16,7 +16,7 @@ is_on() { systemctl --user is-active --quiet "$UNIT"; }
 
 refresh_waybar() { pkill -RTMIN+"$WAYBAR_SIGNAL" -x waybar || true; }
 
-dpms() { hyprctl eval "hl.dispatch(hl.dsp.dpms(\"$1\"))" >/dev/null; }
+dpms() { "$HOME/.local/bin/dpms" "$1"; }
 
 case "${1:-toggle}" in
     toggle)

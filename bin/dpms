@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# dpms on|off: turn the screens on or off, only when that changes something.
+# hl.dsp.dpms() in Hyprland 0.56's Lua API was seen acting like a toggle: a "dpms on"
+# sent while the screen was already on (woken by a key press after resume) switched it
+# off again. Checking the current state first is correct whichever way it behaves.
+# Uses $HYPRLAND_INSTANCE_SIGNATURE, so it can target another session from a TTY.
+set -uo pipefail
+
+want="${1:-}"
+case "$want" in on|off) ;; *) echo "usage: dpms on|off" >&2; exit 2 ;; esac
+
+# true if any monitor is off (for "on") / on (for "off")
+if [ "$want" = on ]; then
+    filter='any(.[]; .dpmsStatus == false)'
+else
+    filter='any(.[]; .dpmsStatus == true)'
+fi
+hyprctl monitors -j 2>/dev/null | jq -e "$filter" >/dev/null || exit 0
+hyprctl dispatch "hl.dsp.dpms(\"$want\")" >/dev/null 2>&1

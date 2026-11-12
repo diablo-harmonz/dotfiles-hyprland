@@ -5,6 +5,12 @@
 
 Cập nhật lần cuối: Nov 12, 2026 · @diablo harmonz
 
+## Khi màn hình đen sau khi khóa hoặc mở máy
+
+1. Bấm **SUPER + CTRL + L**: bật lại màn hình và màn khóa (chạy được cả khi đang khóa). Nhập mật khẩu như bình thường.
+2. Nếu vẫn đen: **Ctrl + Alt + F3**, đăng nhập. Máy tự hỏi "Restore its lock screen now?", bấm **y**. Rồi **Ctrl + Alt + F1** và nhập mật khẩu.
+3. Không mở thêm Hyprland ở TTY khác. Nếu vẫn không được: chụp `journalctl --user -t hypridle --since "-1h" | tail -30` rồi mới khởi động lại máy.
+
 ## Tình trạng hiện tại
 
 Manjaro KDE đã cài xong và chạy ổn; Hyprland đang chạy thử trên Manjaro bằng repo dotfiles-hyprland; bộ cài Arch trong repo đã đủ gói và cấu hình (2026-11-12), còn lại phần mềm công việc và sao lưu.

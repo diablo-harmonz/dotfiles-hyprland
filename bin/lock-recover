@@ -23,9 +23,11 @@ restart_in() {   # $1 = Hyprland instance signature; only acts if that session i
     [ -n "$pids" ] || return 1
     HYPRLAND_INSTANCE_SIGNATURE="$sig" hyprctl eval \
         'hl.config({ misc = { allow_session_lock_restore = true } })' >/dev/null 2>&1
-    HYPRLAND_INSTANCE_SIGNATURE="$sig" hyprctl dispatch 'hl.dsp.dpms("on")' >/dev/null 2>&1
+    HYPRLAND_INSTANCE_SIGNATURE="$sig" "$HOME/.local/bin/dpms" on
+    # Between the old hyprlock leaving and the new one locking, Hyprland briefly shows its
+    # "lockscreen died" page; keep that gap short
     kill $pids 2>/dev/null
-    sleep 0.5
+    sleep 0.1
     kill -9 $pids 2>/dev/null   # a hung hyprlock ignores SIGTERM
     HYPRLAND_INSTANCE_SIGNATURE="$sig" hyprctl dispatch 'hl.dsp.exec_cmd("hyprlock")' >/dev/null 2>&1 \
         && echo ":: hyprlock restarted in the locked session $sig"

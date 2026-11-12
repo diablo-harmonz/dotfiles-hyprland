@@ -15,7 +15,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("nm-applet --indicator")
     hl.exec_cmd("blueman-applet")
     -- Idle: dim, lock, screens off, suspend on battery (hypridle.conf)
-    hl.exec_cmd("hypridle")
+    hl.exec_cmd("systemd-cat -t hypridle hypridle")   -- log: journalctl --user -t hypridle
     -- Night light (hyprsunset.conf)
     hl.exec_cmd("hyprsunset")
     -- Notify on power mode changes (Fn+F8 switches it in firmware, no key event)

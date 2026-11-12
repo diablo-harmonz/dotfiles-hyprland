@@ -1,0 +1,11 @@
+/* Own tweaks on top of FF Ultima (it imports this file; theme files stay unchanged).
+   The translucent window background itself is set in matugen-ultima.css
+   (--uc-browser-color), with browser.tabs.allow_transparent_browser in user.js. */
+
+/* Keep the first tab away from the top edge, where the pointer reveals the
+   auto-hidden toolbar */
+/* #vertical-tabs holds the pinned tabs and the normal tabs; more specific than FF Ultima's
+   own rules so its layout cannot override it */
+:root #browser #sidebar-main #vertical-tabs {
+    padding-top: 14px !important;
+}

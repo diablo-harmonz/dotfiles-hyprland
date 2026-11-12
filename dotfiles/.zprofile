@@ -3,6 +3,14 @@
 # to PATH in /etc/profile.d, plain Arch does not, so add it here for TTY logins too.
 [[ ":$PATH:" == *":$HOME/.local/bin:"* ]] || export PATH="$HOME/.local/bin:$PATH"
 
+# Logging in on another console while Hyprland's lock screen is stuck (black screen):
+# offer the fix right away, so nobody has to remember the lock-recover command.
+if [[ $(tty) == /dev/tty[2-9] ]] && pgrep -x hyprlock >/dev/null; then
+  print "\nA Hyprland session is locked (maybe a black lock screen)."
+  read -q "?Restore its lock screen now? [y/N] " && { print; lock-recover; print "Now press Ctrl+Alt+F1 (or the console Hyprland runs on) and unlock."; }
+  print
+fi
+
 # After logging in on the first console (TTY1), start Hyprland.
 # There is no display manager: log in with user + password on the black screen,
 # Hyprland starts, and quitting it (SUPER+M) returns to the login prompt.
