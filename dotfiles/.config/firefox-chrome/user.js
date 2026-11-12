@@ -19,6 +19,12 @@ user_pref("sidebar.verticalTabs", true);
 user_pref("sidebar.visibility", "always-show");
 user_pref("browser.tabs.allow_transparent_browser", false);
 
+// Touchpad: two-finger horizontal swipe goes back / forward (three fingers stay Hyprland's
+// workspace swipe)
+user_pref("widget.disable-swipe-tracker", false);
+user_pref("browser.gesture.swipe.left", "Browser:BackOrBackDuplicate");
+user_pref("browser.gesture.swipe.right", "Browser:ForwardOrForwardDuplicate");
+
 // Privacy: no usage data sent to Mozilla, no studies, no sponsored content.
 // (Ads and trackers on websites are a job for an extension such as uBlock Origin.)
 user_pref("datareporting.healthreport.uploadEnabled", false);
