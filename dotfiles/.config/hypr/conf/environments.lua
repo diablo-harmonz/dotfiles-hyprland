@@ -12,6 +12,13 @@ hl.env("QT_AUTO_SCREEN_SCALE_FACTOR", "1")
 -- GTK
 hl.env("GDK_SCALE", "1")
 
+-- Input method (fcitx5 + Lotus)
+-- GTK_IM_MODULE stays unset: native Wayland GTK apps use text-input-v3.
+hl.env("XMODIFIERS", "@im=fcitx")          -- XWayland apps
+hl.env("QT_IM_MODULE", "fcitx")            -- Qt 5
+hl.env("QT_IM_MODULES", "wayland;fcitx")   -- Qt 6.7+
+hl.env("SDL_IM_MODULE", "fcitx")
+
 -- Mozilla
 hl.env("MOZ_ENABLE_WAYLAND", "1")
 

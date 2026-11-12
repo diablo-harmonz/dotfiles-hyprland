@@ -41,6 +41,12 @@ packages=(
     "networkmanager"
     "wireplumber"
     "wlogout"
+    "fcitx5"
+    "fcitx5-gtk"
+    "fcitx5-qt"
+    "fcitx5-configtool"
+    "fcitx5-lotus"
+    "fcitx5-bamboo"
 )
 
 # ----------------------------------------------------------
@@ -158,6 +164,9 @@ fi
 
 # Packages
 _installPackages "${packages[@]}"
+
+# Lotus input method: its uinput server sends the backspaces that fix Vietnamese marks
+sudo systemctl enable --now "fcitx5-lotus-server@$USER.service"
 
 # Pacman hook: check the Hyprland config after every Hyprland upgrade
 "$(dirname "$(realpath "$0")")/install-pacman-hooks.sh"

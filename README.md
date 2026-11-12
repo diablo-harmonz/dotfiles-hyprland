@@ -45,6 +45,9 @@ Please run the setup script offered by the Dotfiles Installer to install all dep
 - brightnessctl
 - networkmanager
 - wireplumber
+- fcitx5, fcitx5-gtk, fcitx5-qt, fcitx5-configtool
+- fcitx5-lotus (AUR; then `sudo systemctl enable --now fcitx5-lotus-server@$USER.service`)
+- fcitx5-bamboo (fallback input method)
 
 > Hyprland does not officially support NVIDIA hardware. But many users have reported a successful installation. Please read: https://wiki.hyprland.org/Nvidia/
 
