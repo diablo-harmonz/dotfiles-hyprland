@@ -13,10 +13,11 @@ user_pref("widget.gtk.ignore-bogus-leave-notify", 1);
 // FF Ultima centres the address bar in the toolbar.
 user_pref("sidebar.revamp", true);
 user_pref("sidebar.verticalTabs", true);
-// Collapsed to a narrow strip of tab icons, expanded (with titles) while hovered
-user_pref("sidebar.visibility", "expand-on-hover");
-// Let the window be translucent (customChrome.css makes the tab sidebar see-through)
-user_pref("browser.tabs.allow_transparent_browser", true);
+// Sidebar shown normally; FF Ultima's tabs.autohide hides it until the pointer reaches
+// the left edge. (Tried and dropped: an always-visible icon strip that expands on hover,
+// and a translucent window background.)
+user_pref("sidebar.visibility", "always-show");
+user_pref("browser.tabs.allow_transparent_browser", false);
 
 // Privacy: no usage data sent to Mozilla, no studies, no sponsored content.
 // (Ads and trackers on websites are a job for an extension such as uBlock Origin.)
@@ -48,9 +49,9 @@ user_pref("extensions.pocket.enabled", false);
 user_pref("browser.discovery.enabled", false);
 user_pref("extensions.htmlaboutaddons.recommendations.enabled", false);
 
-// Changed from FF Ultima's defaults, in place below: navbar.autohide and bookmarks.autohide
-// are on (they show when the pointer reaches the top edge); tabs.autohide stays off so the
-// tab icon strip is always visible; sidebery.autohide is off (no Sidebery here).
+// Changed from FF Ultima's defaults, in place below: navbar.autohide, tabs.autohide and
+// bookmarks.autohide are on (they show when the pointer reaches the top or left edge);
+// sidebery.autohide is off, since it disables the autohide of Firefox's own vertical tabs.
 // FF Ultima settings, as in its recommended user.js (dev/docs/user.js, commit 73129fa).
 // Left out on purpose: its devtools.* prefs (remote debugging without a prompt) and the
 // Windows/macOS-only widget prefs.
@@ -121,7 +122,7 @@ user_pref("ultima.sidebery.autohide.120px", false);
 user_pref("ultima.sidebery.expandon.inactive-windows", false);
 user_pref("ultima.findbar.position.top", false);
 user_pref("ultima.findbar.disable.background.image", false);
-user_pref("ultima.tabs.autohide", false);
+user_pref("ultima.tabs.autohide", true);
 user_pref("ultima.spacing.tabs.compact", false);
 user_pref("ultima.tabs.remove.shadows", false);
 user_pref("ultima.tabs.not.a.progress.bar", true);
