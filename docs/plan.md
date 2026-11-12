@@ -11,6 +11,14 @@ Cập nhật lần cuối: Nov 12, 2026 · @diablo harmonz
 2. Nếu vẫn đen: **Ctrl + Alt + F3**, đăng nhập. Máy tự hỏi "Restore its lock screen now?", bấm **y**. Rồi **Ctrl + Alt + F1** và nhập mật khẩu.
 3. Không mở thêm Hyprland ở TTY khác. Nếu vẫn không được: chụp `journalctl --user -t hypridle --since "-1h" | tail -30` rồi mới khởi động lại máy.
 
+## Phím tắt Firefox (thanh công cụ và cột tab đang tự ẩn)
+
+- Ctrl + L: gõ địa chỉ hoặc tìm kiếm; gõ `% ` rồi tên trang để tìm trong các tab đang mở
+- Alt + 1…8: tới tab thứ 1–8; Alt + 9: tab cuối (trên Linux là Alt, không phải Ctrl)
+- Ctrl + Tab / Ctrl + Shift + Tab: tab sau / tab trước; Ctrl + T / Ctrl + W: mở / đóng tab
+- Ctrl + Alt + Z: bật/tắt cột tab; rê chuột ra mép trái (cột tab) hoặc mép trên (thanh công cụ)
+- SUPER + S (ngoài Firefox): tìm nhanh trên web hoặc mở địa chỉ trong Firefox
+
 ## Tình trạng hiện tại
 
 Manjaro KDE đã cài xong và chạy ổn; Hyprland đang chạy thử trên Manjaro bằng repo dotfiles-hyprland; bộ cài Arch trong repo đã đủ gói và cấu hình (2026-11-12), còn lại phần mềm công việc và sao lưu.
