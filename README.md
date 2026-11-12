@@ -63,6 +63,19 @@ setup/link-dotfiles.sh
 
 It links `dotfiles/.zshrc`, every folder in `dotfiles/.config/` and the scripts in `bin/` into `$HOME`. Existing files are moved to `*.bak-<timestamp>` first. The Hyprland config uses the Lua format (`~/.config/hypr/hyprland.lua`).
 
+## Installing Arch (boot inside the encrypted root)
+
+archinstall: profile Minimal, **bootloader GRUB**, btrfs with the default subvolumes, LUKS,
+EFI partition at `/boot` (default), NetworkManager, pipewire. When it offers to chroot into
+the new system, say yes, clone this repo there and run `setup/arch-boot-in-root.sh`: it moves
+the kernel into the encrypted root (EFI partition to `/boot/efi`), converts the LUKS slots to
+PBKDF2 for GRUB, adds a keyfile so the passphrase is typed once, and checks the result. Like
+the Manjaro install, every Timeshift snapshot then contains the kernel, so rollbacks and
+booting snapshots from the GRUB menu (grub-btrfs) work across kernel updates.
+
+After the first boot: `setup/setup-arch.sh` (packages, services, Timeshift, first snapshot)
+and `setup/link-dotfiles.sh`.
+
 ## Login
 
 No display manager: log in on the console (TTY1) and `~/.zprofile` runs `start-hyprland`.

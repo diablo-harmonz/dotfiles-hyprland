@@ -67,6 +67,14 @@ packages=(
     "papirus-icon-theme"
     "noto-fonts"
     "smartmontools"
+    "btop"
+    "htop"
+    "zram-generator"
+    "timeshift"
+    "timeshift-autosnap"
+    "grub-btrfs"
+    "inotify-tools"
+    "cronie"
     "adw-gtk-theme"
     "breeze-cursors"
     "xdg-user-dirs"
@@ -262,6 +270,10 @@ echo ':: VS Code: after its first start, add "password-store": "gnome-libsecret"
 
 # Pacman hook: check the Hyprland config after every Hyprland upgrade
 "$(dirname "$(realpath "$0")")/install-pacman-hooks.sh"
+
+# First Timeshift snapshot of the finished setup (timeshift-autosnap adds one before
+# every pacman upgrade from now on)
+sudo timeshift --create --comments "Fresh Arch + Hyprland setup" --tags O
 
 
 # ----------------------------------------------------------

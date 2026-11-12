@@ -3,6 +3,9 @@
 #   - udev rule: battery charge thresholds 75/80 (setup/system/)
 #   - PAM: unlock gnome-keyring with the login password, for the display manager
 #     in use (sddm, greetd or the plain console login) and for password changes
+#   - zram swap (half the RAM, zstd)
+#   - Timeshift (btrfs): daily 5, weekly 3, /home excluded; grub-btrfsd keeps the GRUB
+#     snapshot menu up to date; cronie runs the schedule
 set -euo pipefail
 DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -43,3 +46,34 @@ else
 fi
 # Keep the keyring password in sync when the login password changes
 pam_add /etc/pam.d/passwd password "use_authtok"
+
+# --- zram ---
+if [ ! -f /etc/systemd/zram-generator.conf ]; then
+    sudo install -D -m 644 "$DIR/system/zram-generator.conf" /etc/systemd/zram-generator.conf
+    sudo systemctl daemon-reload
+    sudo systemctl start systemd-zram-setup@zram0.service || true
+fi
+echo ":: zram: $(zramctl --noheadings --output NAME,DISKSIZE,ALGORITHM 2>/dev/null | tr -s ' ' || echo none)"
+
+# --- Timeshift + GRUB snapshot menu ---
+if command -v timeshift >/dev/null; then
+    if [ ! -f /etc/timeshift/timeshift.json ]; then
+        # backup device = the btrfs filesystem of /, parent = the LUKS partition under it
+        fs_uuid=$(findmnt -no UUID /)
+        root_dev=$(findmnt -no SOURCE / | sed 's/\[.*//')
+        parent_uuid=""
+        if crypt_dev=$(sudo cryptsetup status "$(basename -- "$root_dev")" 2>/dev/null | awk '$1 == "device:" {print $2}') && [ -n "$crypt_dev" ]; then
+            parent_uuid=$(sudo blkid -s UUID -o value "$crypt_dev")
+        fi
+        sudo install -d -m 755 /etc/timeshift
+        sed -e "s/@FS_UUID@/$fs_uuid/" -e "s/@PARENT_UUID@/$parent_uuid/" \
+            "$DIR/system/timeshift.json" | sudo tee /etc/timeshift/timeshift.json >/dev/null
+        echo ":: Timeshift configured for $fs_uuid"
+    else
+        echo ":: ok       /etc/timeshift/timeshift.json"
+    fi
+    sudo install -D -m 644 "$DIR/system/grub-btrfsd.service.d/timeshift.conf" \
+        /etc/systemd/system/grub-btrfsd.service.d/timeshift.conf
+    sudo systemctl daemon-reload
+    sudo systemctl enable --now cronie.service grub-btrfsd.service
+fi
