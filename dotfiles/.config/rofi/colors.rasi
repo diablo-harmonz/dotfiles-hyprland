@@ -1,0 +1,14 @@
+/*
+ * Rofi colors, picked from the current wallpaper (dark brown + amber).
+ * Kept in its own file so a generator (e.g. Matugen) can replace it later.
+ */
+* {
+    bg:           #1c1410f2;   /* window */
+    surface:      #2e211aff;   /* search box, buttons */
+    border:       #aa5d25ff;
+    primary:      #d79d42ff;   /* selected item, active mode */
+    on-primary:   #1c1410ff;   /* text on primary */
+    text:         #eae9ecff;
+    text-muted:   #b7a8a1ff;
+    urgent:       #c94f3dff;
+}

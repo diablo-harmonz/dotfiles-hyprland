@@ -12,7 +12,7 @@ hl.bind(mainMod .. " + M",              hl.dsp.exit())                          
 hl.bind(mainMod .. " + E",              exec("~/.config/ml4w/settings/filemanager.sh"))                    -- Opens the filemanager
 hl.bind(mainMod .. " + T",              hl.dsp.window.float({ action = "toggle" }))                        -- Toggle tiling/floating
 hl.bind(mainMod .. " + F",              hl.dsp.window.fullscreen())                                        -- Fullscreen
-hl.bind(mainMod .. " + CTRL + RETURN",  exec("rofi -show drun"))                                           -- Open rofi
+hl.bind(mainMod .. " + SPACE",          exec("rofi -show drun"))                                           -- Open rofi (app launcher)
 hl.bind(mainMod .. " + P",              hl.dsp.window.pseudo())                                            -- dwindle
 hl.bind(mainMod .. " + J",              hl.dsp.layout("togglesplit"))                                      -- dwindle
 hl.bind(mainMod .. " + B",              exec("~/.config/ml4w/settings/browser.sh"))                        -- Opens the browser
