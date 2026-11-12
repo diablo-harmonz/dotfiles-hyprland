@@ -13,7 +13,7 @@ packages=(
     "rofi-wayland"
     "kitty"
     "dunst"
-    "Thunar"
+    "nautilus"
     "xdg-desktop-portal-hyprland"
     "qt5-qtwayland"
     "qt6-qtwayland"

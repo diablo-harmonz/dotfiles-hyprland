@@ -16,7 +16,7 @@ packages=(
     "rofi-wayland"
     "kitty"
     "dunst"
-    "thunar"
+    "nautilus"
     "xdg-desktop-portal-hyprland"
     "libqt5-qtwayland"
     "qt6-wayland"

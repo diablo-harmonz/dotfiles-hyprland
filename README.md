@@ -28,7 +28,7 @@ Please run the setup script offered by the Dotfiles Installer to install all dep
 - wezterm
 - yakuake
 - dunst
-- thunar
+- nautilus, nautilus-open-any-terminal
 - xdg-desktop-portal-hyprland
 - qt5-wayland
 - qt6-wayland

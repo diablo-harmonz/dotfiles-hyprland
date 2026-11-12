@@ -15,7 +15,8 @@ packages=(
     "wezterm"
     "yakuake"
     "dunst"
-    "thunar"
+    "nautilus"
+    "nautilus-open-any-terminal"
     "xdg-desktop-portal-hyprland"
     "qt5-wayland"
     "qt6-wayland"
@@ -169,6 +170,9 @@ _installPackages "${packages[@]}"
 
 # Lotus input method: its uinput server sends the backspaces that fix Vietnamese marks
 sudo systemctl enable --now "fcitx5-lotus-server@$USER.service"
+
+# Nautilus: "Open in Terminal" opens WezTerm
+gsettings set com.github.stunkymonkey.nautilus-open-any-terminal terminal wezterm
 
 # Pacman hook: check the Hyprland config after every Hyprland upgrade
 "$(dirname "$(realpath "$0")")/install-pacman-hooks.sh"
