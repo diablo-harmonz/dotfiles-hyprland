@@ -1,0 +1,113 @@
+/*///////////////////////////////////////////////////////////////////////////////////////\
+
+FF Ultima:         https://github.com/soulhotel/FF-ULTIMA
+File Desc:         Sidebar & Sidebery Settings
+
+note: sidebar  -  refers to all sidebars  (including sidebery) (not vertical tabs)
+note: sidebery -  refers to only sidebery (not other sidebars) (not vertical tabs)
+
+sidebar hide new header
+sidebar Seperator
+
+\////////////////////////////////////////////////////////////////////////////////////////*/
+
+/* sidebar hide new header -------------------------------------------------------------- */
+
+@media -moz-pref("ultima.sidebar.hide.header") {
+    #sidebar-panel-header {
+      display: none !important;
+    }
+}
+
+/* sidebar autohide --------------------------------------------------------------------- */
+
+@media (-moz-pref("ultima.sidebar.autohide")) {
+    :root:has(#sidebar-box[checked]) {   
+        /* preserve sidebar spacing */
+        --sb-autohide-preserved-width: 40px; /* < collapsed width */
+        @media -moz-pref("ultima.sidebar.autohide.4px") {
+            --sb-autohide-preserved-width: 4px !important;
+        }
+        @media -moz-pref("ultima.sidebar.autohide.120px") {
+            --sb-autohide-preserved-width: 120px !important;
+        }
+        #sidebar-box {
+            min-width: var(--sb-autohide-preserved-width) !important;
+        }
+        /* we wont overlay the sidebar - because tracking varius vt widths is complex. */
+        /*transitions*/
+        #sidebar-box:hover {
+            transition: width ease 0.2s !important;
+        }
+        #sidebar-box:not(:hover) {
+            transition: width ease 0.3s !important;
+        }
+        /*autohide*/
+        &:has(#sidebar-box:not(:hover))
+        :has(#sidebar-splitter:not(:hover))
+        :has(#sidebar-splitter:not([state="dragging"]))
+        {
+            #sidebar-box {
+                width: var(--sb-autohide-preserved-width) !important;
+                &::before {opacity: 0.4; transition: opacity ease 1s 0.8s !important;}
+            }
+        }
+        /*additional styling for 4px sidebar*/
+        @media -moz-pref("ultima.sidebar.autohide.4px") {
+            #sidebar-box::before {
+                content:"";
+                position: fixed;
+                inset: 0;
+                inset-block: 55px;
+                z-index: 1;
+                background: red;
+                border-radius: 10px;
+                background-color: transparent;
+                pointer-events: none;
+                opacity: 0.4;
+            }
+            &:has(#sidebar-box:not(:hover))
+            :has(#sidebar-splitter:not(:hover))
+            :has(#sidebar-splitter:not([state="dragging"])) {
+                #sidebar-box:not(:hover) {
+                    & * { opacity: 0 !important; }
+                    &::before {
+                        background-color: var(--uc-accent-color-2);
+                        transition: background-color 0.3s ease !important;
+                    }
+                }              
+            }
+        }
+    }
+}
+
+
+
+/* sidebar hide new header -------------------------------------------------------------- */
+
+@media -moz-pref("ultima.sidebar.width.unlocked") {
+    #sidebar-box {
+      min-width: 40px !important;
+      max-width: 90vw !important;
+    }
+}
+
+/* sidebar Seperator --------------------------------------------------------------------*/
+
+@media -moz-pref("ultima.sidebar.separator") {
+    /*vert tabs left, sidebar right*/
+    #sidebar-box[checked="true"]:not([sidebar-positionend]) {
+        order: 7 !important;
+        ~ #sidebar-splitter {
+            order:6 !important;
+        }
+    }
+    
+    /*vert tabs right, sidebar left*/
+    #sidebar-box[checked="true"][sidebar-positionend] {
+        order: 1 !important; 
+        ~ #sidebar-splitter {
+            order: 2 !important;
+        }
+    }
+}

@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# firefox-theme: link this repo's Firefox look into the default Firefox profile.
+#   <profile>/user.js -> ~/.config/firefox-chrome/user.js     (vertical tabs, compact, dark)
+#   <profile>/chrome  -> ~/.config/firefox-chrome             (userChrome.css + colors.css)
+# Existing files are renamed to *.bak-<time>. Restart Firefox afterwards.
+# Safe to run again. Firefox must have been started once so that the profile exists.
+set -euo pipefail
+
+SRC="$HOME/.config/firefox-chrome"
+for base in "$HOME/.mozilla/firefox" "$HOME/.config/mozilla/firefox"; do
+    [ -f "$base/installs.ini" ] && break
+done
+[ -f "$base/installs.ini" ] || { echo "No Firefox profile found: start Firefox once first." >&2; exit 1; }
+profile="$base/$(awk -F= '$1 == "Default" {print $2; exit}' "$base/installs.ini")"
+[ -d "$profile" ] || { echo "Profile not found: $profile" >&2; exit 1; }
+[ -d "$SRC" ] || { echo "Missing $SRC: run setup/link-dotfiles.sh first." >&2; exit 1; }
+
+stamp=$(date +%Y%m%d-%H%M%S)
+link() {   # $1 = target, $2 = link
+    if [ -L "$2" ] && [ "$(readlink -- "$2")" = "$1" ]; then echo ":: ok       $2"; return; fi
+    if [ -e "$2" ] || [ -L "$2" ]; then mv -- "$2" "$2.bak-$stamp"; echo ":: backup   $2.bak-$stamp"; fi
+    ln -s -- "$1" "$2"; echo ":: linked   $2"
+}
+link "$SRC/user.js" "$profile/user.js"
+link "$SRC" "$profile/chrome"
+
+# Colors for the current wallpaper, if none were generated yet
+[ -f "$SRC/colors.css" ] || matugen image "$(readlink -f "$HOME/.cache/wallpaper/current")" \
+    --mode dark --source-color-index 0 >/dev/null 2>&1 || true
+
+pgrep -x firefox >/dev/null && echo ":: Firefox is running: restart it to apply." || true

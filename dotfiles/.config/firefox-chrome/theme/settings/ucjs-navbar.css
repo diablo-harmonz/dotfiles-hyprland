@@ -1,0 +1,288 @@
+/*///////////////////////////////////////////////////////////////////////////////////////\
+
+FF Ultima:         https://github.com/soulhotel/FF-ULTIMA
+File Desc:         Nav Bar & Top Bar Settings - specific to userChromeJS
+
+ffu.navbar.menu
+ffu.navbar.unified
+
+\////////////////////////////////////////////////////////////////////////////////////////*/
+
+/*  ffu.navbar.menu - navbar styles menu button/panel */
+
+.navbar-menu-container {
+    display: flex;
+    flex-direction: column;
+    --menu-gap: 4px;
+    gap: var(--menu-gap);
+}
+.navbar-menu-header {
+    font-size: 1rem;
+    text-align: center;
+    padding-block: 0 12px;
+    margin-block: 0 var(--menu-gap);
+    border-bottom: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+}
+.navbar-menu-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--menu-gap);
+}
+.navbar-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+}
+.navbar-card:hover {
+    background: var(--button-background-color-menu-hover);
+}
+.navbar-card.selected {
+    background: var(--button-background-color-menu-hover);
+}
+.navbar-preview {
+    position: relative;
+    width: 96px;
+    height: 60px;
+    zoom: 0.7;
+    border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+    border-radius: 6px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+.navbar-bar {
+    position: absolute;
+    height: 7px;
+    top: 7px;
+    border: 1px solid currentColor;
+    box-sizing: border-box;
+}
+.navbar-bar.autohide {
+    inset-inline: 6px;
+    border-radius: 4px;
+}
+.navbar-bar.default {
+    inset: 0 0 auto 0;
+    height: 10px;
+    border: none;
+    border-bottom: 1px solid color-mix(in srgb, currentColor 45%, transparent);
+    border-radius: 0;
+}
+.navbar-bar.pill {
+    border-radius: 999px;
+}
+.navbar-sidebar {
+    position: absolute;
+    inset: 5px 5px 5px;
+    width: 24px;
+    border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+.navbar-sidebar-bar {
+    position: absolute;
+    inset: 4px 4px auto 4px;
+    height: 1px;
+    background: currentColor;
+    border-radius: 1px;
+}
+.navbar-arrow {
+    position: absolute;
+    top: 22px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+/*
+ffu.navbar.unified - a Zen(?) style navbar that sits on top of the Vertical Tab Bar.
+on ucjs side, we basically move the entire nav bar into a custom #ultima-unified-navbar element
+placed inside of #sidebar-container, styled here
+*/
+
+@media (-moz-pref("ffu.navbar.unified")) {
+    :root[ultima-navbar-unified]:not([customizing]) {
+        /* allow dragging from the empty toolbox & collapse height when not hovered */
+        #navigator-toolbox {
+            -moz-window-dragging: drag;
+        }
+        /* nav bar height untracked */
+        --uc-navbar-height: 0px !important;
+        /* navigator toolbox 2px minimum to blend in with browser borders */
+        @media not (-moz-pref("ultima.spacing.compact")) {
+            #navigator-toolbox {
+                min-height: 2px !important;
+            }            
+        }
+        /* nav bar already draggable, but less empty space conflicts with drag space, buttons can also allow drag */
+        #nav-bar {
+            toolbarbutton, toolbaritem {
+                -moz-window-dragging: drag;
+            }
+        }
+        /* container baseline */
+        #sidebar-container {
+            position: relative;
+        }
+        #ultima-unified-navbar {
+            position: absolute;
+            top: 0;
+            inset-inline-start: 0;
+            width: var(--ultima-sidebar-width);
+            z-index: 1;
+            padding-block: 4px;
+            padding-inline: 4px;
+        }
+        #nav-bar-customization-target {
+            padding-inline: 4px;
+        }
+        #sidebar-container sidebar-main {
+            box-sizing: border-box;
+            padding-top: var(--ultima-navbar-height); /* tracked in ucjs */
+        }
+    }
+    
+    /* custom navbar adjustments */
+    #ultima-unified-navbar > #nav-bar {
+        position: relative;
+        width: 100%;
+        box-sizing: border-box;
+        padding-bottom: calc(var(--urlbar-min-height, 32px) + 12px) !important;
+    }
+
+    /* buttons */
+    #ultima-unified-navbar #nav-bar-customization-target {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        flex: 1 1 0;
+        min-width: 0;
+        align-items: center;
+        overflow-x: clip;
+        overflow-y: visible;
+    }
+    #ultima-unified-navbar #nav-bar-customization-target > :not(#urlbar-container) {
+        flex: none !important;
+    }
+    #nav-bar-customization-target  > :is(toolbarbutton:first-child, toolbaritem:first-child) {
+        padding-inline-start: 0 !important;
+    }
+    
+    /* overflow menu */
+    #widget-overflow[position="bottomright topright"] {
+        margin-inline: -120px !important;
+    }
+    #widget-overflow panelview {
+        min-width: 260px !important;
+        min-width: 260px !important;
+    }
+    /* urlbar */
+    #ultima-unified-navbar #urlbar-container {
+        position: absolute !important;
+        inset-inline: 4px;
+        bottom: 4px;
+        margin: 0 !important;
+        width: auto !important;
+        min-width: 0;
+        max-width: none;
+    }
+
+    /* collapsed width adjustments need a container */
+    #ultima-unified-navbar {
+        container-type: inline-size;
+    }
+    @container (max-width: 150px) {
+        #urlbar-container #urlbar:not([popover-open]) .urlbar-input-container *:not(.urlbar-input-box, .urlbar-input-box *) {
+            display: none !important;
+        }
+    }
+    @container (max-width: 55px) {
+        #ultima-unified-navbar:has(#sidebar-button) {
+            #nav-bar toolbaritem:not(#urlbar-container),
+            #nav-bar toolbarbutton:not(#sidebar-button),
+            #nav-bar .titlebar-buttonbox-container {
+                display: none !important;
+            }
+        }
+        #urlbar-container #urlbar:not([popover-open]) .urlbar-input-box {
+            color: transparent !important;
+            &::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: url("chrome://global/skin/icons/search-glass.svg") center / var(--toolbarbutton-icon-size, 16px) no-repeat;
+                -moz-context-properties: fill, fill-opacity;
+                fill: var(--uc-text-color);
+                fill-opacity: var(--toolbarbutton-icon-fill-opacity, 1);
+                pointer-events: none;
+            }
+        }
+    }
+
+    /* no springs, spacers*/
+    #ultima-unified-navbar toolbarspring,
+    #ultima-unified-navbar toolbarspacer,
+    #ultima-unified-navbar toolbarseparator {
+        display: none !important;
+    }
+    #ultima-unified-navbar #nav-bar-overflow-button,
+    #ultima-unified-navbar #PanelUI-menu-button {
+        flex: none;
+        margin-inline-start: auto;
+    }
+    
+    /* url bar popover positioning */
+    @media (-moz-pref("ultima.urlbar.float")) {
+        :root[ultima-navbar-unified] {
+            --ultima-float-width: 30vw;
+            @media (min-width: 2250px) { --ultima-float-width: 20vw; }
+            --ultima-float-x: calc((100vw - var(--ultima-float-width)) / 2 - var(--ultima-urlbar-left, 12px));
+        }
+        :root[ultima-navbar-unified]:has(#urlbar[popover-open]) {
+            /* due to the moved container location, this container should allow overflow - just for this scenario */
+            #sidebar-container {
+                overflow-x: visible !important;
+                z-index: 999 !important;
+            }
+            /* offset the floating position & adjust width */
+            /* this needs to be handled only 1 of 2 ways:
+               - either keep the offset minimal, to not pull the bar away from mouse position (<- we are here)
+               - or ditch this approach and position the popover urlbar center of screen
+            */
+            #urlbar-container:has(#urlbar[popover-open]) {
+                justify-content: start !important;
+                #urlbar {transform: translate(6px, 12px) !important;}
+                @media not (-moz-pref("ultima.enable.nightly.config")) {
+                    .urlbarView {transform: translate(6px, 12px) !important;}
+                }        
+                #urlbar {
+                    min-width: var(--ultima-float-width) !important;
+                }
+            }
+            /* position the popover urlbar center of screen */
+            /* #urlbar-container:has(#urlbar[popover-open]) {
+                justify-content: start !important;
+                #urlbar {
+                    width: var(--ultima-float-width) !important;
+                    min-width: var(--ultima-float-width) !important;
+                    max-width: none !important;
+                    transform: translate(var(--ultima-float-x), 12px) !important;
+                }
+                @media not (-moz-pref("ultima.enable.nightly.config")) {
+                    .urlbarView { transform: translate(var(--ultima-float-x), 12px) !important; }
+                }
+            } */
+            /* cancel out the default urlbar.float transition */
+            #urlbar-container:has(#urlbar[popover-open]) #urlbar {
+                transition: none !important;
+            }
+            /* should also account for a right sided vertical tab bar */
+            /* should also adjust for translation for collapsed state */
+        }
+    }
+    /* non-floating urlbar can probably just adopt allowed overflow + a min-width enforcement */
+}

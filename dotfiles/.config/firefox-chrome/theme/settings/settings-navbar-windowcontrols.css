@@ -1,0 +1,229 @@
+/*///////////////////////////////////////////////////////////////////////////////////////\
+
+FF Ultima:         https://github.com/soulhotel/FF-ULTIMA
+File Desc:         Theme window controls for all OS's
+
+
+simple circular styles
+icon replacement styles
+metro style
+
+\////////////////////////////////////////////////////////////////////////////////////////*/
+
+/* not every style uses these variables, but they mostly help dictate proportions, backgrounds, and hover style */
+
+:root {
+    @media (-moz-pref("ultima.titlebar-buttons.trafficlights")) {
+        --uc-titlebarbtn-min:   #FFFF3B;
+        --uc-titlebarbtn-max:   #00FF00;
+        --uc-titlebarbtn-res:   #00FF00;
+        --uc-titlebarbtn-cls:   #FF0000;
+        --uc-titlebarbtn-size: 18px;
+        --uc-titlebarbtn-hover-background: none;
+        --uc-titlebarbtn-hover-filter: contrast(0.1);
+        --uc-titlebar-btn-container-height: initial;
+    }
+    @media (-moz-pref("ultima.titlebar-buttons.carl")) {
+        --uc-titlebarbtn-min:   #51C8F7;
+        --uc-titlebarbtn-max:   #3542F6;
+        --uc-titlebarbtn-res:   #3542F6;
+        --uc-titlebarbtn-cls:   #F63567;
+        --uc-titlebarbtn-size: 18px;
+        --uc-titlebarbtn-hover-background: none;
+        --uc-titlebarbtn-hover-filter: contrast(0.1);
+        --uc-titlebar-btn-container-height: initial;
+    }
+    @media (-moz-pref("ultima.titlebar-buttons.fluent")) {
+        --uc-titlebarbtn-min:   url("../icons/fluent-min.svg");
+        --uc-titlebarbtn-max:   url("../icons/fluent-max.svg");
+        --uc-titlebarbtn-res:   url("../icons/fluent-res.svg");
+        --uc-titlebarbtn-cls:   url("../icons/fluent-cls.svg");
+        --uc-titlebarbtn-size: 18px;
+        --uc-titlebarbtn-hover-background: var(--uc-button-selected);
+        --uc-titlebarbtn-hover-filter: none;
+        --uc-titlebar-btn-container-height: initial;
+    }
+    @media (-moz-pref("ultima.titlebar-buttons.metro")) {
+        --uc-titlebarbtn-min:   url("../icons/fluent-min.svg");
+        --uc-titlebarbtn-max:   url("../icons/fluent-max.svg");
+        --uc-titlebarbtn-res:   url("../icons/fluent-res.svg");
+        --uc-titlebarbtn-cls:   url("../icons/fluent-cls.svg");
+        --uc-titlebarbtn-size: 18px;
+        --uc-titlebarbtn-hover-background: var(--uc-button-selected);
+        --uc-titlebarbtn-hover-filter: none;
+        --uc-titlebar-btn-container-height: 100%;
+    }
+}
+
+
+/* simple circular styles follow this format ------------------------------------------------------- */
+
+@media
+(-moz-pref("ultima.titlebar-buttons.carl")),
+(-moz-pref("ultima.titlebar-buttons.trafficlights")) {
+    /* button proportions */
+    .titlebar-button {
+        padding-inline: 10px !important;
+        height: var(--uc-titlebar-btn-container-height);
+    }
+    /* icon porportions */
+    .titlebar-button .toolbarbutton-icon {
+        max-width:  var(--uc-titlebarbtn-size) !important;
+        max-height: var(--uc-titlebarbtn-size) !important;
+        fill: var(--uc-button-color) !important;
+        background-image: none !important;
+        outline: 3px solid transparent;
+        border-radius: 50% !important;
+    }
+    /* apply colors */
+    .titlebar-min .toolbarbutton-icon     {background: var(--uc-titlebarbtn-min) !important;}
+    .titlebar-max .toolbarbutton-icon     {background: var(--uc-titlebarbtn-max) !important;}
+    .titlebar-restore .toolbarbutton-icon {background: var(--uc-titlebarbtn-res) !important;}
+    .titlebar-close .toolbarbutton-icon   {background: var(--uc-titlebarbtn-cls) !important;}
+    /* apply hover style */
+    .titlebar-button:hover .toolbarbutton-icon {
+        filter: var(--uc-titlebarbtn-hover-filter) !important;
+        outline: 3px solid var(--uc-accent-border) !important;
+    }
+    /* transitions*/
+    .titlebar-button, .titlebar-button .toolbarbutton-icon {
+        transition: background 2s ease, filter 0.5s ease, outline 1.5s ease !important;
+    }
+    /*
+    windows uses ::before elements with font/alt characters to render the icons..
+    instead of forcing backgrounds,icons,sizeadjustments onto this before element,
+    we'll just restore the original icon which is in a hidden state for windows
+    */
+    @media (-moz-platform: windows) {
+        .titlebar-button {
+            .toolbarbutton-icon {
+                display: initial !important;
+                width:  var(--uc-titlebarbtn-size) !important;
+                height: var(--uc-titlebarbtn-size) !important;
+            }
+            &::before {
+                display: none !important;
+            }
+            &:hover {
+                background-color: transparent !important;
+            }
+        }
+    }
+}
+
+/* icon replacement styles follow this format ------------------------------------------------------- */
+
+/* if you want to simply replace icons, this would be the one to copy */
+
+@media
+(-moz-pref("ultima.titlebar-buttons.fluent")) {
+    /* button proportions */
+    .titlebar-button {
+        padding-inline: 10px !important;
+        height: var(--uc-titlebar-btn-container-height);
+    }
+    /* icon porportions */
+    .titlebar-button .toolbarbutton-icon {
+        max-width:  var(--uc-titlebarbtn-size) !important;
+        max-height: var(--uc-titlebarbtn-size) !important;
+        fill: var(--uc-button-color) !important;
+        outline: 3px solid transparent;
+        border-radius: 50% !important;
+        -moz-context-properties: fill, fill-opacity !important;
+    }
+    /* apply icons */
+    .titlebar-min .toolbarbutton-icon     {background-image: var(--uc-titlebarbtn-min) !important;}
+    .titlebar-max .toolbarbutton-icon     {background-image: var(--uc-titlebarbtn-max) !important;}
+    .titlebar-restore .toolbarbutton-icon {background-image: var(--uc-titlebarbtn-res) !important;}
+    .titlebar-close .toolbarbutton-icon   {background-image: var(--uc-titlebarbtn-cls) !important;}
+    /* apply hover style */
+    .titlebar-button:hover .toolbarbutton-icon {
+        outline: 3px solid var(--uc-titlebarbtn-hover-background) !important;
+        background-color: var(--uc-titlebarbtn-hover-background) !important;
+    }
+    /* transitions*/
+    .titlebar-button, .titlebar-button .toolbarbutton-icon {
+        transition: background 0.2s ease, outline 0.2s ease !important;
+    }
+    /*
+    windows uses ::before elements with font/alt characters to render the icons..
+    instead of forcing backgrounds,icons,sizeadjustments onto this before element,
+    we'll just restore the original icon which is in a hidden state for windows
+    */
+    @media (-moz-platform: windows) {
+        .titlebar-button {
+            .toolbarbutton-icon {
+                display: initial !important;
+                width:  var(--uc-titlebarbtn-size) !important;
+                height: var(--uc-titlebarbtn-size) !important;
+            }
+            &::before {
+                display: none !important;
+            }
+            &:hover {
+                background-color: transparent !important;
+            }
+        }
+    }
+}
+
+/* metro style uses fluent icons but custom height and radius --------------------------------------- */
+
+@media
+(-moz-pref("ultima.titlebar-buttons.metro")) {
+    /* button proportions */
+    .titlebar-button {
+        padding-inline: 15px !important;
+        height: var(--uc-titlebar-btn-container-height) !important;
+    }
+    /* custom border radiuses */
+    .titlebar-min     {border-radius: 0 0 10px 10px;}
+    .titlebar-max     {border-radius: 0 0 10px 10px;}
+    .titlebar-restore {border-radius: 0 0 10px 10px;}
+    .titlebar-close   {border-radius: 0 0 0 10px;}
+    /* icon porportions */
+    .titlebar-button .toolbarbutton-icon {
+        max-width:  var(--uc-titlebarbtn-size) !important;
+        max-height: var(--uc-titlebarbtn-size) !important;
+        fill: var(--uc-button-color) !important;
+        outline: 3px solid transparent;
+        border-radius: 50% !important;
+        -moz-context-properties: fill, fill-opacity !important;
+    }
+    /* apply icons */
+    .titlebar-min .toolbarbutton-icon     {background-image: var(--uc-titlebarbtn-min) !important;}
+    .titlebar-max .toolbarbutton-icon     {background-image: var(--uc-titlebarbtn-max) !important;}
+    .titlebar-restore .toolbarbutton-icon {background-image: var(--uc-titlebarbtn-res) !important;}
+    .titlebar-close .toolbarbutton-icon   {background-image: var(--uc-titlebarbtn-cls) !important;}
+    /* apply hover style */
+    .titlebar-button:hover .toolbarbutton-icon {
+        background-color: transparent !important;
+    }
+    .titlebar-button:hover {
+        background-color: var(--uc-titlebarbtn-hover-background) !important;
+    }
+    .titlebar-close:hover {
+        background-color: var(--uc-button-red) !important;
+    }
+    /* transitions*/
+    .titlebar-button, .titlebar-button .toolbarbutton-icon {
+        transition: background 0.4s ease, outline 0.2s ease !important;
+    }
+    /*
+    windows uses ::before elements with font/alt characters to render the icons..
+    instead of forcing backgrounds,icons,sizeadjustments onto this before element,
+    we'll just restore the original icon which is in a hidden state for windows
+    */
+    @media (-moz-platform: windows) {
+        .titlebar-button {
+            .toolbarbutton-icon {
+                display: initial !important;
+                width:  var(--uc-titlebarbtn-size) !important;
+                height: var(--uc-titlebarbtn-size) !important;
+            }
+            &::before {
+                display: none !important;
+            }
+        }
+    }
+}

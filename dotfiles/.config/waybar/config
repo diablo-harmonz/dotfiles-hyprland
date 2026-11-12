@@ -10,9 +10,9 @@
         "width": 1480,
         "layer": "top",
         "position": "top",
-        "height": 34,
+        "height": 38,
         "margin-top": 5,
-        "spacing": 4,
+        "spacing": 6,
         "fixed-center": true,
         "reload_style_on_change": true,
         "modules-left": [
@@ -229,9 +229,9 @@
         "width": 1970,
         "layer": "top",
         "position": "top",
-        "height": 34,
+        "height": 38,
         "margin-top": 5,
-        "spacing": 4,
+        "spacing": 6,
         "fixed-center": true,
         "reload_style_on_change": true,
         "modules-left": [

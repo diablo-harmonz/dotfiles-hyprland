@@ -16,14 +16,14 @@
 window#waybar {
     background: alpha(@surface, 0.82);
     border: 1px solid alpha(@outline, 0.6);
-    border-radius: 12px;
+    border-radius: 8px;
     color: @on_surface;
 }
 
 tooltip {
     background: alpha(@surface, 0.95);
     border: 1px solid @outline;
-    border-radius: 10px;
+    border-radius: 7px;
 }
 
 tooltip label {
@@ -46,21 +46,21 @@ tooltip label {
 #custom-power {
     background: alpha(@surface_highest, 0.55);
     color: @on_surface;
-    border-radius: 8px;
-    padding: 0 10px;
-    margin: 4px 0;
+    border-radius: 6px;
+    padding: 0 14px;
+    margin: 5px 0;
 }
 
 #custom-launcher {
-    margin-left: 5px;
-    padding: 0 12px 0 10px;
+    margin-left: 6px;
+    padding: 0 15px 0 13px;
     font-size: 15px;
     color: @primary;
 }
 
 #custom-power {
-    margin-right: 5px;
-    padding: 0 12px 0 10px;
+    margin-right: 6px;
+    padding: 0 15px 0 13px;
 }
 
 window#waybar.empty #window {
@@ -71,7 +71,7 @@ window#waybar.empty #window {
 #custom-arrow-right,
 #custom-arrow-left {
     color: @on_surface_variant;
-    padding: 0 8px;
+    padding: 0 11px;
 }
 
 #custom-arrow-right:hover,
@@ -87,9 +87,9 @@ window#waybar.empty #window {
 #workspaces button {
     color: alpha(@on_surface_variant, 0.5);
     background: transparent;
-    border-radius: 6px;
-    padding: 0 9px;
-    margin: 3px 1px;
+    border-radius: 5px;
+    padding: 0 11px;
+    margin: 4px 2px;
     transition: all 0.2s ease;
 }
 
@@ -114,7 +114,7 @@ window#waybar.empty #window {
 
 /* Status pill: tray, volume, player, battery share one background */
 #status {
-    padding: 0 4px;
+    padding: 0 6px;
 }
 
 #tray,
@@ -123,7 +123,7 @@ window#waybar.empty #window {
 #custom-batmode,
 #battery {
     background: transparent;
-    padding: 0 7px;
+    padding: 0 9px;
 }
 
 #pulseaudio.muted {
@@ -157,13 +157,13 @@ window#waybar.empty #window {
 }
 
 #battery.critical:not(.charging) {
-    border-radius: 6px;
+    border-radius: 4px;
     animation: blink 0.8s linear infinite alternate;
 }
 
 #tray > .needs-attention {
     background: @error;
-    border-radius: 6px;
+    border-radius: 4px;
 }
 
 #custom-caffeine.on {
@@ -175,5 +175,5 @@ window#waybar.empty #window {
 }
 
 #custom-notification {
-    padding: 0 10px;
+    padding: 0 14px;
 }

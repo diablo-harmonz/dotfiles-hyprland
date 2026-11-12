@@ -1,0 +1,28 @@
+/*///////////////////////////////////////////////////////////////////////////////////////\
+
+┏┓┏┓  ┳┳┓ ┏┳┓┳┳┳┓┏┓
+┣ ┣   ┃┃┃  ┃ ┃┃┃┃┣┫
+┻ ┻   ┗┛┗┛ ┻ ┻┛ ┗┛┗
+                   
+FF Ultima:         https://github.com/soulhotel/FF-ULTIMA
+Wiki:              https://ff-ultima.github.io/docs/getting-started
+Latest Version:    https://github.com/soulhotel/FF-ULTIMA/releases/latest                 
+License:           https://github.com/soulhotel/FF-ULTIMA/blob/main/LICENSE MPL 2.0
+
+\////////////////////////////////////////////////////////////////////////////////////////*/
+
+
+@import url(theme/websites/website-about-pages.css); /*        styling for about pages */
+@import url(theme/websites/website-aboutaddons.css); /*        styling for aboutaddons */
+@import url(theme/websites/website-styles.css); /*       styling for multiple websites */
+@import url(theme/websites/website-newtab.css); /*                        new tab page */
+@import url(theme/websites/website-reddit.css); /*                              reddit */
+@import url(theme/websites/website-yt.css); /*                                 youtube */
+@import url(theme/websites/website-private.css); /*               private new tab page */
+
+@import url(theme/color-schemes/apply-cs.css);            /* import color scheme colors */
+@import url(theme/color-schemes/apply-cs-extensions.css); /* apply colors to extensions */
+@import url(theme/color-schemes/apply-cs-wallpapers.css); /* apply colors to wallpapers */
+
+/* this file will never be overwriten by the theme, put whatever you want in it */
+@import url(customContent.css); 

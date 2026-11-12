@@ -76,6 +76,14 @@ booting snapshots from the GRUB menu (grub-btrfs) work across kernel updates.
 After the first boot: `setup/setup-arch.sh` (packages, services, Timeshift, first snapshot)
 and `setup/link-dotfiles.sh`.
 
+## Firefox
+
+`dotfiles/.config/firefox-chrome` holds the FF Ultima theme (CSS only, commit 73129fa,
+MPL 2.0) recoloured from the wallpaper by Matugen, plus a `user.js` with vertical tabs and
+the toolbar, tab sidebar and bookmarks bar hidden until the pointer reaches an edge. After
+Firefox has been started once, run `firefox-theme` to link it into the default profile,
+then restart Firefox. Its devtools remote-debugging prefs are deliberately not included.
+
 ## Login
 
 No display manager: log in on the console (TTY1) and `~/.zprofile` runs `start-hyprland`.
