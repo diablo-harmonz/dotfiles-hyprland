@@ -21,6 +21,7 @@ hl.bind(mainMod .. " + CTRL + R",       exec("hyprctl reload"))                 
 hl.bind(mainMod .. " + W",              exec("~/.local/bin/wallpaper select"))                             -- Pick a wallpaper (colors follow it)
 hl.bind(mainMod .. " + SHIFT + W",      exec("~/.local/bin/wallpaper random"))                             -- Random wallpaper
 hl.bind(mainMod .. " + L",              exec("loginctl lock-session"))                                     -- Lock the screen (hypridle runs hyprlock)
+hl.bind(mainMod .. " + V",              exec("~/.local/bin/clipboard"))                                    -- Clipboard history: pick to paste (Shift+Enter: delete entry)
 hl.bind(mainMod .. " + SHIFT + C",      exec("~/.local/bin/caffeine toggle"))                              -- Keep awake on/off (no idle lock or suspend)
 
 -- Lid: only acts while caffeine is on (otherwise logind suspends and hypridle locks first)

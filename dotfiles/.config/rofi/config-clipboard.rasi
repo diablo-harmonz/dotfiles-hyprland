@@ -1,0 +1,84 @@
+/*
+ * Clipboard history (bin/clipboard): a plain list, colors from colors.rasi.
+ */
+@theme "/dev/null"
+@import "colors.rasi"
+
+configuration {
+    font:                "JetBrainsMono Nerd Font 10";
+    show-icons:          false;
+}
+
+window {
+    transparency:        "real";
+    location:            center;
+    anchor:              center;
+    width:               700px;
+    border:              2px solid;
+    border-color:        @border;
+    border-radius:       15px;
+    background-color:    @bg;
+}
+
+mainbox {
+    padding:             15px;
+    spacing:             10px;
+    background-color:    transparent;
+    children:            [ "inputbar", "message", "listview" ];
+}
+
+inputbar {
+    padding:             12px;
+    border-radius:       10px;
+    background-color:    @surface;
+    text-color:          @text;
+    children:            [ "entry" ];
+}
+
+entry {
+    background-color:    transparent;
+    text-color:          inherit;
+    placeholder:         "Search clipboard";
+    placeholder-color:   @text-muted;
+}
+
+message {
+    background-color:    transparent;
+}
+
+textbox {
+    background-color:    transparent;
+    text-color:          @text-muted;
+    horizontal-align:    0.5;
+}
+
+listview {
+    lines:               10;
+    scrollbar:           false;
+    fixed-height:        true;
+    spacing:             4px;
+    background-color:    transparent;
+}
+
+element {
+    padding:             8px 10px;
+    border-radius:       8px;
+    background-color:    transparent;
+    text-color:          @text;
+}
+
+element normal.normal,
+element alternate.normal {
+    background-color:    transparent;
+    text-color:          @text;
+}
+
+element selected.normal {
+    background-color:    @primary;
+    text-color:          @on-primary;
+}
+
+element-text {
+    background-color:    transparent;
+    text-color:          inherit;
+}

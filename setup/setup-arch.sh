@@ -15,6 +15,11 @@ packages=(
     "wezterm"
     "yakuake"
     "swaync"
+    "hyprpolkitagent"
+    "qt6ct"
+    "cliphist"
+    "python-gobject"
+    "gtk4-layer-shell"
     "pavucontrol"
     "network-manager-applet"
     "blueman"
@@ -180,6 +185,17 @@ sudo systemctl enable --now "fcitx5-lotus-server@$USER.service"
 
 # Nautilus: "Open in Terminal" opens WezTerm
 gsettings set com.github.stunkymonkey.nautilus-open-any-terminal terminal wezterm
+
+# Qt apps: Fusion style with the Matugen palette (qt6ct needs an absolute path)
+mkdir -p ~/.config/qt6ct/colors
+[ -f ~/.config/qt6ct/qt6ct.conf ] || cat > ~/.config/qt6ct/qt6ct.conf <<EOT
+[Appearance]
+color_scheme_path=$HOME/.config/qt6ct/colors/matugen.conf
+custom_palette=true
+icon_theme=Papirus-Dark
+standard_dialogs=default
+style=Fusion
+EOT
 
 # GTK 4 apps (Nautilus) use the Matugen colors; prefer dark mode
 mkdir -p ~/.config/gtk-4.0

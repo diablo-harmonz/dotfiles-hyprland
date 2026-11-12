@@ -29,3 +29,7 @@ output_path = '~/.config/gtk-4.0/matugen.css'
 input_path = '~/.config/matugen/templates/swaync.css'
 output_path = '~/.config/swaync/style.css'
 post_hook = 'swaync-client -rs >/dev/null 2>&1 || true'
+
+[templates.qt6ct]
+input_path = '~/.config/matugen/templates/qt6ct.conf'
+output_path = '~/.config/qt6ct/colors/matugen.conf'

@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# clipboard: short-lived clipboard history with cliphist.
+#   clipboard            pick an entry with rofi and paste it (SUPER+V)
+#                          Enter: paste  ·  Shift+Enter: delete entry  ·  Alt+Delete: clear all
+#   clipboard store      used by `wl-paste --watch` (autostart): save the new entry
+#   clipboard prune      background loop (autostart): forget entries older than MAX_AGE
+# Keeps at most MAX_ITEMS entries, each for MAX_AGE seconds. Only the history is
+# trimmed; whatever is currently on the clipboard stays until you copy something else.
+set -uo pipefail
+
+MAX_ITEMS=10
+MAX_AGE=300   # seconds
+TIMES="${XDG_RUNTIME_DIR:-/tmp}/clipboard-times"   # "<id> <epoch>" per stored entry
+
+newest_id() { cliphist list | head -1 | cut -f1; }
+
+forget() {   # $1 = id
+    printf '%s\t\n' "$1" | cliphist delete
+}
+
+paste() {   # $1 = "image" or "text"
+    # Give focus back to the window that was active before rofi opened
+    sleep 0.15
+    # Images: always Ctrl+V. Terminals cannot paste image data themselves, but apps
+    # inside them (e.g. Claude Code) read the image from the clipboard on Ctrl+V.
+    if [ "$1" = image ]; then
+        wtype -M ctrl -k v -m ctrl
+        return
+    fi
+    class=$(hyprctl activewindow -j | jq -r '.class // ""')
+    case "$class" in
+        org.wezfurlong.wezterm|kitty|Alacritty|foot|konsole|org.kde.konsole|yakuake)
+            wtype -M ctrl -M shift -k v -m shift -m ctrl ;;   # terminals paste with Ctrl+Shift+V
+        *)
+            wtype -M ctrl -k v -m ctrl ;;
+    esac
+}
+
+case "${1:-pick}" in
+    store)
+        cliphist -max-items "$MAX_ITEMS" store
+        id=$(newest_id)
+        [ -n "$id" ] && echo "$id $(date +%s)" >> "$TIMES"
+        ;;
+    prune)
+        exec 9>"${XDG_RUNTIME_DIR:-/tmp}/clipboard-prune.lock"
+        flock -n 9 || exit 0   # one pruner per session
+        # Entries from an earlier session are older than MAX_AGE anyway
+        cliphist wipe
+        : > "$TIMES"
+        while true; do
+            if [ -s "$TIMES" ]; then
+                now=$(date +%s)
+                keep=$(mktemp)
+                # The newest time per id wins (an entry copied again is kept longer)
+                tac "$TIMES" | awk '!seen[$1]++' | while read -r id t; do
+                    if [ $((now - t)) -ge "$MAX_AGE" ]; then forget "$id"; else echo "$id $t"; fi
+                done | tac > "$keep"
+                mv "$keep" "$TIMES"
+            fi
+            sleep 30
+        done
+        ;;
+    pick)
+        pkill -x rofi && exit 0   # pressing the key again closes it
+        while true; do
+            choice=$(cliphist list | rofi -dmenu -i -p "" -display-columns 2 \
+                -config "$HOME/.config/rofi/config-clipboard.rasi" \
+                -kb-accept-alt "" -kb-custom-1 "Shift+Return" -kb-custom-2 "Alt+Delete" \
+                -mesg "Enter: paste  ·  Shift+Enter: delete  ·  Alt+Delete: clear all  ·  kept 5 min, max 10")
+            case $? in
+                0)  [ -n "$choice" ] || exit 0
+                    # cliphist lists images as "[[ binary data 2 KiB png 639x93 ]]"
+                    fmt=$(grep -oP '^\d+\t\[\[ binary data .* \K(png|jpeg|jpg|webp|gif|bmp)(?= )' <<<"$choice" || true)
+                    if [ -n "$fmt" ]; then
+                        [ "$fmt" = jpg ] && fmt=jpeg
+                        printf '%s' "$choice" | cliphist decode | wl-copy --type "image/$fmt"
+                        paste image
+                    else
+                        printf '%s' "$choice" | cliphist decode | wl-copy
+                        paste text
+                    fi
+                    exit 0 ;;
+                10) [ -n "$choice" ] && printf '%s' "$choice" | cliphist delete ;;   # then show the list again
+                11) cliphist wipe; : > "$TIMES"; exit 0 ;;
+                *)  exit 0 ;;
+            esac
+        done
+        ;;
+    *)
+        echo "usage: clipboard [pick|store|prune]" >&2
+        exit 2
+        ;;
+esac
