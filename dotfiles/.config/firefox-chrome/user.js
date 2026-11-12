@@ -14,6 +14,36 @@ user_pref("widget.gtk.ignore-bogus-leave-notify", 1);
 user_pref("sidebar.revamp", true);
 user_pref("sidebar.verticalTabs", true);
 
+// Privacy: no usage data sent to Mozilla, no studies, no sponsored content.
+// (Ads and trackers on websites are a job for an extension such as uBlock Origin.)
+user_pref("datareporting.healthreport.uploadEnabled", false);
+user_pref("datareporting.policy.dataSubmissionEnabled", false);
+user_pref("toolkit.telemetry.enabled", false);
+user_pref("toolkit.telemetry.unified", false);
+user_pref("toolkit.telemetry.archive.enabled", false);
+user_pref("toolkit.telemetry.newProfilePing.enabled", false);
+user_pref("toolkit.telemetry.shutdownPingSender.enabled", false);
+user_pref("toolkit.telemetry.firstShutdownPing.enabled", false);
+user_pref("toolkit.telemetry.updatePing.enabled", false);
+user_pref("toolkit.telemetry.bhrPing.enabled", false);
+user_pref("app.shield.optoutstudies.enabled", false);
+user_pref("app.normandy.enabled", false);
+user_pref("browser.crashReports.unsubmittedCheck.autoSubmit2", false);
+user_pref("dom.private-attribution.submission.enabled", false);
+user_pref("privacy.globalprivacycontrol.enabled", true);
+// New tab page and address bar: no sponsored shortcuts, stories or suggestions
+user_pref("browser.newtabpage.activity-stream.showSponsored", false);
+user_pref("browser.newtabpage.activity-stream.showSponsoredTopSites", false);
+user_pref("browser.newtabpage.activity-stream.feeds.section.topstories", false);
+user_pref("browser.newtabpage.activity-stream.feeds.telemetry", false);
+user_pref("browser.newtabpage.activity-stream.telemetry", false);
+user_pref("browser.urlbar.suggest.quicksuggest.sponsored", false);
+user_pref("browser.urlbar.suggest.quicksuggest.nonsponsored", false);
+user_pref("extensions.pocket.enabled", false);
+// No add-on recommendations
+user_pref("browser.discovery.enabled", false);
+user_pref("extensions.htmlaboutaddons.recommendations.enabled", false);
+
 // Changed from FF Ultima's defaults, in place below: navbar.autohide, tabs.autohide and
 // bookmarks.autohide are on (they show when the pointer reaches the top or left edge);
 // sidebery.autohide is off, since it disables the autohide of Firefox's own vertical tabs.

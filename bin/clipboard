@@ -2,7 +2,8 @@
 # clipboard: short-lived clipboard history with cliphist.
 #   clipboard            pick an entry with rofi and paste it (SUPER+V)
 #                          Enter: paste  ·  Shift+Enter: delete entry  ·  Alt+Delete: clear all
-#   clipboard store      used by `wl-paste --watch` (autostart): save the new entry
+#   clipboard store text|image   used by `wl-paste --watch` (autostart): save the new entry,
+#                                except secrets (see looks_secret) which never reach the history
 #   clipboard prune      background loop (autostart): forget entries older than MAX_AGE
 # Keeps at most MAX_ITEMS entries, each for MAX_AGE seconds. Only the history is
 # trimmed; whatever is currently on the clipboard stays until you copy something else.
@@ -13,6 +14,23 @@ MAX_AGE=300   # seconds
 TIMES="${XDG_RUNTIME_DIR:-/tmp}/clipboard-times"   # "<id> <epoch>" per stored entry
 
 newest_id() { cliphist list | head -1 | cut -f1; }
+
+# Passwords and tokens are kept out of the history (the history is written to disk).
+# Password managers in browsers (Proton Pass...) do not mark copies as secret, so besides
+# the "sensitive" mark some apps set, anything shaped like a generated password counts:
+# one line, no spaces, 12-128 characters, mixing character kinds (all four, or three
+# when 20+ long, which also covers API tokens). URLs and paths are never secrets.
+looks_secret() {   # $1 = copied text
+    local s="$1" kinds=0
+    [ "${CLIPBOARD_STATE:-}" = sensitive ] && return 0
+    [[ $s == *[[:space:]]* || ${#s} -lt 12 || ${#s} -gt 128 ]] && return 1
+    [[ $s == *://* || $s == /* || $s == ~/* ]] && return 1
+    [[ $s == *[a-z]* ]] && kinds=$((kinds + 1))
+    [[ $s == *[A-Z]* ]] && kinds=$((kinds + 1))
+    [[ $s == *[0-9]* ]] && kinds=$((kinds + 1))
+    [[ $s == *[^a-zA-Z0-9]* ]] && kinds=$((kinds + 1))
+    (( kinds == 4 || (kinds == 3 && ${#s} >= 20) ))
+}
 
 forget() {   # $1 = id
     printf '%s\t\n' "$1" | cliphist delete
@@ -38,7 +56,14 @@ paste() {   # $1 = "image" or "text"
 
 case "${1:-pick}" in
     store)
-        cliphist -max-items "$MAX_ITEMS" store
+        if [ "${2:-text}" = text ]; then
+            text=$(cat; printf x); text=${text%x}   # keep trailing newlines
+            looks_secret "$text" && exit 0
+            printf '%s' "$text" | cliphist -max-items "$MAX_ITEMS" store
+        else
+            [ "${CLIPBOARD_STATE:-}" = sensitive ] && exit 0
+            cliphist -max-items "$MAX_ITEMS" store
+        fi
         id=$(newest_id)
         [ -n "$id" ] && echo "$id $(date +%s)" >> "$TIMES"
         ;;

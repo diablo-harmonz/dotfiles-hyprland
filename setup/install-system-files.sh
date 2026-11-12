@@ -6,6 +6,7 @@
 #     in use (sddm, greetd or the plain console login) and for password changes
 #   - zram swap (half the RAM, zstd)
 #   - earlyoom: stop the biggest process (test browsers first) before memory runs out
+#   - Firefox policy: install uBlock Origin, Proton Pass and Unhook from addons.mozilla.org
 #   - Timeshift (btrfs): daily 5, weekly 3, /home excluded; grub-btrfsd keeps the GRUB
 #     snapshot menu up to date; cronie runs the schedule
 set -euo pipefail
@@ -66,6 +67,15 @@ if [ ! -f /etc/systemd/zram-generator.conf ]; then
     sudo systemctl start systemd-zram-setup@zram0.service || true
 fi
 echo ":: zram: $(zramctl --noheadings --output NAME,DISKSIZE,ALGORITHM 2>/dev/null | tr -s ' ' || echo none)"
+
+# --- Firefox extensions (installed by Firefox itself from addons.mozilla.org at start) ---
+if command -v firefox >/dev/null; then
+    if [ -f /etc/firefox/policies/policies.json ] && ! cmp -s "$DIR/system/firefox-policies.json" /etc/firefox/policies/policies.json; then
+        sudo cp /etc/firefox/policies/policies.json /etc/firefox/policies/policies.json.bak-dotfiles
+    fi
+    sudo install -D -m 644 "$DIR/system/firefox-policies.json" /etc/firefox/policies/policies.json
+    echo ":: Firefox policy: uBlock Origin, Proton Pass, Unhook (restart Firefox)"
+fi
 
 # --- earlyoom ---
 if command -v earlyoom >/dev/null; then
