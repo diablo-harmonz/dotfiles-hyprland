@@ -634,9 +634,10 @@ notificationwindow .notification-row .notification-background {
 .notification.low .notification-default-action:hover {
   background: transparent;
 }
-.notification.low .notification-content .image {
-  -gtk-icon-size: 30px;
-  margin: 0 10px 0 2px;
+/* full path: swaync's default .image rule (margin: 4px) is more specific than a short one */
+.notification-row .notification-background .notification.low .notification-default-action .notification-content .image {
+  -gtk-icon-size: 40px;
+  margin: 0 16px 0 2px;
   color: {{colors.primary.default.hex}};
 }
 .notification.low .notification-content .text-box .summary {
