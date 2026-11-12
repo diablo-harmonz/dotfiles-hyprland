@@ -31,6 +31,11 @@ hl.on("monitor.removed", function()
     hl.config({ debug = { damage_tracking = 2 } })
     -- the notification daemon can crash when the screen showing a notification goes away; restart it
     hl.exec_cmd("sleep 2; pgrep -x swaync >/dev/null || swaync")
+    -- Unplugged while locked (e.g. lid closed at work, opened at home): the laptop screen
+    -- can stay off (DPMS) and hyprlock does not redraw for the changed screen, so the lock
+    -- screen is black. Turn the screens on and restart hyprlock (the session stays locked).
+    hl.dispatch(hl.dsp.dpms("on"))
+    hl.exec_cmd("sleep 1; ~/.local/bin/lock-recover --if-locked")
     -- remember when it happened: a monitor that comes back within a few seconds only
     -- dropped out (some do after a mode change) and display-toggle restores its mode
     hl.exec_cmd('date +%s > "$XDG_RUNTIME_DIR/display-toggle.unplugged"')

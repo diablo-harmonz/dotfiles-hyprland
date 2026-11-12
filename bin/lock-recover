@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# lock-recover: fix a locked Hyprland session whose lock screen is black or dead: turn the
+# screens back on (they can stay off after resume) and restart hyprlock. The session stays
+# locked the whole time (misc.allow_session_lock_restore).
+#   lock-recover              every running Hyprland session (use this from a TTY:
+#                             Ctrl+Alt+F3, log in, run lock-recover, then Ctrl+Alt+F1)
+#   lock-recover --if-locked  the current session, only if hyprlock is running
+#                             (called by conf/monitor.lua when a monitor is unplugged)
+set -uo pipefail
+
+# hyprlock PIDs that belong to a Hyprland instance (from their environment)
+locks_of() {   # $1 = instance signature
+    local pid
+    for pid in $(pidof hyprlock); do
+        tr '\0' '\n' < "/proc/$pid/environ" 2>/dev/null \
+            | grep -qx "HYPRLAND_INSTANCE_SIGNATURE=$1" && echo "$pid"
+    done
+}
+
+restart_in() {   # $1 = Hyprland instance signature; only acts if that session is locked
+    local sig="$1" pids
+    pids=$(locks_of "$sig")
+    [ -n "$pids" ] || return 1
+    HYPRLAND_INSTANCE_SIGNATURE="$sig" hyprctl eval \
+        'hl.config({ misc = { allow_session_lock_restore = true } })' >/dev/null 2>&1
+    HYPRLAND_INSTANCE_SIGNATURE="$sig" hyprctl dispatch 'hl.dsp.dpms("on")' >/dev/null 2>&1
+    kill $pids 2>/dev/null
+    sleep 0.5
+    kill -9 $pids 2>/dev/null   # a hung hyprlock ignores SIGTERM
+    HYPRLAND_INSTANCE_SIGNATURE="$sig" hyprctl dispatch 'hl.dsp.exec_cmd("hyprlock")' >/dev/null 2>&1 \
+        && echo ":: hyprlock restarted in the locked session $sig"
+}
+
+if [ "${1:-}" = --if-locked ]; then
+    [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] && restart_in "$HYPRLAND_INSTANCE_SIGNATURE"
+    exit 0
+fi
+
+found=0
+for dir in "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"/hypr/*/; do
+    sig=$(basename -- "$dir")
+    HYPRLAND_INSTANCE_SIGNATURE="$sig" hyprctl version >/dev/null 2>&1 || continue   # Hyprland gone
+    restart_in "$sig" && found=1
+done
+[ "$found" = 1 ] || echo "No locked Hyprland session found."
