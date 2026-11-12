@@ -20,12 +20,11 @@
         "hyprland/window"
     ],
     "modules-right": [
-        "mpd", 
         "pulseaudio", 
         "network", 
         "cpu", 
         "memory", 
-        "keyboard-state", 
+        "custom/caffeine",
         "battery", 
         "tray",
         "custom/exit",

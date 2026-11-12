@@ -450,6 +450,22 @@ window#waybar.empty #window {
 }
 
 /* -----------------------------------------------------
+ * Caffeine (keep awake)
+ * ----------------------------------------------------- */
+
+#custom-caffeine {
+    margin: 0px 15px 0px 0px;
+    font-size: 16px;
+    color: @iconcolor;
+    opacity: 0.6;
+}
+
+#custom-caffeine.on {
+    color: #f5a742;
+    opacity: 1.0;
+}
+
+/* -----------------------------------------------------
  * Battery
  * ----------------------------------------------------- */
 

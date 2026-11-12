@@ -19,6 +19,12 @@ hl.bind(mainMod .. " + B",              exec("~/.config/ml4w/settings/browser.sh
 hl.bind(mainMod .. " + SHIFT + B",      exec("~/.config/ml4w/scripts/reload-waybar.sh"))                   -- Reload Waybar
 hl.bind(mainMod .. " + CTRL + R",       exec("hyprctl reload"))                                            -- Emergency: reload config, restores all screens
 hl.bind(mainMod .. " + SHIFT + W",      exec("~/.config/ml4w/scripts/reload-hyprpaper.sh"))                -- Reload hyprpaper
+hl.bind(mainMod .. " + L",              exec("loginctl lock-session"))                                     -- Lock the screen (hypridle runs hyprlock)
+hl.bind(mainMod .. " + SHIFT + C",      exec("~/.local/bin/caffeine toggle"))                              -- Keep awake on/off (no idle lock or suspend)
+
+-- Lid: only acts while caffeine is on (otherwise logind suspends and hypridle locks first)
+hl.bind("switch:on:Lid Switch",  exec("~/.local/bin/caffeine lid-close"), { locked = true })
+hl.bind("switch:off:Lid Switch", exec("~/.local/bin/caffeine lid-open"),  { locked = true })
 
 -- Hardware keys
 hl.bind("XF86AudioRaiseVolume",  exec("wpctl set-volume -l 1.4 @DEFAULT_AUDIO_SINK@ 5%+"))

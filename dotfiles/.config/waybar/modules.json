@@ -47,6 +47,15 @@
     },
     
     // Power Menu
+    // Keep awake (bin/caffeine)
+    "custom/caffeine": {
+        "exec": "~/.local/bin/caffeine status",
+        "return-type": "json",
+        "interval": 30,
+        "signal": 9,
+        "on-click": "~/.local/bin/caffeine toggle"
+    },
+
     "custom/exit": {
         "format": "",
         "tooltip-format": "Powermenu",

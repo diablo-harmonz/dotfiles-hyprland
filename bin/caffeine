@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# caffeine: keep the laptop awake (e.g. during a remote session).
+#   caffeine toggle      turn on/off (SUPER+SHIFT+C, click on the waybar cup)
+#   caffeine status      JSON for the waybar custom/caffeine module
+#   caffeine lid-close   lid bind: when on and no external screen, lock + screens off
+#   caffeine lid-open    lid bind: screens back on
+# "On" is a transient user unit that holds a systemd inhibitor for idle, sleep and
+# the lid switch, so hypridle pauses (dim/lock/off/suspend) and closing the lid
+# does not suspend. Stopping the unit releases it.
+set -euo pipefail
+
+UNIT=caffeine
+WAYBAR_SIGNAL=9   # matches "signal" of custom/caffeine in waybar/modules.json
+
+is_on() { systemctl --user is-active --quiet "$UNIT"; }
+
+refresh_waybar() { pkill -RTMIN+"$WAYBAR_SIGNAL" -x waybar || true; }
+
+dpms() { hyprctl eval "hl.dispatch(hl.dsp.dpms(\"$1\"))" >/dev/null; }
+
+case "${1:-toggle}" in
+    toggle)
+        if is_on; then
+            systemctl --user stop "$UNIT"
+            notify-send -a caffeine -i weather-clear-night "Caffeine off" "Idle lock and suspend are back on."
+        else
+            systemd-run --user --quiet --unit="$UNIT" \
+                systemd-inhibit --what=idle:sleep:handle-lid-switch --who=caffeine \
+                --why="Keep awake" --mode=block sleep infinity
+            notify-send -a caffeine -i weather-clear "Caffeine on" "The laptop stays awake, even with the lid closed."
+        fi
+        refresh_waybar
+        ;;
+    status)
+        if is_on; then
+            printf '{"text":"","class":"on","tooltip":"Caffeine on: no idle lock or suspend (click to turn off)"}\n'
+        else
+            printf '{"text":"","class":"off","tooltip":"Caffeine off (click to keep awake)"}\n'
+        fi
+        ;;
+    lid-close)
+        is_on || exit 0   # off: logind suspends, hypridle locks first
+        # Docked on an external screen: keep working, do nothing
+        if hyprctl monitors -j | jq -e 'any(.[]; .name | startswith("eDP") | not)' >/dev/null; then
+            exit 0
+        fi
+        loginctl lock-session
+        sleep 1
+        dpms off
+        ;;
+    lid-open)
+        if is_on; then dpms on; fi
+        ;;
+    *)
+        echo "usage: caffeine [toggle|status|lid-close|lid-open]" >&2
+        exit 2
+        ;;
+esac

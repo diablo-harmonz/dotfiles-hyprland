@@ -21,6 +21,8 @@ packages=(
     "qt6-wayland"
     "hyprpaper"
     "hyprlock"
+    "hypridle"
+    "hyprsunset"
     "firefox"
     "ttf-font-awesome"
     "vim"

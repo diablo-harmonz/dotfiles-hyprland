@@ -34,6 +34,8 @@ Please run the setup script offered by the Dotfiles Installer to install all dep
 - qt6-wayland
 - hyprpaper
 - hyprlock
+- hypridle
+- hyprsunset
 - firefox
 - ttf-font-awesome
 - vim
