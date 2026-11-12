@@ -23,6 +23,22 @@ if [[ -e /usr/share/nvm/init-nvm.sh ]]; then
 fi
 unsetopt correct
 
+# Yazi file manager: `y` opens it, and the shell follows to the folder you leave in
+y() {
+  local tmp cwd
+  tmp="$(mktemp -t yazi-cwd.XXXXXX)"
+  yazi "$@" --cwd-file="$tmp"
+  IFS= read -r -d '' cwd < "$tmp"
+  [[ -n $cwd && $cwd != "$PWD" ]] && builtin cd -- "$cwd"
+  command rm -f -- "$tmp"
+}
+
+# zoxide: `z part-of-a-folder-name` jumps to a folder visited before (Yazi uses it too)
+command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
+
+# Neovim (LazyVim) for vim/vi
+alias vim=nvim vi=nvim
+
 # Fastfetch: show system info when opening a terminal window (not on a bare TTY)
 if [[ -o interactive && $(tty) == *pts* ]] && command -v fastfetch >/dev/null; then
   fastfetch

@@ -19,6 +19,13 @@ Cập nhật lần cuối: Nov 12, 2026 · @diablo harmonz
 - Ctrl + Alt + Z: hiện cột tab và giữ nguyên, bấm lại để về tự ẩn; rê chuột ra mép trái để xem tạm; thanh công cụ hiện khi rê lên mép trên hoặc Ctrl + L
 - SUPER + S (ngoài Firefox): tìm nhanh trên web hoặc mở địa chỉ trong Firefox
 
+## Yazi và LazyVim (tập làm việc trong terminal)
+
+- Yazi (quản lý file): gõ `y` trong terminal hoặc SUPER + SHIFT + E. Phím: j/k lên xuống, h/l ra/vào thư mục, Space chọn, y copy, x cắt, p dán, d xoá vào thùng rác, r đổi tên, `.` hiện file ẩn, / tìm, z nhảy thư mục (zoxide), q thoát (terminal chuyển tới thư mục vừa xem).
+- LazyVim (Neovim): `nvim` (hoặc vim, vi). Học phím Vim: trong nvim gõ `:Tutor`. Phím Space mở menu lệnh của LazyVim; Space Space tìm file; Space e cây thư mục; Space gg mở lazygit.
+- Lộ trình: tuần đầu :Tutor + Yazi + lazygit; sau đó giải LeetCode trong LazyVim (thêm leetcode.nvim khi cần); dự án công việc vẫn dùng VS Code.
+- Plugin LazyVim ghim phiên bản bằng `lazy-lock.json` trong repo; cập nhật bằng `:Lazy update` rồi commit file đó.
+
 ## Tình trạng hiện tại
 
 Manjaro KDE đã cài xong và chạy ổn; Hyprland đang chạy thử trên Manjaro bằng repo dotfiles-hyprland; bộ cài Arch trong repo đã đủ gói và cấu hình (2026-11-12), còn lại phần mềm công việc và sao lưu.
