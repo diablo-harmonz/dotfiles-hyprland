@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Symlink this repo's dotfiles into $HOME so edits in the repo apply directly.
 #   dotfiles/.zshrc           -> ~/.zshrc
+#   dotfiles/.zprofile        -> ~/.zprofile (starts Hyprland after a TTY1 login)
 #   dotfiles/.config/<name>   -> ~/.config/<name>
 #   bin/<script>              -> ~/.local/bin/<script>
 # Existing files/dirs that are not already the right symlink are moved to
@@ -27,6 +28,7 @@ _link() {
 }
 
 _link "$REPO/dotfiles/.zshrc" "$HOME/.zshrc"
+_link "$REPO/dotfiles/.zprofile" "$HOME/.zprofile"
 
 for src in "$REPO"/dotfiles/.config/*; do
     _link "$src" "$HOME/.config/$(basename -- "$src")"

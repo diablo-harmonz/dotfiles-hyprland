@@ -63,6 +63,12 @@ setup/link-dotfiles.sh
 
 It links `dotfiles/.zshrc`, every folder in `dotfiles/.config/` and the scripts in `bin/` into `$HOME`. Existing files are moved to `*.bak-<timestamp>` first. The Hyprland config uses the Lua format (`~/.config/hypr/hyprland.lua`).
 
+## Login
+
+No display manager: log in on the console (TTY1) and `~/.zprofile` runs `start-hyprland`.
+Quitting Hyprland returns to the login prompt; other consoles (Ctrl+Alt+F2...) stay plain
+shells. The keyring is unlocked through `/etc/pam.d/login` (see below).
+
 ## System files
 
 `setup/install-system-files.sh` (run by `setup-arch.sh`, needs sudo) installs the battery
