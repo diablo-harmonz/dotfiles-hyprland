@@ -98,6 +98,7 @@
                 "tray",
                 "pulseaudio",
                 "mpris",
+                "custom/batmode",
                 "battery"
             ]
         },
@@ -214,6 +215,13 @@
             "format": "⏻",
             "tooltip-format": "Power menu",
             "on-click": "wlogout -b 4"
+        },
+        "custom/batmode": {
+            "exec": "~/.local/bin/battery-mode status",
+            "return-type": "json",
+            "interval": 60,
+            "signal": 8,
+            "on-click": "~/.local/bin/battery-mode toggle"
         }
     },
     {
@@ -309,6 +317,7 @@
                 "tray",
                 "pulseaudio",
                 "mpris",
+                "custom/batmode",
                 "battery"
             ]
         },
@@ -425,6 +434,13 @@
             "format": "⏻",
             "tooltip-format": "Power menu",
             "on-click": "wlogout -b 4"
+        },
+        "custom/batmode": {
+            "exec": "~/.local/bin/battery-mode status",
+            "return-type": "json",
+            "interval": 60,
+            "signal": 8,
+            "on-click": "~/.local/bin/battery-mode toggle"
         }
     }
 ]

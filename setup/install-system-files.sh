@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Install the system-wide pieces of this setup (needs sudo). Safe to run again.
-#   - battery charge thresholds 75/80: a oneshot service at boot (setup/system/)
+#   - battery charge thresholds 75/80: a oneshot service at boot (setup/system/), and a
+#     root-owned helper + polkit action so bin/battery-mode can switch (password each time)
 #   - PAM: unlock gnome-keyring with the login password, for the display manager
 #     in use (sddm, greetd or the plain console login) and for password changes
 #   - zram swap (half the RAM, zstd)
@@ -15,6 +16,11 @@ if [ -f /etc/udev/rules.d/99-battery-charge-threshold.rules ]; then
     sudo rm -f /etc/udev/rules.d/99-battery-charge-threshold.rules
     sudo udevadm control --reload
 fi
+# Root-owned helper (never run a file from $HOME as root) + polkit action for bin/battery-mode
+sudo install -D -m 755 -o root -g root "$DIR/system/battery-threshold" \
+    /usr/local/lib/dotfiles-hyprland/battery-threshold
+sudo install -D -m 644 -o root -g root "$DIR/system/org.dotfiles-hyprland.battery-threshold.policy" \
+    /usr/share/polkit-1/actions/org.dotfiles-hyprland.battery-threshold.policy
 sudo install -D -m 644 "$DIR/system/battery-charge-threshold.service" \
     /etc/systemd/system/battery-charge-threshold.service
 sudo systemctl daemon-reload

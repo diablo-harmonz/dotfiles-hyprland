@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# battery-mode: switch the ThinkPad charge limit (waybar button in the status pill).
+#   battery-mode toggle   care (charge 75 -> 80 %) <-> full (charge to 100 %)
+#   battery-mode care | full
+#   battery-mode status   JSON for waybar
+# Changing it asks for the password every time (polkit), so nobody borrowing the laptop
+# can switch it; the root-owned helper is installed by setup/install-system-files.sh.
+# Each boot starts in care mode again.
+set -euo pipefail
+
+END=/sys/class/power_supply/BAT0/charge_control_end_threshold
+HELPER=/usr/local/lib/dotfiles-hyprland/battery-threshold
+WAYBAR_SIGNAL=8   # matches "signal" of custom/batmode in waybar/config
+
+mode() { [ "$(cat "$END")" -ge 100 ] && echo full || echo care; }
+
+set_mode() {
+    if [ ! -x "$HELPER" ]; then
+        notify-send -a battery "Battery mode" "Helper missing: run setup/install-system-files.sh once."
+        exit 1
+    fi
+    pkexec "$HELPER" "$1" || exit 0   # cancelled or wrong password: change nothing
+    case "$1" in
+        full) notify-send -a battery -i battery-full-charged "Full charge" "Charging to 100 % (e.g. before a trip)." ;;
+        care) notify-send -a battery -i battery-good "Battery care" "Charging between 75 and 80 %." ;;
+    esac
+    pkill -RTMIN+"$WAYBAR_SIGNAL" -x waybar || true
+}
+
+case "${1:-toggle}" in
+    toggle) [ "$(mode)" = care ] && set_mode full || set_mode care ;;
+    care|full) set_mode "$1" ;;
+    status)
+        if [ "$(mode)" = care ]; then
+            printf '{"text":"","class":"care","tooltip":"Battery care: charging 75-80 %% (click: full charge)"}\n'
+        else
+            printf '{"text":"","class":"full","tooltip":"Full charge: charging to 100 %% (click: battery care)"}\n'
+        fi ;;
+    *) echo "usage: battery-mode [toggle|care|full|status]" >&2; exit 2 ;;
+esac

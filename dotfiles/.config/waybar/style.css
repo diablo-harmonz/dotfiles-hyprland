@@ -120,6 +120,7 @@ window#waybar.empty #window {
 #tray,
 #pulseaudio,
 #mpris,
+#custom-batmode,
 #battery {
     background: transparent;
     padding: 0 7px;
@@ -127,6 +128,16 @@ window#waybar.empty #window {
 
 #pulseaudio.muted {
     color: @on_surface_variant;
+}
+
+#custom-batmode.care {
+    color: @primary;
+    padding-right: 2px;
+}
+
+#custom-batmode.full {
+    color: @tertiary;
+    padding-right: 2px;
 }
 
 #battery.charging,

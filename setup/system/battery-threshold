@@ -1,0 +1,15 @@
+#!/bin/sh
+# battery-threshold care|full: set the ThinkPad charge thresholds (runs as root).
+# Installed root-owned to /usr/local/lib/dotfiles-hyprland/ by install-system-files.sh;
+# called by battery-charge-threshold.service at boot and, through pkexec (password
+# asked every time), by bin/battery-mode. Accepts nothing but these two words.
+set -eu
+B=/sys/class/power_supply/BAT0
+START=$B/charge_control_start_threshold
+END=$B/charge_control_end_threshold
+# The firmware needs start < end at every step, so the order depends on the direction
+case "${1:-}" in
+    care) echo 75 > "$START"; echo 80 > "$END" ;;
+    full) echo 100 > "$END"; echo 0 > "$START" ;;
+    *) echo "usage: battery-threshold care|full" >&2; exit 2 ;;
+esac
