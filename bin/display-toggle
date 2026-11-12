@@ -37,10 +37,10 @@ REPLUG_WINDOW=15
 mode="${1:-toggle}"
 
 notify() {
-    # dunst can crash when a notification is on screen while outputs change; restart it
-    pgrep -x dunst >/dev/null || { setsid -f dunst >/dev/null 2>&1; sleep 0.5; }
+    # swaync can crash when a notification is on screen while outputs change; restart it
+    pgrep -x swaync >/dev/null || { setsid -f swaync >/dev/null 2>&1; sleep 0.5; }
     # never let a missing notification daemon block the script
-    timeout 3 notify-send -a display-toggle -h string:x-dunst-stack-tag:display-toggle "$@" || true
+    timeout 3 notify-send -a display-toggle -h string:x-canonical-private-synchronous:display-toggle "$@" || true
 }
 apply() { hyprctl eval "$1" >/dev/null; }
 damage_tracking() {   # 0 = full redraw every frame (mirror), 2 = Hyprland default
@@ -168,6 +168,6 @@ esac
 echo "$mode" > "$STATE"
 
 # Keep the busy mark until the monitor has settled (it may drop out briefly after a mode
-# change), and check dunst again in case it crashed a moment after the change
-( sleep 2; pgrep -x dunst >/dev/null || setsid -f dunst >/dev/null 2>&1
+# change), and check swaync again in case it crashed a moment after the change
+( sleep 2; pgrep -x swaync >/dev/null || setsid -f swaync >/dev/null 2>&1
   sleep 8; rm -f "$BUSY" ) >/dev/null 2>&1 &

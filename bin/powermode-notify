@@ -24,6 +24,6 @@ gdbus monitor --system \
 while read -r line; do
     profile=$(grep -oP "'ActiveProfile': <'\K[^']+" <<<"$line" || true)
     [ -n "$profile" ] || continue
-    notify-send -a powermode -h string:x-dunst-stack-tag:powermode \
+    notify-send -a powermode -h string:x-canonical-private-synchronous:powermode \
         "Power mode: $(label "$profile")"
 done

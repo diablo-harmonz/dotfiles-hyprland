@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# sysinfo-bar: waybar custom/sysinfo module. Shows CPU and RAM use on the bar; the
+# tooltip (hover) lists every value from sysmetrics. Click opens syslive.
+set -uo pipefail
+declare -A m
+while IFS='=' read -r k v; do m[$k]=$v; done < <("$HOME/.local/bin/sysmetrics")
+
+pct() { [ "${2:-0}" -gt 0 ] && echo $(( 100 * $1 / $2 )) || echo 0; }
+gib() { awk -v mb="$1" 'BEGIN { printf "%.1f", mb / 1024 }'; }
+
+ram_pct=$(pct "${m[ram_used_mb]:-0}" "${m[ram_total_mb]:-0}")
+swap_pct=$(pct "${m[swap_used_mb]:-0}" "${m[swap_total_mb]:-0}")
+disk=$(df -h --output=used,size,pcent / | awk 'NR==2 {print $1 " / " $2 " (" $3 ")"}')
+load=$(cut -d' ' -f1-3 /proc/loadavg)
+
+class=normal
+[ "${m[cpu_usage]:-0}" -ge 80 ] || [ "$ram_pct" -ge 90 ] && class=high
+
+text=" ${m[cpu_usage]:-?}%   ${ram_pct}%"
+tip=$(cat <<EOT
+<tt><b>System</b>
+CPU      ${m[cpu_usage]:-?}%   load ${load}
+CPU temp ${m[cpu_temp]:-?}°C   fan ${m[fan_rpm]:-?} rpm
+RAM      $(gib "${m[ram_used_mb]:-0}") / $(gib "${m[ram_total_mb]:-0}") GiB (${ram_pct}%)
+Swap     $(gib "${m[swap_used_mb]:-0}") / $(gib "${m[swap_total_mb]:-0}") GiB (${swap_pct}%)
+Disk /   ${disk}
+SSD temp ${m[ssd_temp]:-?}°C
+Battery  ${m[bat_percent]:-?} ${m[bat_state]:-}, ${m[bat_power]:-?}, limit ${m[bat_limit]:-?}
+Failed   ${m[failed_units]:-?} systemd units
+
+Click: open syslive</tt>
+EOT
+)
+jq -cn --arg text "$text" --arg tooltip "$tip" --arg class "$class" '{text: $text, tooltip: $tooltip, class: $class}'

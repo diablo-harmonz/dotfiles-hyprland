@@ -27,12 +27,13 @@ Please run the setup script offered by the Dotfiles Installer to install all dep
 - rofi (2.0+, includes Wayland support)
 - wezterm
 - yakuake
-- dunst
+- swaync (notifications)
+- pavucontrol, network-manager-applet, blueman, bluez
 - nautilus, nautilus-open-any-terminal
 - xdg-desktop-portal-hyprland
 - qt5-wayland
 - qt6-wayland
-- hyprpaper
+- awww (wallpaper), matugen (colors from the wallpaper), imagemagick (thumbnails)
 - hyprlock
 - hypridle
 - hyprsunset
@@ -62,6 +63,14 @@ setup/link-dotfiles.sh
 ```
 
 It links `dotfiles/.zshrc`, every folder in `dotfiles/.config/` and the scripts in `bin/` into `$HOME`. Existing files are moved to `*.bak-<timestamp>` first. The Hyprland config uses the Lua format (`~/.config/hypr/hyprland.lua`).
+
+## Wallpaper and colors
+
+`SUPER+W` opens a wallpaper picker (`bin/wallpaper`, rofi with thumbnails), `SUPER+SHIFT+W`
+picks one at random. Wallpapers come from `~/Pictures/Wallpapers` and `~/.config/ml4w/wallpapers`.
+After each change Matugen (`dotfiles/.config/matugen`) generates matching colors for rofi,
+waybar, WezTerm, GTK 4 and the Hyprland borders. Those generated files are git-ignored; run
+`wallpaper restore` once after linking (Hyprland also runs it at login).
 
 ### Pacman hook
 

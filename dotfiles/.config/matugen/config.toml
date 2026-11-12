@@ -1,0 +1,31 @@
+# Matugen: colors from the wallpaper. Run by bin/wallpaper after every change:
+#   matugen image <file> --mode dark --source-color-index 0
+# Each template is rendered to an app's config dir (those files are git-ignored).
+[config]
+
+[templates.rofi]
+input_path = '~/.config/matugen/templates/rofi.rasi'
+output_path = '~/.config/rofi/colors.rasi'
+
+[templates.waybar]
+input_path = '~/.config/matugen/templates/waybar.css'
+output_path = '~/.config/waybar/colors.css'
+post_hook = 'pkill -SIGUSR2 -x waybar || true'
+
+[templates.wezterm]
+input_path = '~/.config/matugen/templates/wezterm.lua'
+output_path = '~/.config/wezterm/colors.lua'
+
+[templates.hyprland]
+input_path = '~/.config/matugen/templates/hyprland.lua'
+output_path = '~/.config/hypr/colors.lua'
+post_hook = 'hyprctl eval "$(cat ~/.config/hypr/colors.lua)" >/dev/null 2>&1 || true'
+
+[templates.gtk4]
+input_path = '~/.config/matugen/templates/gtk.css'
+output_path = '~/.config/gtk-4.0/matugen.css'
+
+[templates.swaync]
+input_path = '~/.config/matugen/templates/swaync.css'
+output_path = '~/.config/swaync/style.css'
+post_hook = 'swaync-client -rs >/dev/null 2>&1 || true'

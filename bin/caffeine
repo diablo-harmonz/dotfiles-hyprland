@@ -33,9 +33,9 @@ case "${1:-toggle}" in
         ;;
     status)
         if is_on; then
-            printf '{"text":"","class":"on","tooltip":"Caffeine on: no idle lock or suspend (click to turn off)"}\n'
+            printf '{"text":"","class":"on","tooltip":"Caffeine on: no idle lock or suspend (click to turn off)"}\n'
         else
-            printf '{"text":"","class":"off","tooltip":"Caffeine off (click to keep awake)"}\n'
+            printf '{"text":"","class":"off","tooltip":"Caffeine off (click to keep awake)"}\n'
         fi
         ;;
     lid-close)

@@ -1,8 +1,12 @@
 -- Execute your favorite apps at launch
 hl.on("hyprland.start", function()
     hl.exec_cmd("waybar")
-    hl.exec_cmd("hyprpaper")
-    hl.exec_cmd("dunst")
+    -- Wallpaper (awww) and its colors
+    hl.exec_cmd("~/.local/bin/wallpaper restore")
+    -- Notifications (swaync) and tray applets for Wi-Fi and Bluetooth
+    hl.exec_cmd("swaync")
+    hl.exec_cmd("nm-applet --indicator")
+    hl.exec_cmd("blueman-applet")
     -- Idle: dim, lock, screens off, suspend on battery (hypridle.conf)
     hl.exec_cmd("hypridle")
     -- Night light (hyprsunset.conf)

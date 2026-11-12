@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+# wallpaper: pick, set and theme from the wallpaper.
+#   wallpaper select    rofi picker with thumbnails (SUPER+W)
+#   wallpaper random    random wallpaper (SUPER+SHIFT+W)
+#   wallpaper set FILE  set FILE with a transition, then regenerate the colors
+#   wallpaper restore   at login: start awww, show the saved wallpaper, make sure colors exist
+# The wallpaper is shown by awww; Matugen turns it into colors for rofi, waybar,
+# WezTerm, GTK 4 and the Hyprland borders (see ~/.config/matugen/config.toml).
+# ~/.cache/wallpaper/current links to the chosen file (used by rofi and hyprlock).
+set -euo pipefail
+
+DIRS=("$HOME/Pictures/Wallpapers" "$HOME/.config/ml4w/wallpapers")
+DEFAULT="$HOME/.config/ml4w/wallpapers/wallpaper.jpg"
+CACHE="$HOME/.cache/wallpaper"
+CURRENT="$CACHE/current"
+THUMBS="$CACHE/thumbs"
+MODE=dark
+
+mkdir -p "$THUMBS"
+
+list() {
+    local d
+    for d in "${DIRS[@]}"; do
+        [ -d "$d" ] || continue
+        find -L "$d" -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \)
+    done | sort
+}
+
+thumb() {   # $1 = image -> prints a portrait thumbnail path (made once, then cached)
+    local key out
+    key=$(printf '%s' "$1" | md5sum | cut -c1-16)
+    out="$THUMBS/$key.png"
+    if [ ! -f "$out" ] || [ "$1" -nt "$out" ]; then
+        magick "$1[0]" -thumbnail 360x480^ -gravity center -extent 360x480 "$out" 2>/dev/null || true
+    fi
+    printf '%s' "$out"
+}
+
+ensure_daemon() {
+    awww query >/dev/null 2>&1 && return
+    setsid -f awww-daemon >/dev/null 2>&1
+    for _ in $(seq 50); do awww query >/dev/null 2>&1 && return; sleep 0.1; done
+}
+
+colors() {   # $1 = image
+    matugen image "$1" --mode "$MODE" --source-color-index 0 >/dev/null 2>&1 \
+        || notify-send -a wallpaper "Wallpaper" "Matugen could not generate colors."
+}
+
+set_wallpaper() {   # $1 = image, $2 = transition type
+    local img
+    img=$(realpath -- "$1")
+    [ -f "$img" ] || { echo "wallpaper: no such file: $1" >&2; exit 1; }
+    ensure_daemon
+    awww img "$img" --transition-type "${2:-grow}" --transition-duration 1.2 --transition-fps 60
+    ln -sfn "$img" "$CURRENT"
+    colors "$img"
+}
+
+case "${1:-select}" in
+    select)
+        pkill -x rofi && exit 0   # pressing the key again closes the picker
+        choice=$(
+            list | while IFS= read -r f; do
+                name=$(basename -- "${f%.*}")
+                printf '%s\0icon\x1f%s\n' "$name" "$(thumb "$f")"
+            done | rofi -dmenu -i -show-icons -p "" -config "$HOME/.config/rofi/config-wallpaper.rasi" -format i
+        ) || exit 0
+        [ -n "$choice" ] || exit 0
+        set_wallpaper "$(list | sed -n "$((choice + 1))p")"
+        ;;
+    random)
+        mapfile -t all < <(list)
+        [ "${#all[@]}" -gt 0 ] || exit 1
+        set_wallpaper "${all[RANDOM % ${#all[@]}]}" any
+        ;;
+    set)
+        [ -n "${2:-}" ] || { echo "usage: wallpaper set FILE" >&2; exit 2; }
+        set_wallpaper "$2"
+        ;;
+    restore)
+        ensure_daemon
+        img=$(readlink -f -- "$CURRENT" 2>/dev/null || true)
+        [ -f "$img" ] || img="$DEFAULT"
+        awww img "$img" --transition-type none
+        ln -sfn "$img" "$CURRENT"
+        # Generate colors on the first run, or when a generated file is missing
+        for f in "$HOME/.config/rofi/colors.rasi" "$HOME/.config/waybar/colors.css"; do
+            [ -f "$f" ] || { colors "$img"; break; }
+        done
+        ;;
+    *)
+        echo "usage: wallpaper [select|random|set FILE|restore]" >&2
+        exit 2
+        ;;
+esac

@@ -1,33 +1,430 @@
-{
-    "layer": "top",
-    "margin-top": 14,
-    "margin-bottom": 0,
-    "margin-left": 14,
-    "margin-right": 14,    
-    "spacing": 0,
-
-    // Load Modules
-    "include": [
-        "~/.config/ml4w/settings/waybar-quicklinks.json",
-        "~/.config/waybar/modules.json"
-    ],    
-    "modules-left": [
-        "custom/appmenu",
-        "hyprland/workspaces",
-        "group/quicklinks"
-    ],
-    "modules-center": [
-        "hyprland/window"
-    ],
-    "modules-right": [
-        "pulseaudio", 
-        "network", 
-        "cpu", 
-        "memory", 
-        "custom/caffeine",
-        "battery", 
-        "tray",
-        "custom/exit",
-        "clock"
-    ]
-}
+// Waybar, one translucent bar with small pills (style of the Hyprlust bar).
+// Colors come from colors.css (Matugen, see bin/wallpaper). Workspaces show one
+// icon per slot on each screen (laptop 1-5, external 6-10). The arrows are drawers:
+// hover the left one for system stats, the right one for notifications/wallpaper.
+// Two bars with the same modules: a fixed width keeps each bar centred (~77% of the
+// screen): 1480 px on the 1920 px laptop panel, 1970 px on 2560 px external screens.
+[
+    {
+        "output": "eDP-1",
+        "width": 1480,
+        "layer": "top",
+        "position": "top",
+        "height": 34,
+        "margin-top": 5,
+        "spacing": 4,
+        "fixed-center": true,
+        "reload_style_on_change": true,
+        "modules-left": [
+            "custom/launcher",
+            "hyprland/window",
+            "group/info"
+        ],
+        "modules-center": [
+            "hyprland/workspaces"
+        ],
+        "modules-right": [
+            "custom/caffeine",
+            "group/status",
+            "group/hub",
+            "clock",
+            "custom/power"
+        ],
+        "custom/launcher": {
+            "format": "",
+            "tooltip-format": "Apps (middle click: wallpaper)",
+            "on-click": "pkill -x rofi || rofi -show drun",
+            "on-click-middle": "~/.local/bin/wallpaper select"
+        },
+        "hyprland/window": {
+            "format": "{title}",
+            "icon": true,
+            "icon-size": 15,
+            "max-length": 32,
+            "separate-outputs": true
+        },
+        "group/info": {
+            "orientation": "inherit",
+            "drawer": {
+                "transition-duration": 300,
+                "transition-left-to-right": true
+            },
+            "modules": [
+                "custom/arrow-right",
+                "custom/sysinfo"
+            ]
+        },
+        "custom/arrow-right": {
+            "format": "󰁙",
+            "tooltip": false
+        },
+        "custom/sysinfo": {
+            "exec": "~/.local/bin/sysinfo-bar",
+            "return-type": "json",
+            "interval": 5,
+            "on-click": "wezterm start -- ~/.local/bin/syslive"
+        },
+        "hyprland/workspaces": {
+            "format": "{icon}",
+            "all-outputs": false,
+            "sort-by-number": true,
+            "on-click": "activate",
+            "format-icons": {
+                "1": "",
+                "2": "",
+                "3": "",
+                "4": "󰨞",
+                "5": "",
+                "6": "",
+                "7": "",
+                "8": "",
+                "9": "󰨞",
+                "10": "",
+                "default": ""
+            },
+            "on-scroll-up": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e-1\" })'",
+            "on-scroll-down": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e+1\" })'"
+        },
+        "custom/caffeine": {
+            "exec": "~/.local/bin/caffeine status",
+            "return-type": "json",
+            "interval": 30,
+            "signal": 9,
+            "on-click": "~/.local/bin/caffeine toggle"
+        },
+        "group/status": {
+            "orientation": "inherit",
+            "modules": [
+                "tray",
+                "pulseaudio",
+                "mpris",
+                "battery"
+            ]
+        },
+        "tray": {
+            "icon-size": 15,
+            "spacing": 8
+        },
+        "pulseaudio": {
+            "format": "{icon} {volume}%",
+            "format-muted": "󰝟 muted",
+            "format-bluetooth": " {volume}%",
+            "format-bluetooth-muted": "󰝟 muted",
+            "format-icons": {
+                "headphone": "",
+                "headset": "",
+                "default": [
+                    "",
+                    "",
+                    ""
+                ]
+            },
+            "scroll-step": 5,
+            "max-volume": 140,
+            "tooltip-format": "{desc}: {volume}%\nMic: {format_source}",
+            "format-source": "{volume}%",
+            "format-source-muted": "muted",
+            "on-click": "pavucontrol",
+            "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+            "on-click-middle": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
+        },
+        "mpris": {
+            "format": "{status_icon}",
+            "format-paused": "{status_icon}",
+            "status-icons": {
+                "playing": "",
+                "paused": "",
+                "stopped": ""
+            },
+            "tooltip-format": "{player}: {title} - {artist}",
+            "on-click": "playerctl play-pause",
+            "on-scroll-up": "playerctl next",
+            "on-scroll-down": "playerctl previous"
+        },
+        "battery": {
+            "states": {
+                "warning": 30,
+                "critical": 15
+            },
+            "format": "{icon} {capacity}%",
+            "format-charging": " {capacity}%",
+            "format-plugged": " {capacity}%",
+            "format-icons": [
+                "",
+                "",
+                "",
+                "",
+                ""
+            ],
+            "tooltip-format": "{timeTo}, {power} W"
+        },
+        "group/hub": {
+            "orientation": "inherit",
+            "drawer": {
+                "transition-duration": 300,
+                "transition-left-to-right": false
+            },
+            "modules": [
+                "custom/arrow-left",
+                "custom/notification",
+                "custom/wallpaper"
+            ]
+        },
+        "custom/arrow-left": {
+            "format": "󰁒",
+            "tooltip": false
+        },
+        "custom/notification": {
+            "exec": "swaync-client -swb",
+            "return-type": "json",
+            "format": "{icon} {text}",
+            "format-icons": {
+                "notification": "󱅫",
+                "none": "󰂚",
+                "dnd-notification": "󰂛",
+                "dnd-none": "󰂛",
+                "inhibited-notification": "󱅫",
+                "inhibited-none": "󰂚",
+                "dnd-inhibited-notification": "󰂛",
+                "dnd-inhibited-none": "󰂛"
+            },
+            "tooltip": false,
+            "escape": true,
+            "on-click": "swaync-client -t -sw",
+            "on-click-right": "swaync-client -d -sw"
+        },
+        "custom/wallpaper": {
+            "format": "",
+            "tooltip-format": "Wallpaper (right click: random)",
+            "on-click": "~/.local/bin/wallpaper select",
+            "on-click-right": "~/.local/bin/wallpaper random"
+        },
+        "clock": {
+            "format": "{:%I:%M %p}",
+            "format-alt": "{:%a %d/%m/%Y}",
+            "tooltip-format": "<tt>{calendar}</tt>",
+            "calendar": {
+                "mode": "month",
+                "format": {
+                    "today": "<b><u>{}</u></b>"
+                }
+            }
+        },
+        "custom/power": {
+            "format": "⏻",
+            "tooltip-format": "Power menu",
+            "on-click": "wlogout -b 4"
+        }
+    },
+    {
+        "output": "!eDP-1",
+        "width": 1970,
+        "layer": "top",
+        "position": "top",
+        "height": 34,
+        "margin-top": 5,
+        "spacing": 4,
+        "fixed-center": true,
+        "reload_style_on_change": true,
+        "modules-left": [
+            "custom/launcher",
+            "hyprland/window",
+            "group/info"
+        ],
+        "modules-center": [
+            "hyprland/workspaces"
+        ],
+        "modules-right": [
+            "custom/caffeine",
+            "group/status",
+            "group/hub",
+            "clock",
+            "custom/power"
+        ],
+        "custom/launcher": {
+            "format": "",
+            "tooltip-format": "Apps (middle click: wallpaper)",
+            "on-click": "pkill -x rofi || rofi -show drun",
+            "on-click-middle": "~/.local/bin/wallpaper select"
+        },
+        "hyprland/window": {
+            "format": "{title}",
+            "icon": true,
+            "icon-size": 15,
+            "max-length": 32,
+            "separate-outputs": true
+        },
+        "group/info": {
+            "orientation": "inherit",
+            "drawer": {
+                "transition-duration": 300,
+                "transition-left-to-right": true
+            },
+            "modules": [
+                "custom/arrow-right",
+                "custom/sysinfo"
+            ]
+        },
+        "custom/arrow-right": {
+            "format": "󰁙",
+            "tooltip": false
+        },
+        "custom/sysinfo": {
+            "exec": "~/.local/bin/sysinfo-bar",
+            "return-type": "json",
+            "interval": 5,
+            "on-click": "wezterm start -- ~/.local/bin/syslive"
+        },
+        "hyprland/workspaces": {
+            "format": "{icon}",
+            "all-outputs": false,
+            "sort-by-number": true,
+            "on-click": "activate",
+            "format-icons": {
+                "1": "",
+                "2": "",
+                "3": "",
+                "4": "󰨞",
+                "5": "",
+                "6": "",
+                "7": "",
+                "8": "",
+                "9": "󰨞",
+                "10": "",
+                "default": ""
+            },
+            "on-scroll-up": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e-1\" })'",
+            "on-scroll-down": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e+1\" })'"
+        },
+        "custom/caffeine": {
+            "exec": "~/.local/bin/caffeine status",
+            "return-type": "json",
+            "interval": 30,
+            "signal": 9,
+            "on-click": "~/.local/bin/caffeine toggle"
+        },
+        "group/status": {
+            "orientation": "inherit",
+            "modules": [
+                "tray",
+                "pulseaudio",
+                "mpris",
+                "battery"
+            ]
+        },
+        "tray": {
+            "icon-size": 15,
+            "spacing": 8
+        },
+        "pulseaudio": {
+            "format": "{icon} {volume}%",
+            "format-muted": "󰝟 muted",
+            "format-bluetooth": " {volume}%",
+            "format-bluetooth-muted": "󰝟 muted",
+            "format-icons": {
+                "headphone": "",
+                "headset": "",
+                "default": [
+                    "",
+                    "",
+                    ""
+                ]
+            },
+            "scroll-step": 5,
+            "max-volume": 140,
+            "tooltip-format": "{desc}: {volume}%\nMic: {format_source}",
+            "format-source": "{volume}%",
+            "format-source-muted": "muted",
+            "on-click": "pavucontrol",
+            "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+            "on-click-middle": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
+        },
+        "mpris": {
+            "format": "{status_icon}",
+            "format-paused": "{status_icon}",
+            "status-icons": {
+                "playing": "",
+                "paused": "",
+                "stopped": ""
+            },
+            "tooltip-format": "{player}: {title} - {artist}",
+            "on-click": "playerctl play-pause",
+            "on-scroll-up": "playerctl next",
+            "on-scroll-down": "playerctl previous"
+        },
+        "battery": {
+            "states": {
+                "warning": 30,
+                "critical": 15
+            },
+            "format": "{icon} {capacity}%",
+            "format-charging": " {capacity}%",
+            "format-plugged": " {capacity}%",
+            "format-icons": [
+                "",
+                "",
+                "",
+                "",
+                ""
+            ],
+            "tooltip-format": "{timeTo}, {power} W"
+        },
+        "group/hub": {
+            "orientation": "inherit",
+            "drawer": {
+                "transition-duration": 300,
+                "transition-left-to-right": false
+            },
+            "modules": [
+                "custom/arrow-left",
+                "custom/notification",
+                "custom/wallpaper"
+            ]
+        },
+        "custom/arrow-left": {
+            "format": "󰁒",
+            "tooltip": false
+        },
+        "custom/notification": {
+            "exec": "swaync-client -swb",
+            "return-type": "json",
+            "format": "{icon} {text}",
+            "format-icons": {
+                "notification": "󱅫",
+                "none": "󰂚",
+                "dnd-notification": "󰂛",
+                "dnd-none": "󰂛",
+                "inhibited-notification": "󱅫",
+                "inhibited-none": "󰂚",
+                "dnd-inhibited-notification": "󰂛",
+                "dnd-inhibited-none": "󰂛"
+            },
+            "tooltip": false,
+            "escape": true,
+            "on-click": "swaync-client -t -sw",
+            "on-click-right": "swaync-client -d -sw"
+        },
+        "custom/wallpaper": {
+            "format": "",
+            "tooltip-format": "Wallpaper (right click: random)",
+            "on-click": "~/.local/bin/wallpaper select",
+            "on-click-right": "~/.local/bin/wallpaper random"
+        },
+        "clock": {
+            "format": "{:%I:%M %p}",
+            "format-alt": "{:%a %d/%m/%Y}",
+            "tooltip-format": "<tt>{calendar}</tt>",
+            "calendar": {
+                "mode": "month",
+                "format": {
+                    "today": "<b><u>{}</u></b>"
+                }
+            }
+        },
+        "custom/power": {
+            "format": "⏻",
+            "tooltip-format": "Power menu",
+            "on-click": "wlogout -b 4"
+        }
+    }
+]

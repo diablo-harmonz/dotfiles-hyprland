@@ -14,13 +14,20 @@ packages=(
     "rofi"
     "wezterm"
     "yakuake"
-    "dunst"
+    "swaync"
+    "pavucontrol"
+    "network-manager-applet"
+    "blueman"
+    "bluez"
+    "bluez-utils"
     "nautilus"
     "nautilus-open-any-terminal"
     "xdg-desktop-portal-hyprland"
     "qt5-wayland"
     "qt6-wayland"
-    "hyprpaper"
+    "awww"
+    "matugen"
+    "imagemagick"
     "hyprlock"
     "hypridle"
     "hyprsunset"
@@ -173,6 +180,11 @@ sudo systemctl enable --now "fcitx5-lotus-server@$USER.service"
 
 # Nautilus: "Open in Terminal" opens WezTerm
 gsettings set com.github.stunkymonkey.nautilus-open-any-terminal terminal wezterm
+
+# GTK 4 apps (Nautilus) use the Matugen colors; prefer dark mode
+mkdir -p ~/.config/gtk-4.0
+grep -qs "matugen.css" ~/.config/gtk-4.0/gtk.css || echo "@import 'matugen.css';" >> ~/.config/gtk-4.0/gtk.css
+gsettings set org.gnome.desktop.interface color-scheme prefer-dark
 
 # Pacman hook: check the Hyprland config after every Hyprland upgrade
 "$(dirname "$(realpath "$0")")/install-pacman-hooks.sh"

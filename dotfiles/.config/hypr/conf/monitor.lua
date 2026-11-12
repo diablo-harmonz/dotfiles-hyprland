@@ -29,8 +29,8 @@ hl.on("monitor.removed", function()
     })
     -- display-toggle turns damage tracking off while mirroring; back to the default
     hl.config({ debug = { damage_tracking = 2 } })
-    -- dunst can crash when the screen showing a notification goes away; restart it
-    hl.exec_cmd("sleep 2; pgrep -x dunst >/dev/null || dunst")
+    -- the notification daemon can crash when the screen showing a notification goes away; restart it
+    hl.exec_cmd("sleep 2; pgrep -x swaync >/dev/null || swaync")
     -- remember when it happened: a monitor that comes back within a few seconds only
     -- dropped out (some do after a mode change) and display-toggle restores its mode
     hl.exec_cmd('date +%s > "$XDG_RUNTIME_DIR/display-toggle.unplugged"')

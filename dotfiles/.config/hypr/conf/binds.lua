@@ -18,7 +18,8 @@ hl.bind(mainMod .. " + J",              hl.dsp.layout("togglesplit"))           
 hl.bind(mainMod .. " + B",              exec("~/.config/ml4w/settings/browser.sh"))                        -- Opens the browser
 hl.bind(mainMod .. " + SHIFT + B",      exec("~/.config/ml4w/scripts/reload-waybar.sh"))                   -- Reload Waybar
 hl.bind(mainMod .. " + CTRL + R",       exec("hyprctl reload"))                                            -- Emergency: reload config, restores all screens
-hl.bind(mainMod .. " + SHIFT + W",      exec("~/.config/ml4w/scripts/reload-hyprpaper.sh"))                -- Reload hyprpaper
+hl.bind(mainMod .. " + W",              exec("~/.local/bin/wallpaper select"))                             -- Pick a wallpaper (colors follow it)
+hl.bind(mainMod .. " + SHIFT + W",      exec("~/.local/bin/wallpaper random"))                             -- Random wallpaper
 hl.bind(mainMod .. " + L",              exec("loginctl lock-session"))                                     -- Lock the screen (hypridle runs hyprlock)
 hl.bind(mainMod .. " + SHIFT + C",      exec("~/.local/bin/caffeine toggle"))                              -- Keep awake on/off (no idle lock or suspend)
 
