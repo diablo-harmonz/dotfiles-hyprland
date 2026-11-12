@@ -1,0 +1,11 @@
+/* Own tweaks on top of FF Ultima (it imports this file; theme files stay unchanged). */
+
+/* Ctrl+Alt+Z shows the auto-hidden tab sidebar and keeps it open until pressed again.
+   Firefox marks the expanded tab sidebar's #sidebar-container with
+   [sidebar-launcher-expanded]; FF Ultima's
+   tabs.autohide squeezes #sidebar-container to 0 px whenever it is not hovered. While
+   expanded, give it its width back. The repeated ids outrank the theme's autohide rule
+   (several :has(#id) parts), which a plain selector would lose to. */
+#main-window#main-window#main-window #browser #sidebar-container[sidebar-launcher-expanded] {
+    width: 260px !important;
+}
