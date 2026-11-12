@@ -3,6 +3,7 @@
 #   osd volume up|down|mute     osd mic mute     osd brightness up|down
 # The popup is a low-priority, transient notification: each new one replaces the last
 # (x-canonical-private-synchronous), it closes by itself and stays out of the history.
+# swaync styles low-priority notifications as a compact OSD card (matugen swaync.css).
 set -uo pipefail
 
 STEP=5          # volume step, %
@@ -38,23 +39,23 @@ case "$1" in
     volume)
         read_volume @DEFAULT_AUDIO_SINK@
         if [ "$muted" = 1 ]; then
-            popup volume audio-volume-muted "Volume: muted" 0
+            popup volume audio-volume-muted-symbolic "VOLUME: MUTED" 0
         else
-            icon=audio-volume-high
-            [ "$pct" -lt 66 ] && icon=audio-volume-medium
-            [ "$pct" -lt 33 ] && icon=audio-volume-low
-            [ "$pct" -eq 0 ] && icon=audio-volume-muted
+            icon=audio-volume-high-symbolic
+            [ "$pct" -lt 66 ] && icon=audio-volume-medium-symbolic
+            [ "$pct" -lt 33 ] && icon=audio-volume-low-symbolic
+            [ "$pct" -eq 0 ] && icon=audio-volume-muted-symbolic
             bar=$pct; [ "$bar" -gt 100 ] && bar=100
-            popup volume "$icon" "Volume: $pct%" "$bar"
+            popup volume "$icon" "VOLUME: $pct%" "$bar"
         fi ;;
     mic)
         read_volume @DEFAULT_AUDIO_SOURCE@
         if [ "$muted" = 1 ]; then
-            popup mic microphone-sensitivity-muted "Microphone: muted"
+            popup mic microphone-sensitivity-muted-symbolic "MIC: MUTED"
         else
-            popup mic audio-input-microphone "Microphone: on ($pct%)" "$pct"
+            popup mic audio-input-microphone-symbolic "MIC: ON $pct%" "$pct"
         fi ;;
     brightness)
         pct=$(brightnessctl -m | cut -d, -f4 | tr -d %)
-        popup brightness display-brightness "Brightness: $pct%" "$pct" ;;
+        popup brightness display-brightness-symbolic "BRIGHTNESS: $pct%" "$pct" ;;
 esac
