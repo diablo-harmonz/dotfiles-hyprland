@@ -588,10 +588,10 @@ notificationwindow, blankwindow {
 /* ---- Spacing (own) ---- */
 /* Keep popups off the screen edges (waybar sits above them) and give the close button room */
 notificationwindow .notification-row .notification-background {
-  padding: 32px 28px 2px 12px;
+  padding: 32px 32px 2px 12px;
 }
 .notification-row .notification-background .notification {
-  border-radius: 10px;
+  border-radius: 5px;
 }
 .notification-row .notification-background .notification .notification-default-action {
   padding: 8px 10px;
@@ -625,7 +625,7 @@ notificationwindow .notification-row .notification-background {
   margin-left: 230px;
   background: rgba({{colors.surface.default.red}}, {{colors.surface.default.green}}, {{colors.surface.default.blue}}, 0.55);
   border: 1px solid alpha({{colors.primary.default.hex}}, 0.6);
-  border-radius: 12px;
+  border-radius: 5px;
   box-shadow: none;
 }
 .notification.low .notification-default-action {
