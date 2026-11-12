@@ -5,6 +5,7 @@
 #   - PAM: unlock gnome-keyring with the login password, for the display manager
 #     in use (sddm, greetd or the plain console login) and for password changes
 #   - zram swap (half the RAM, zstd)
+#   - earlyoom: stop the biggest process (test browsers first) before memory runs out
 #   - Timeshift (btrfs): daily 5, weekly 3, /home excluded; grub-btrfsd keeps the GRUB
 #     snapshot menu up to date; cronie runs the schedule
 set -euo pipefail
@@ -65,6 +66,16 @@ if [ ! -f /etc/systemd/zram-generator.conf ]; then
     sudo systemctl start systemd-zram-setup@zram0.service || true
 fi
 echo ":: zram: $(zramctl --noheadings --output NAME,DISKSIZE,ALGORITHM 2>/dev/null | tr -s ' ' || echo none)"
+
+# --- earlyoom ---
+if command -v earlyoom >/dev/null; then
+    sudo install -D -m 644 "$DIR/system/earlyoom" /etc/default/earlyoom
+    sudo systemctl enable earlyoom.service
+    sudo systemctl restart earlyoom.service
+    echo ":: earlyoom: $(systemctl is-active earlyoom.service)"
+else
+    echo ":: earlyoom not installed (sudo pacman -S earlyoom), skipped"
+fi
 
 # --- Timeshift + GRUB snapshot menu ---
 if command -v timeshift >/dev/null; then

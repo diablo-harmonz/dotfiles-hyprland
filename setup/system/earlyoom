@@ -1,0 +1,8 @@
+# earlyoom: when the laptop is about to run out of memory, stop the biggest process
+# before everything freezes. Installed to /etc/default/earlyoom by install-system-files.sh.
+# Acts only when BOTH available RAM < 4 % AND free swap (zram) < 5 %, i.e. when the
+# machine would lock up anyway; normal heavy use (tests, many tabs) is never touched.
+#   --prefer  stopped first: test browsers and runners (a test run can be repeated)
+#   --avoid   never stopped: the desktop, terminal, editor, lock screen, audio, input
+#   -n        desktop notification when something is stopped;  -r 0  no periodic log
+EARLYOOM_ARGS="-m 4 -s 5 -r 0 -n --prefer (^|/)(chrome-headless|chrome_crashpad|node|ffmpeg|playwright.*)$ --avoid (^|/)(Hyprland|start-hyprland|Xwayland|waybar|swaync|hyprlock|hypridle|wezterm|wezterm-gui|code|electron|fcitx5|fcitx5-lotus-server|pipewire|pipewire-pulse|wireplumber|systemd|systemd-.*|sshd|dbus-.*)$"

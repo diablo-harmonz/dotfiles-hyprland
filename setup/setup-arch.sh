@@ -70,6 +70,7 @@ packages=(
     "btop"
     "htop"
     "zram-generator"
+    "earlyoom"
     "timeshift"
     "timeshift-autosnap"
     "grub-btrfs"
