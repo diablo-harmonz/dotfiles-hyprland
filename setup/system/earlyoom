@@ -2,7 +2,9 @@
 # before everything freezes. Installed to /etc/default/earlyoom by install-system-files.sh.
 # Acts only when BOTH available RAM < 4 % AND free swap (zram) < 5 %, i.e. when the
 # machine would lock up anyway; normal heavy use (tests, many tabs) is never touched.
-#   --prefer  stopped first: test browsers and runners (a test run can be repeated)
+#   --prefer  stopped first: web browsers (reopen and restore the tabs, nothing lost) and
+#             test browsers/runners (a test run can be repeated). Dots stand for spaces
+#             in Firefox's process names, because these args are split on spaces.
 #   --avoid   never stopped: the desktop, terminal, editor, lock screen, audio, input
 #   -n        desktop notification when something is stopped;  -r 0  no periodic log
-EARLYOOM_ARGS="-m 4 -s 5 -r 0 -n --prefer (^|/)(chrome-headless|chrome_crashpad|node|ffmpeg|playwright.*)$ --avoid (^|/)(Hyprland|start-hyprland|Xwayland|waybar|swaync|hyprlock|hypridle|wezterm|wezterm-gui|code|electron|fcitx5|fcitx5-lotus-server|pipewire|pipewire-pulse|wireplumber|systemd|systemd-.*|sshd|dbus-.*)$"
+EARLYOOM_ARGS="-m 4 -s 5 -r 0 -n --prefer (^|/)(brave|chrome|chromium|chrome-headless|chrome_crashpad|firefox|Web.Content|Isolated.Web.Co|WebExtensions|node|ffmpeg|playwright.*)$ --avoid (^|/)(Hyprland|start-hyprland|Xwayland|waybar|swaync|hyprlock|hypridle|wezterm|wezterm-gui|code|electron|fcitx5|fcitx5-lotus-server|pipewire|pipewire-pulse|wireplumber|systemd|systemd-.*|sshd|dbus-.*)$"
