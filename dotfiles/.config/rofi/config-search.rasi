@@ -1,0 +1,51 @@
+/*
+ * Web search bar (bin/web-search, SUPER+S): one input line under waybar.
+ * Colors from colors.rasi (Matugen).
+ */
+@theme "/dev/null"
+@import "colors.rasi"
+
+configuration {
+    font:                "FiraCode Nerd Font 11";
+}
+
+window {
+    transparency:        "real";
+    location:            north;
+    anchor:              north;
+    y-offset:            8px;
+    width:               40%;
+    border:              2px solid;
+    border-color:        @border;
+    border-radius:       8px;
+    background-color:    @bg;
+}
+
+mainbox {
+    padding:             0px;
+    background-color:    transparent;
+    children:            [ "inputbar" ];
+}
+
+inputbar {
+    padding:             12px 16px;
+    spacing:             10px;
+    background-color:    transparent;
+    text-color:          @text;
+    children:            [ "textbox-prompt-colon", "entry" ];
+}
+
+textbox-prompt-colon {
+    expand:              false;
+    str:                 " ";
+    background-color:    transparent;
+    text-color:          @primary;
+}
+
+entry {
+    background-color:    transparent;
+    text-color:          @text;
+    cursor:              text;
+    placeholder:         "Search Google or enter an address";
+    placeholder-color:   @text-muted;
+}
