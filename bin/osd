@@ -3,7 +3,8 @@
 #   osd volume up|down|mute     osd mic mute     osd brightness up|down
 # The popup is a low-priority, transient notification: each new one replaces the last
 # (x-canonical-private-synchronous), it closes by itself and stays out of the history.
-# swaync styles low-priority notifications as a compact OSD card (matugen swaync.css).
+# swaync styles low-priority notifications as a compact OSD card (matugen swaync.css);
+# the dot-matrix icons are dotfiles/icons/osd-*-symbolic.svg, tinted by swaync's CSS.
 set -uo pipefail
 
 STEP=5          # volume step, %
@@ -39,23 +40,23 @@ case "$1" in
     volume)
         read_volume @DEFAULT_AUDIO_SINK@
         if [ "$muted" = 1 ]; then
-            popup volume audio-volume-muted-symbolic "VOLUME: MUTED" 0
+            popup volume osd-volume-muted-symbolic "VOLUME: MUTED" 0
         else
-            icon=audio-volume-high-symbolic
-            [ "$pct" -lt 66 ] && icon=audio-volume-medium-symbolic
-            [ "$pct" -lt 33 ] && icon=audio-volume-low-symbolic
-            [ "$pct" -eq 0 ] && icon=audio-volume-muted-symbolic
+            icon=osd-volume-high-symbolic
+            [ "$pct" -lt 66 ] && icon=osd-volume-medium-symbolic
+            [ "$pct" -lt 33 ] && icon=osd-volume-low-symbolic
+            [ "$pct" -eq 0 ] && icon=osd-volume-muted-symbolic
             bar=$pct; [ "$bar" -gt 100 ] && bar=100
             popup volume "$icon" "VOLUME: $pct%" "$bar"
         fi ;;
     mic)
         read_volume @DEFAULT_AUDIO_SOURCE@
         if [ "$muted" = 1 ]; then
-            popup mic microphone-sensitivity-muted-symbolic "MIC: MUTED"
+            popup mic osd-mic-muted-symbolic "MIC: MUTED"
         else
-            popup mic audio-input-microphone-symbolic "MIC: ON $pct%" "$pct"
+            popup mic osd-mic-symbolic "MIC: ON $pct%" "$pct"
         fi ;;
     brightness)
         pct=$(brightnessctl -m | cut -d, -f4 | tr -d %)
-        popup brightness display-brightness-symbolic "BRIGHTNESS: $pct%" "$pct" ;;
+        popup brightness osd-brightness-symbolic "BRIGHTNESS: $pct%" "$pct" ;;
 esac

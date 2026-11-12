@@ -4,6 +4,7 @@
 #   dotfiles/.zprofile        -> ~/.zprofile (starts Hyprland after a TTY1 login)
 #   dotfiles/.config/<name>   -> ~/.config/<name>
 #   bin/<script>              -> ~/.local/bin/<script>
+#   dotfiles/icons/<icon>.svg -> ~/.local/share/icons/hicolor/scalable/status/<icon>.svg
 # Existing files/dirs that are not already the right symlink are moved to
 # <name>.bak-<timestamp>. Safe to run again.
 
@@ -32,6 +33,11 @@ _link "$REPO/dotfiles/.zprofile" "$HOME/.zprofile"
 
 for src in "$REPO"/dotfiles/.config/*; do
     _link "$src" "$HOME/.config/$(basename -- "$src")"
+done
+
+# Own icons (dot-matrix OSD icons), found by name through the hicolor theme
+for src in "$REPO"/dotfiles/icons/*.svg; do
+    _link "$src" "$HOME/.local/share/icons/hicolor/scalable/status/$(basename -- "$src")"
 done
 
 for src in "$REPO"/bin/*; do
