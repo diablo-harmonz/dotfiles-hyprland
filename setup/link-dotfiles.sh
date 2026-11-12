@@ -38,4 +38,7 @@ for src in "$REPO"/bin/*; do
     _link "$src" "$HOME/.local/bin/$(basename -- "$src")"
 done
 
+# Firefox look (FF Ultima + Matugen colours) into the default profile; never fatal
+"$REPO/bin/firefox-theme" || echo ":: firefox-theme failed, run it again later"
+
 echo ":: Done."

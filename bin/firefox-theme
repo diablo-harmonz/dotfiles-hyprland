@@ -3,14 +3,24 @@
 #   <profile>/user.js -> ~/.config/firefox-chrome/user.js     (vertical tabs, compact, dark)
 #   <profile>/chrome  -> ~/.config/firefox-chrome             (userChrome.css + colors.css)
 # Existing files are renamed to *.bak-<time>. Restart Firefox afterwards.
-# Safe to run again. Firefox must have been started once so that the profile exists.
+# Safe to run again. On a fresh system (no profile yet) it starts Firefox headless for a
+# few seconds so Firefox creates its default profile. Called by setup/link-dotfiles.sh.
 set -euo pipefail
 
 SRC="$HOME/.config/firefox-chrome"
-for base in "$HOME/.mozilla/firefox" "$HOME/.config/mozilla/firefox"; do
-    [ -f "$base/installs.ini" ] && break
-done
-[ -f "$base/installs.ini" ] || { echo "No Firefox profile found: start Firefox once first." >&2; exit 1; }
+command -v firefox >/dev/null || { echo ":: Firefox not installed, skipped"; exit 0; }
+
+find_base() {
+    for base in "$HOME/.mozilla/firefox" "$HOME/.config/mozilla/firefox"; do
+        [ -f "$base/installs.ini" ] && { echo "$base"; return 0; }
+    done
+    return 1
+}
+if ! base=$(find_base); then
+    echo ":: No Firefox profile yet: starting Firefox headless once to create it"
+    timeout 15 firefox --headless --no-remote about:blank >/dev/null 2>&1 || true
+    base=$(find_base) || { echo "No Firefox profile found: start Firefox once, then run firefox-theme." >&2; exit 1; }
+fi
 profile="$base/$(awk -F= '$1 == "Default" {print $2; exit}' "$base/installs.ini")"
 [ -d "$profile" ] || { echo "Profile not found: $profile" >&2; exit 1; }
 [ -d "$SRC" ] || { echo "Missing $SRC: run setup/link-dotfiles.sh first." >&2; exit 1; }
