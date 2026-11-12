@@ -64,6 +64,12 @@ setup/link-dotfiles.sh
 
 It links `dotfiles/.zshrc`, every folder in `dotfiles/.config/` and the scripts in `bin/` into `$HOME`. Existing files are moved to `*.bak-<timestamp>` first. The Hyprland config uses the Lua format (`~/.config/hypr/hyprland.lua`).
 
+## System files
+
+`setup/install-system-files.sh` (run by `setup-arch.sh`, needs sudo) installs the battery
+charge thresholds (75/80, udev rule in `setup/system/`) and adds `pam_gnome_keyring` to the
+login PAM file (sddm, greetd or console login) so the keyring unlocks with the login password.
+
 ## Wallpaper and colors
 
 `SUPER+W` opens a wallpaper picker (`bin/wallpaper`, rofi with thumbnails), `SUPER+SHIFT+W`

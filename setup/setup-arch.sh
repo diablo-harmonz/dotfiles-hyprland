@@ -55,6 +55,19 @@ packages=(
     "wtype"
     "networkmanager"
     "wireplumber"
+    "pipewire"
+    "pipewire-pulse"
+    "xdg-desktop-portal-gtk"
+    "gnome-keyring"
+    "seahorse"
+    "libsecret"
+    "libnotify"
+    "upower"
+    "power-profiles-daemon"
+    "lm_sensors"
+    "papirus-icon-theme"
+    "ttf-jetbrains-mono-nerd"
+    "noto-fonts-emoji"
     "wlogout"
     "fcitx5"
     "fcitx5-gtk"
@@ -201,6 +214,17 @@ EOT
 mkdir -p ~/.config/gtk-4.0
 grep -qs "matugen.css" ~/.config/gtk-4.0/gtk.css || echo "@import 'matugen.css';" >> ~/.config/gtk-4.0/gtk.css
 gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+
+# KDE apps, if any (e.g. Dolphin): use the Matugen color scheme instead of Breeze Light
+if command -v kwriteconfig6 >/dev/null; then
+    kwriteconfig6 --file dolphinrc --group UiSettings --key ColorScheme Matugen
+fi
+
+# VS Code: store secrets in gnome-keyring (Hyprland is not auto-detected)
+echo ':: VS Code: after its first start, add "password-store": "gnome-libsecret" to ~/.vscode/argv.json'
+
+# System files: battery thresholds (udev) and gnome-keyring unlock at login (PAM)
+"$(dirname "$(realpath "$0")")/install-system-files.sh"
 
 # Pacman hook: check the Hyprland config after every Hyprland upgrade
 "$(dirname "$(realpath "$0")")/install-pacman-hooks.sh"
