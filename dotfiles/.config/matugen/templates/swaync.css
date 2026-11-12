@@ -600,3 +600,21 @@ notificationwindow .notification-row .notification-background {
   margin-top: 8px;
   margin-right: 8px;
 }
+
+/* ---- Volume / brightness popups (bin/osd): thin rounded progress bar ---- */
+.notification-content progressbar {
+  min-height: 6px;
+  margin: 8px 4px 2px 4px;
+}
+.notification-content progressbar trough {
+  min-height: 6px;
+  border: none;
+  border-radius: 99px;
+  background: {{colors.surface_container_highest.default.hex}};
+}
+.notification-content progressbar progress {
+  min-height: 6px;
+  border: none;
+  border-radius: 99px;
+  background: {{colors.primary.default.hex}};
+}

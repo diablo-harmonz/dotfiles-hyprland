@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# osd: change volume / mic / brightness and show a popup with a progress bar (swaync).
+#   osd volume up|down|mute     osd mic mute     osd brightness up|down
+# The popup is a low-priority, transient notification: each new one replaces the last
+# (x-canonical-private-synchronous), it closes by itself and stays out of the history.
+set -uo pipefail
+
+STEP=5          # volume step, %
+MAX=1.4         # volume limit (140 %)
+BSTEP=10        # brightness step, %
+
+popup() {   # $1 = tag, $2 = icon, $3 = text, $4 = value 0-100 (optional)
+    local args=(-a osd -u low -e -t 1500 -h "string:x-canonical-private-synchronous:osd-$1" -i "$2")
+    [ -n "${4:-}" ] && args+=(-h "int:value:$4")
+    notify-send "${args[@]}" "$3"
+}
+
+# "Volume: 0.75 [MUTED]" -> percent and mute flag
+read_volume() {   # $1 = wpctl target
+    local out
+    out=$(wpctl get-volume "$1")
+    pct=$(awk '{printf "%d", $2 * 100 + 0.5}' <<<"$out")
+    muted=0; [[ $out == *MUTED* ]] && muted=1
+}
+
+case "${1:-} ${2:-}" in
+    "volume up")    wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
+                    wpctl set-volume -l "$MAX" @DEFAULT_AUDIO_SINK@ "$STEP%+" ;;
+    "volume down")  wpctl set-volume @DEFAULT_AUDIO_SINK@ "$STEP%-" ;;
+    "volume mute")  wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
+    "mic mute")     wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle ;;
+    "brightness up")   brightnessctl -q set "$BSTEP%+" ;;
+    "brightness down") brightnessctl -q -n2 set "$BSTEP%-" ;;   # -n2: never fully dark
+    *) echo "usage: osd volume up|down|mute | mic mute | brightness up|down" >&2; exit 2 ;;
+esac
+
+case "$1" in
+    volume)
+        read_volume @DEFAULT_AUDIO_SINK@
+        if [ "$muted" = 1 ]; then
+            popup volume audio-volume-muted "Volume: muted" 0
+        else
+            icon=audio-volume-high
+            [ "$pct" -lt 66 ] && icon=audio-volume-medium
+            [ "$pct" -lt 33 ] && icon=audio-volume-low
+            [ "$pct" -eq 0 ] && icon=audio-volume-muted
+            bar=$pct; [ "$bar" -gt 100 ] && bar=100
+            popup volume "$icon" "Volume: $pct%" "$bar"
+        fi ;;
+    mic)
+        read_volume @DEFAULT_AUDIO_SOURCE@
+        if [ "$muted" = 1 ]; then
+            popup mic microphone-sensitivity-muted "Microphone: muted"
+        else
+            popup mic audio-input-microphone "Microphone: on ($pct%)" "$pct"
+        fi ;;
+    brightness)
+        pct=$(brightnessctl -m | cut -d, -f4 | tr -d %)
+        popup brightness display-brightness "Brightness: $pct%" "$pct" ;;
+esac

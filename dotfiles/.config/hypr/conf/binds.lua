@@ -34,12 +34,12 @@ hl.bind("switch:on:Lid Switch",  exec("~/.local/bin/caffeine lid-close"), { lock
 hl.bind("switch:off:Lid Switch", exec("~/.local/bin/caffeine lid-open"),  { locked = true })
 
 -- Hardware keys
-hl.bind("XF86AudioRaiseVolume",  exec("wpctl set-volume -l 1.4 @DEFAULT_AUDIO_SINK@ 5%+"))
-hl.bind("XF86AudioLowerVolume",  exec("wpctl set-volume -l 1.4 @DEFAULT_AUDIO_SINK@ 5%-"))
-hl.bind("XF86MonBrightnessUp",   exec("brightnessctl set 10%+"))
-hl.bind("XF86MonBrightnessDown", exec("brightnessctl set 10%-"))
-hl.bind("XF86AudioMute",         exec("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"))
-hl.bind("XF86AudioMicMute",      exec("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"))
+hl.bind("XF86AudioRaiseVolume",  exec("~/.local/bin/osd volume up"), { repeating = true })      -- with popup (bin/osd)
+hl.bind("XF86AudioLowerVolume",  exec("~/.local/bin/osd volume down"), { repeating = true })
+hl.bind("XF86MonBrightnessUp",   exec("~/.local/bin/osd brightness up"), { repeating = true })
+hl.bind("XF86MonBrightnessDown", exec("~/.local/bin/osd brightness down"), { repeating = true })
+hl.bind("XF86AudioMute",         exec("~/.local/bin/osd volume mute"))
+hl.bind("XF86AudioMicMute",      exec("~/.local/bin/osd mic mute"))
 hl.bind("XF86WLAN",              exec("nmcli radio wifi toggle"))
 hl.bind("XF86Refresh",           exec("wtype -k F5"))
 hl.bind("XF86SelectiveScreenshot", exec("~/.local/bin/screenshot area"))  -- Fn+F10: select a region -> file + clipboard
