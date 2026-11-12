@@ -23,6 +23,7 @@ hl.env("SDL_IM_MODULE", "fcitx")
 hl.env("MOZ_ENABLE_WAYLAND", "1")
 
 -- Set the cursor size for xcursor
+hl.env("XCURSOR_THEME", "breeze_cursors")
 hl.env("XCURSOR_SIZE", "24")
 
 -- Disable appimage launcher by default

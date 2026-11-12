@@ -25,6 +25,10 @@ post_hook = 'hyprctl eval "$(cat ~/.config/hypr/colors.lua)" >/dev/null 2>&1 || 
 input_path = '~/.config/matugen/templates/gtk.css'
 output_path = '~/.config/gtk-4.0/matugen.css'
 
+[templates.gtk3]
+input_path = '~/.config/matugen/templates/gtk.css'
+output_path = '~/.config/gtk-3.0/matugen.css'
+
 [templates.swaync]
 input_path = '~/.config/matugen/templates/swaync.css'
 output_path = '~/.config/swaync/style.css'

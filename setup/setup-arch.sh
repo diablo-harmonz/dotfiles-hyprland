@@ -13,7 +13,6 @@ packages=(
     "waybar"
     "rofi"
     "wezterm"
-    "yakuake"
     "swaync"
     "hyprpolkitagent"
     "qt6ct"
@@ -37,7 +36,7 @@ packages=(
     "hypridle"
     "hyprsunset"
     "firefox"
-    "ttf-font-awesome"
+    "woff2-font-awesome"
     "vim"
     "zsh"
     "fastfetch"
@@ -66,7 +65,16 @@ packages=(
     "power-profiles-daemon"
     "lm_sensors"
     "papirus-icon-theme"
-    "ttf-jetbrains-mono-nerd"
+    "noto-fonts"
+    "smartmontools"
+    "adw-gtk-theme"
+    "breeze-cursors"
+    "xdg-user-dirs"
+    "zsh-autosuggestions"
+    "zsh-syntax-highlighting"
+    "zsh-history-substring-search"
+    "zsh-completions"
+    "zsh-theme-powerlevel10k"
     "noto-fonts-emoji"
     "wlogout"
     "fcitx5"
@@ -210,10 +218,36 @@ standard_dialogs=default
 style=Fusion
 EOT
 
-# GTK 4 apps (Nautilus) use the Matugen colors; prefer dark mode
-mkdir -p ~/.config/gtk-4.0
-grep -qs "matugen.css" ~/.config/gtk-4.0/gtk.css || echo "@import 'matugen.css';" >> ~/.config/gtk-4.0/gtk.css
+# GTK: dark adw-gtk3 theme for GTK 3 apps (pavucontrol, blueman...), Matugen colors
+# for GTK 3 and GTK 4, Papirus icons, Breeze cursor, Noto Sans
+mkdir -p ~/.config/gtk-3.0 ~/.config/gtk-4.0
+for v in 3.0 4.0; do
+    grep -qs "matugen.css" ~/.config/gtk-$v/gtk.css || echo "@import 'matugen.css';" >> ~/.config/gtk-$v/gtk.css
+done
+[ -f ~/.config/gtk-3.0/settings.ini ] || cat > ~/.config/gtk-3.0/settings.ini <<EOT
+[Settings]
+gtk-theme-name=adw-gtk3-dark
+gtk-icon-theme-name=Papirus-Dark
+gtk-cursor-theme-name=breeze_cursors
+gtk-cursor-theme-size=24
+gtk-font-name=Noto Sans 10
+gtk-application-prefer-dark-theme=true
+EOT
 gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+gsettings set org.gnome.desktop.interface gtk-theme adw-gtk3-dark
+gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark
+gsettings set org.gnome.desktop.interface cursor-theme breeze_cursors
+gsettings set org.gnome.desktop.interface cursor-size 24
+gsettings set org.gnome.desktop.interface font-name "Noto Sans 10"
+
+# Services: network, Bluetooth, power modes (Fn+F8), weekly SSD trim
+sudo systemctl enable --now NetworkManager.service bluetooth.service power-profiles-daemon.service fstrim.timer
+
+# Default folders (Pictures, Videos... used by the screenshot and recording scripts)
+xdg-user-dirs-update
+
+# zsh as the login shell (config: dotfiles/.zshrc + dotfiles/.config/zsh)
+[ "$(getent passwd "$USER" | cut -d: -f7)" = /usr/bin/zsh ] || chsh -s /usr/bin/zsh
 
 # KDE apps, if any (e.g. Dolphin): use the Matugen color scheme instead of Breeze Light
 if command -v kwriteconfig6 >/dev/null; then

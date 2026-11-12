@@ -26,7 +26,6 @@ Please run the setup script offered by the Dotfiles Installer to install all dep
 - waybar
 - rofi (2.0+, includes Wayland support)
 - wezterm
-- yakuake
 - swaync (notifications)
 - pavucontrol, network-manager-applet, blueman, bluez
 - nautilus, nautilus-open-any-terminal
@@ -38,7 +37,7 @@ Please run the setup script offered by the Dotfiles Installer to install all dep
 - hypridle
 - hyprsunset
 - firefox
-- ttf-font-awesome
+- woff2-font-awesome, noto-fonts, noto-fonts-emoji
 - vim
 - fastfetch
 - ttf-fira-sans

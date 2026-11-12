@@ -4,13 +4,14 @@ USE_POWERLINE="true"
 # Example:
 #    is not a diamond
 HAS_WIDECHARS="false"
-# Source manjaro-zsh-configuration
+# Manjaro's zsh setup: the system copy on Manjaro, the copy in ~/.config/zsh elsewhere (Arch)
+ZDOTCFG="$HOME/.config/zsh"
 if [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
   source /usr/share/zsh/manjaro-zsh-config
-fi
-# Use manjaro zsh prompt
-if [[ -e /usr/share/zsh/manjaro-zsh-prompt ]]; then
   source /usr/share/zsh/manjaro-zsh-prompt
+elif [[ -e "$ZDOTCFG/manjaro-zsh-config" ]]; then
+  source "$ZDOTCFG/manjaro-zsh-config"
+  source "$ZDOTCFG/manjaro-zsh-prompt"
 fi
 
 # nvm
