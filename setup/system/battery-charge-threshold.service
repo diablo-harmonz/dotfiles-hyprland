@@ -1,0 +1,15 @@
+# ThinkPad battery care: start charging below 75%, stop at 80%. Runs once at boot.
+# Installed to /etc/systemd/system/ by setup/install-system-files.sh.
+# (Not a udev rule: writing the thresholds sends a "change" event for the battery, so a
+# rule on "change" re-runs itself forever and floods everything watching the battery.)
+[Unit]
+Description=Set battery charge thresholds (75-80%)
+ConditionPathExists=/sys/class/power_supply/BAT0/charge_control_end_threshold
+
+[Service]
+Type=oneshot
+# Start threshold first: the firmware needs start < end
+ExecStart=/bin/sh -c 'echo 75 > /sys/class/power_supply/BAT0/charge_control_start_threshold; echo 80 > /sys/class/power_supply/BAT0/charge_control_end_threshold'
+
+[Install]
+WantedBy=multi-user.target

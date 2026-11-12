@@ -1,6 +1,7 @@
 -- Execute your favorite apps at launch
 hl.on("hyprland.start", function()
-    hl.exec_cmd("waybar")
+    -- Bar; its log goes to the journal (journalctl --user -t waybar)
+    hl.exec_cmd("systemd-cat -t waybar waybar")
     -- Wallpaper (awww) and its colors
     hl.exec_cmd("~/.local/bin/wallpaper restore")
     -- Notifications (swaync) and tray applets for Wi-Fi and Bluetooth

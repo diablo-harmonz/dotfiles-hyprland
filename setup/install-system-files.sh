@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Install the system-wide pieces of this setup (needs sudo). Safe to run again.
-#   - udev rule: battery charge thresholds 75/80 (setup/system/)
+#   - battery charge thresholds 75/80: a oneshot service at boot (setup/system/)
 #   - PAM: unlock gnome-keyring with the login password, for the display manager
 #     in use (sddm, greetd or the plain console login) and for password changes
 #   - zram swap (half the RAM, zstd)
@@ -10,10 +10,15 @@ set -euo pipefail
 DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
 # --- Battery charge thresholds ---
-sudo install -D -m 644 "$DIR/system/99-battery-charge-threshold.rules" \
-    /etc/udev/rules.d/99-battery-charge-threshold.rules
-sudo udevadm control --reload
-sudo udevadm trigger --subsystem-match=power_supply --sysname-match=BAT0 --action=change
+# An older version installed a udev rule that re-triggered itself: remove it
+if [ -f /etc/udev/rules.d/99-battery-charge-threshold.rules ]; then
+    sudo rm -f /etc/udev/rules.d/99-battery-charge-threshold.rules
+    sudo udevadm control --reload
+fi
+sudo install -D -m 644 "$DIR/system/battery-charge-threshold.service" \
+    /etc/systemd/system/battery-charge-threshold.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now battery-charge-threshold.service
 echo ":: Battery thresholds: $(cat /sys/class/power_supply/BAT0/charge_control_start_threshold 2>/dev/null)-$(cat /sys/class/power_supply/BAT0/charge_control_end_threshold 2>/dev/null)"
 
 # --- gnome-keyring unlocked at login ---

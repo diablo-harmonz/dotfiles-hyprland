@@ -85,7 +85,7 @@ shells. The keyring is unlocked through `/etc/pam.d/login` (see below).
 ## System files
 
 `setup/install-system-files.sh` (run by `setup-arch.sh`, needs sudo) installs the battery
-charge thresholds (75/80, udev rule in `setup/system/`) and adds `pam_gnome_keyring` to the
+charge thresholds (75/80, a oneshot service in `setup/system/`) and adds `pam_gnome_keyring` to the
 login PAM file (sddm, greetd or console login) so the keyring unlocks with the login password.
 
 ## Wallpaper and colors
