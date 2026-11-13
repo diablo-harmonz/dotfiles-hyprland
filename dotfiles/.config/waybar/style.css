@@ -119,7 +119,7 @@ window#waybar.empty #window {
 
 #tray,
 #pulseaudio,
-#mpris,
+#custom-media,
 #custom-batmode,
 #battery {
     background: transparent;

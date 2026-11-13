@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# media-status: Waybar custom/media module (play/pause icon of the current player).
+# Replaces Waybar's built-in mpris module, which crashed the whole bar (SIGSEGV in
+# Waybar 0.15.0) when Firefox media players appeared and vanished quickly.
+# playerctl runs in this separate process, so a player glitch cannot take the bar down.
+# Prints one JSON line per change; empty text hides the module (no player / stopped).
+set -uo pipefail
+
+ICON_PLAYING=$'\xef\x81\x8c'   # U+F04C pause (click to pause)
+ICON_PAUSED=$'\xef\x81\x8b'    # U+F04B play (click to play)
+
+playerctl --follow metadata \
+    --format $'{{status}}\t{{playerName}}\t{{title}}\t{{artist}}' 2>/dev/null |
+while IFS=$'\t' read -r status player title artist; do
+    case "$status" in
+        Playing) icon=$ICON_PLAYING ;;
+        Paused)  icon=$ICON_PAUSED ;;
+        *)       printf '{"text":""}\n'; continue ;;
+    esac
+    jq -cn --arg text "$icon" --arg class "${status,,}" \
+        --arg tooltip "$player: $title${artist:+ - $artist}" \
+        '{text: $text, class: $class, tooltip: $tooltip}'
+done

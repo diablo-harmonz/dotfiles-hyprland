@@ -97,7 +97,7 @@
             "modules": [
                 "tray",
                 "pulseaudio",
-                "mpris",
+                "custom/media",
                 "custom/batmode",
                 "battery"
             ]
@@ -129,15 +129,10 @@
             "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
             "on-click-middle": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
         },
-        "mpris": {
-            "format": "{status_icon}",
-            "format-paused": "{status_icon}",
-            "status-icons": {
-                "playing": "",
-                "paused": "",
-                "stopped": ""
-            },
-            "tooltip-format": "{player}: {title} - {artist}",
+        "custom/media": {
+            "exec": "~/.local/bin/media-status",
+            "return-type": "json",
+            "restart-interval": 5,
             "on-click": "playerctl play-pause",
             "on-scroll-up": "playerctl next",
             "on-scroll-down": "playerctl previous"
@@ -316,7 +311,7 @@
             "modules": [
                 "tray",
                 "pulseaudio",
-                "mpris",
+                "custom/media",
                 "custom/batmode",
                 "battery"
             ]
@@ -348,15 +343,10 @@
             "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
             "on-click-middle": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
         },
-        "mpris": {
-            "format": "{status_icon}",
-            "format-paused": "{status_icon}",
-            "status-icons": {
-                "playing": "",
-                "paused": "",
-                "stopped": ""
-            },
-            "tooltip-format": "{player}: {title} - {artist}",
+        "custom/media": {
+            "exec": "~/.local/bin/media-status",
+            "return-type": "json",
+            "restart-interval": 5,
             "on-click": "playerctl play-pause",
             "on-scroll-up": "playerctl next",
             "on-scroll-down": "playerctl previous"
