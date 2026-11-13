@@ -151,12 +151,12 @@ window#waybar.empty #window {
 
 #custom-batmode.care {
     color: @primary;
-    padding-right: 2px;
+    padding-right: 6px;   /* the leaf glyph is wider than its advance */
 }
 
 #custom-batmode.full {
     color: @tertiary;
-    padding-right: 2px;
+    padding-right: 6px;   /* the leaf glyph is wider than its advance */
 }
 
 #battery.charging,
@@ -195,4 +195,14 @@ window#waybar.empty #window {
 
 #custom-notification {
     padding: 0 14px;
+}
+
+/* Drawers: the revealed pills keep the same 6 px gap as the rest of the bar */
+#custom-sysinfo {
+    margin-left: 6px;
+}
+
+#custom-notification,
+#custom-wallpaper {
+    margin-right: 6px;
 }
