@@ -4,7 +4,7 @@
 #     root-owned helper + polkit action so bin/battery-mode can switch (password each time)
 #   - PAM: unlock gnome-keyring with the login password, for the display manager
 #     in use (sddm, greetd or the plain console login) and for password changes
-#   - zram swap (half the RAM, zstd)
+#   - zram swap (size = RAM, zstd) and the vm.* sysctls for it
 #   - earlyoom: stop the biggest process (test browsers first) before memory runs out
 #   - Firefox policy: install uBlock Origin, Proton Pass and Unhook from addons.mozilla.org
 #   - Timeshift (btrfs): daily 5, weekly 3, /home excluded; grub-btrfsd keeps the GRUB
@@ -65,7 +65,13 @@ if [ ! -f /etc/systemd/zram-generator.conf ]; then
     sudo install -D -m 644 "$DIR/system/zram-generator.conf" /etc/systemd/zram-generator.conf
     sudo systemctl daemon-reload
     sudo systemctl start systemd-zram-setup@zram0.service || true
+elif ! cmp -s "$DIR/system/zram-generator.conf" /etc/systemd/zram-generator.conf; then
+    # Never resize a zram0 in use: swapoff would have to pull everything back into RAM
+    sudo install -m 644 "$DIR/system/zram-generator.conf" /etc/systemd/zram-generator.conf
+    echo ":: zram: new size applies at the next boot"
 fi
+sudo install -D -m 644 "$DIR/system/99-vm-zram.conf" /etc/sysctl.d/99-vm-zram.conf
+sudo sysctl -q --load /etc/sysctl.d/99-vm-zram.conf
 echo ":: zram: $(zramctl --noheadings --output NAME,DISKSIZE,ALGORITHM 2>/dev/null | tr -s ' ' || echo none)"
 
 # --- Firefox extensions (installed by Firefox itself from addons.mozilla.org at start) ---
