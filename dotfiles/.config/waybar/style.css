@@ -20,15 +20,27 @@ window#waybar {
     color: @on_surface;
 }
 
-tooltip {
+/* Tooltips: the tooltip window itself stays fully transparent (its square
+   background showed as light corners behind the rounded card); the visible card
+   is the inner box, pushed down so it clears the bar. */
+tooltip,
+tooltip decoration {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+tooltip > box {
     background: alpha(@surface, 0.95);
     border: 1px solid @outline;
     border-radius: 7px;
+    margin-top: -4px;
+    padding: 4px;
 }
 
 tooltip label {
     color: @on_surface;
-    padding: 4px;
 }
 
 /* Pills */
@@ -48,6 +60,15 @@ tooltip label {
     color: @on_surface;
     border-radius: 6px;
     padding: 0 14px;
+}
+
+/* The 5 px above and below each pill sits on the module wrapper (widget), not on
+   the pill: GTK places a tooltip under the widget that owns it, which is the
+   wrapper for most modules but the pill itself for grouped ones. With the gap on
+   the wrapper every tooltip starts at the same height. */
+.modules-left > widget,
+.modules-center > widget,
+.modules-right > widget {
     margin: 5px 0;
 }
 
