@@ -72,6 +72,9 @@ for i = 1, 10 do
     hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
 end
 
+-- Special workspace (scratchpad): slides in over the current workspace, again to hide it
+hl.bind("CTRL + SHIFT + down", hl.dsp.workspace.toggle_special("scratch"))
+
 -- Scroll through existing workspaces with mainMod + scroll
 hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
 hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
