@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# cava-toggle: open the audio visualizer in a floating WezTerm window, or close it (SUPER+A).
+# The window has class "cava"; its size and position are set in hypr/conf/windowrules.lua.
+set -euo pipefail
+
+if pgrep -x cava >/dev/null; then
+    # SIGINT makes cava exit cleanly, so WezTerm closes the window
+    pkill -INT -x cava
+else
+    setsid -f wezterm start --class cava -- cava >/dev/null 2>&1
+fi

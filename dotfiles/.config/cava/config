@@ -1,0 +1,31 @@
+# cava: audio visualizer. Open it as a floating window with SUPER+A (bin/cava-toggle).
+# Colors come from the wallpaper: Matugen writes themes/matugen (git-ignored)
+# and sends cava SIGUSR1 so it reloads (see ~/.config/matugen/config.toml).
+
+[general]
+framerate = 60
+autosens = 1
+# 0 = as many bars as fit; 2 columns per bar, 1 column gap
+bars = 0
+bar_width = 2
+bar_spacing = 1
+center_align = 1
+# Stop drawing after 5 s of silence (saves CPU)
+sleep_timer = 5
+
+[input]
+method = pipewire
+source = auto
+
+[output]
+method = noncurses
+# Lowest to highest frequency from left to right (not mirrored)
+channels = mono
+mono_option = average
+
+[color]
+# Vertical gradient from the wallpaper colors: dark at the bottom, pale at the top
+theme = 'matugen'
+
+[smoothing]
+noise_reduction = 77

@@ -40,6 +40,7 @@ packages=(
     "vim"
     "zsh"
     "fastfetch"
+    "cava"
     "ttf-fira-sans" 
     "ttf-fira-code" 
     "ttf-firacode-nerd"

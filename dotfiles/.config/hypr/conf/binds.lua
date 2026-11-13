@@ -28,6 +28,7 @@ hl.bind(mainMod .. " + CTRL + L",       exec("~/.local/bin/lock-recover --if-loc
 hl.bind(mainMod .. " + S",              exec("~/.local/bin/web-search"))                                   -- Quick web search / address -> Firefox
 hl.bind(mainMod .. " + V",              exec("~/.local/bin/clipboard"))                                    -- Clipboard history: pick to paste (Shift+Enter: delete entry)
 hl.bind(mainMod .. " + SHIFT + C",      exec("~/.local/bin/caffeine toggle"))                              -- Keep awake on/off (no idle lock or suspend)
+hl.bind(mainMod .. " + A",              exec("~/.local/bin/cava-toggle"))                                  -- Audio visualizer on/off
 
 -- Lid: only acts while caffeine is on (otherwise logind suspends and hypridle locks first)
 hl.bind("switch:on:Lid Switch",  exec("~/.local/bin/caffeine lid-close"), { locked = true })
