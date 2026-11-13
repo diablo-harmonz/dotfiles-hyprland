@@ -5,6 +5,8 @@
 #   dotfiles/.config/<name>   -> ~/.config/<name>
 #   bin/<script>              -> ~/.local/bin/<script>
 #   dotfiles/icons/<icon>.svg -> ~/.local/share/icons/hicolor/scalable/status/<icon>.svg
+#   ../wallpapers             -> ~/Pictures/Wallpapers (private repo cloned next to
+#                                this one; skipped when it is not there)
 # Existing files/dirs that are not already the right symlink are moved to
 # <name>.bak-<timestamp>. Safe to run again.
 
@@ -43,6 +45,15 @@ done
 for src in "$REPO"/bin/*; do
     _link "$src" "$HOME/.local/bin/$(basename -- "$src")"
 done
+
+# Wallpapers live in their own private repo next to this one (third-party art
+# must not go into this public repo)
+WALLPAPERS=$(dirname -- "$REPO")/wallpapers
+if [ -d "$WALLPAPERS" ]; then
+    _link "$WALLPAPERS" "$HOME/Pictures/Wallpapers"
+else
+    echo ":: skipped  ~/Pictures/Wallpapers (clone the wallpapers repo to $WALLPAPERS first)"
+fi
 
 # Firefox look (FF Ultima + Matugen colours) into the default profile; never fatal
 "$REPO/bin/firefox-theme" || echo ":: firefox-theme failed, run it again later"

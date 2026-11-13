@@ -10,7 +10,6 @@
 set -euo pipefail
 
 DIRS=("$HOME/Pictures/Wallpapers" "$HOME/.config/ml4w/wallpapers")
-DEFAULT="$HOME/.config/ml4w/wallpapers/wallpaper.jpg"
 CACHE="$HOME/.cache/wallpaper"
 CURRENT="$CACHE/current"
 THUMBS="$CACHE/thumbs"
@@ -81,7 +80,12 @@ case "${1:-select}" in
     restore)
         ensure_daemon
         img=$(readlink -f -- "$CURRENT" 2>/dev/null || true)
-        [ -f "$img" ] || img="$DEFAULT"
+        # No saved wallpaper (fresh install): take the first one found, if any
+        [ -f "$img" ] || img=$(list | head -n 1)
+        if [ -z "$img" ]; then
+            notify-send -a wallpaper "Wallpaper" "No wallpapers yet: add images to ~/Pictures/Wallpapers, then press SUPER+W."
+            exit 0
+        fi
         awww img "$img" --transition-type none
         ln -sfn "$img" "$CURRENT"
         # Generate colors on the first run, or when a generated file is missing

@@ -98,7 +98,7 @@ login PAM file (sddm, greetd or console login) so the keyring unlocks with the l
 ## Wallpaper and colors
 
 `SUPER+W` opens a wallpaper picker (`bin/wallpaper`, rofi with thumbnails), `SUPER+SHIFT+W`
-picks one at random. Wallpapers come from `~/Pictures/Wallpapers` and `~/.config/ml4w/wallpapers`.
+picks one at random. Wallpapers come from `~/Pictures/Wallpapers` (the repo ships none; `setup/link-dotfiles.sh` links it to a private `wallpapers` repo cloned next to this one, if present).
 After each change Matugen (`dotfiles/.config/matugen`) generates matching colors for rofi,
 waybar, WezTerm, GTK 4 and the Hyprland borders. Those generated files are git-ignored; run
 `wallpaper restore` once after linking (Hyprland also runs it at login).
