@@ -39,7 +39,9 @@ command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
 # Neovim (LazyVim) for vim/vi
 alias vim=nvim vi=nvim
 
-# Fastfetch: show system info when opening a terminal window (not on a bare TTY)
-if [[ -o interactive && $(tty) == *pts* ]] && command -v fastfetch >/dev/null; then
-  fastfetch
+# Fastfetch: only in the welcome terminal opened at login (hypr/conf/startup-layout.lua);
+# unset so shells started from it do not run it again. Type `fastfetch` any time.
+if [[ -n $WELCOME_FASTFETCH ]]; then
+  unset WELCOME_FASTFETCH
+  command -v fastfetch >/dev/null && fastfetch
 fi

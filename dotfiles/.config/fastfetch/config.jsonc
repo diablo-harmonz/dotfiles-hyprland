@@ -1,0 +1,25 @@
+// Fastfetch: compact system info for the welcome terminal (conf/startup-layout.lua).
+// Small distro logo, a few lines, a row of color dots.
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "type": "small",
+        "padding": { "top": 1, "left": 2, "right": 4 }
+    },
+    "display": {
+        "separator": "  ",
+        "key": { "width": 8 }
+    },
+    "modules": [
+        "title",
+        { "type": "os",       "key": "os" },
+        { "type": "wm",       "key": "wm" },
+        { "type": "packages", "key": "pkgs" },
+        { "type": "shell",    "key": "shell" },
+        { "type": "kernel",   "key": "kernel" },
+        { "type": "uptime",   "key": "uptime" },
+        { "type": "memory",   "key": "memory" },
+        "break",
+        { "type": "colors", "symbol": "circle" }
+    ]
+}

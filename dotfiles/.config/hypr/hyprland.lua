@@ -22,4 +22,5 @@ require("conf.layouts")
 require("conf.gestures")
 require("conf.misc")
 require("conf.windowrules")
+require("conf.startup-layout")   -- widget windows; opened by autostart.lua
 require("conf.binds")

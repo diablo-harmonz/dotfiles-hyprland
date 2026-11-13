@@ -22,4 +22,6 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("~/.local/bin/powermode-notify")
     -- Vietnamese input method
     hl.exec_cmd("fcitx5 -d")
+    -- Floating widgets on workspace 1: welcome terminal, ... (startup-layout.lua)
+    require("conf.startup-layout").start()
 end)
