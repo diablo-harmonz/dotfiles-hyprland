@@ -82,8 +82,14 @@ window#waybar > box {
     padding: 0 15px 0 13px;
 }
 
+/* No window on this workspace: the app-name pill collapses, and the negative margin
+   takes back the 6 px module spacing it still gets, so the launcher and the arrow
+   sit the usual 6 px apart */
 window#waybar.empty #window {
     background: transparent;
+    padding: 0;
+    min-width: 0;
+    margin-right: -6px;
 }
 
 /* Drawer arrows: small round buttons */
