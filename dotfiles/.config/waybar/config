@@ -56,8 +56,8 @@
                 "code": "VS Code",
                 "org\\.gnome\\.nautilus": "Files",
                 "org\\.telegram\\.desktop": "Telegram",
-                "org\\.pulseaudio\\.pavucontrol": "Volume",
-                "blueman-manager": "Bluetooth",
+                "tui-wiremix": "Audio",
+                "tui-bluetui": "Bluetooth",
                 "nm-connection-editor": "Network",
                 "com\\.gabm\\.satty": "Satty",
                 "mpv": "mpv",
@@ -147,7 +147,7 @@
             "icon-size": 15,
             "spacing": 8
         },
-        // Bluetooth (replaces the blueman tray icon): bin/bt-status, event driven. Bar: icon
+        // Bluetooth: bin/bt-status, event driven. Bar: icon
         // only (tinted when a battery is low); tooltip: every connected device with its battery.
         // Levels come from UPower (headset over HFP via PipeWire, Logitech via HID++).
         "custom/bluetooth": {
@@ -155,7 +155,7 @@
             "return-type": "json",
             "restart-interval": 5,
             "escape": false,
-            "on-click": "blueman-manager"
+            "on-click": "~/.local/bin/tui-popup bluetui"
         },
         "pulseaudio": {
             "format": "{icon} {volume}%",
@@ -176,7 +176,7 @@
             "tooltip-format": "{desc}: {volume}%\nMic: {format_source}",
             "format-source": "{volume}%",
             "format-source-muted": "muted",
-            "on-click": "pavucontrol",
+            "on-click": "~/.local/bin/tui-popup wiremix",
             "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
             "on-click-middle": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
         },
@@ -321,8 +321,8 @@
                 "code": "VS Code",
                 "org\\.gnome\\.nautilus": "Files",
                 "org\\.telegram\\.desktop": "Telegram",
-                "org\\.pulseaudio\\.pavucontrol": "Volume",
-                "blueman-manager": "Bluetooth",
+                "tui-wiremix": "Audio",
+                "tui-bluetui": "Bluetooth",
                 "nm-connection-editor": "Network",
                 "com\\.gabm\\.satty": "Satty",
                 "mpv": "mpv",
@@ -412,7 +412,7 @@
             "icon-size": 15,
             "spacing": 8
         },
-        // Bluetooth (replaces the blueman tray icon): bin/bt-status, event driven. Bar: icon
+        // Bluetooth: bin/bt-status, event driven. Bar: icon
         // only (tinted when a battery is low); tooltip: every connected device with its battery.
         // Levels come from UPower (headset over HFP via PipeWire, Logitech via HID++).
         "custom/bluetooth": {
@@ -420,7 +420,7 @@
             "return-type": "json",
             "restart-interval": 5,
             "escape": false,
-            "on-click": "blueman-manager"
+            "on-click": "~/.local/bin/tui-popup bluetui"
         },
         "pulseaudio": {
             "format": "{icon} {volume}%",
@@ -441,7 +441,7 @@
             "tooltip-format": "{desc}: {volume}%\nMic: {format_source}",
             "format-source": "{volume}%",
             "format-source-muted": "muted",
-            "on-click": "pavucontrol",
+            "on-click": "~/.local/bin/tui-popup wiremix",
             "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
             "on-click-middle": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
         },

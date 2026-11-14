@@ -1,0 +1,9 @@
+[Desktop Entry]
+# Hidden entry so the Waybar workspace taskbar finds an icon for the floating
+# bluetui window (bin/tui-popup, window class tui-bluetui)
+Type=Application
+Name=Bluetooth devices
+Icon=bluetooth
+Exec=tui-popup bluetui
+StartupWMClass=tui-bluetui
+NoDisplay=true

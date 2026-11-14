@@ -77,7 +77,7 @@ Chưa làm. Mục đích: chạy trọn quy trình cài Arch bằng repo trên m
 - [ ] Timeshift và rollback: sudo timeshift --list có snapshot đầu tiên; cài thử một gói nhỏ (timeshift-autosnap phải tạo snapshot trước khi cài); menu GRUB có mục Arch Linux snapshots; khởi động thử vào snapshot cũ rồi khôi phục bằng sudo timeshift --restore; quan trọng nhất: cập nhật kernel (sudo pacman -Syu khi có linux mới, hoặc cài linux-lts) rồi khôi phục snapshot trước đó, máy vẫn phải khởi động được
 - [ ] Hệ thống: zramctl có zram0; systemctl --failed trống; NetworkManager, bluetooth, power-profiles-daemon, cronie, grub-btrfsd đang chạy; shell mặc định là zsh, prompt powerlevel10k và gợi ý lệnh có
 - [ ] Keyring và polkit: seahorse thấy keyring Login đã mở khoá sau khi đăng nhập TTY (không hỏi thêm mật khẩu); pkexec true hiện hộp thoại mật khẩu
-- [ ] Giao diện: Waybar đủ mục (đồng hồ, workspace, khay, hai ngăn trượt); SUPER + W đổi hình nền và màu Waybar, rofi, WezTerm, Nautilus, pavucontrol (GTK3), Qt đổi theo; con trỏ Breeze; font và icon không lỗi
+- [ ] Giao diện: Waybar đủ mục (đồng hồ, workspace, khay, hai ngăn trượt); SUPER + W đổi hình nền và màu Waybar, rofi, WezTerm, Nautilus (GTK), Qt đổi theo; bấm icon âm lượng mở wiremix, icon Bluetooth mở bluetui; con trỏ Breeze; font và icon không lỗi
 - [ ] Tiện ích: gõ tiếng Việt bằng Lotus trong WezTerm và trình duyệt, không gạch chân (fcitx5-lotus-server đang chạy); SUPER + V dán chữ và ảnh; Shift + Print hiện preview, kéo thả được; SUPER + L khoá, hypridle khoá sau 10 phút; caffeine bật tắt được; thông báo swaync hiện
 - [ ] Ghi lại mọi lỗi hoặc gói thiếu, sửa trong repo, rồi cài lại máy ảo một lần nữa từ đầu cho tới khi chạy trơn
 
@@ -155,11 +155,11 @@ Thứ tự đã làm trên Manjaro ngày 2026-11-08: Git, Node, Python, Docker, 
 
 ## Công cụ cần cài trên Arch
 
-Cấu hình và cách dùng. zram, btop, htop, lm_sensors, smartmontools, upower, Timeshift và các gói chụp, quay màn hình đã nằm trong setup/setup-arch.sh.
+Cấu hình và cách dùng. zram, btop, lm_sensors, smartmontools, upower, Timeshift và các gói chụp, quay màn hình đã nằm trong setup/setup-arch.sh.
 
 - zram (swap nén trong RAM): Manjaro bật sẵn, Arch phải tự bật. Đã tự động: setup/install-system-files.sh chép setup/system/zram-generator.conf ([zram0], zram-size = ram, compression-algorithm = zstd; đổi từ ram / 2 ngày 2026-11-13 vì zram đầy khi chạy test Playwright làm máy giật) rồi bật, kèm sysctl cho zram trong setup/system/99-vm-zram.conf (swappiness 180, page-cluster 0, watermark). Kích thước mới chỉ có hiệu lực sau khi khởi động lại. Kiểm tra bằng zramctl và swapon --show. Chưa thử trên Arch thật.
 - Kích thước zram chỉ là mức trần: trên Manjaro nó tự co khoảng một nửa RAM (5,7 GiB khi RAM 11 GiB), RAM thật chiếm khoảng một phần tư nhờ nén.
-- Giám sát tài nguyên: btop xem CPU, RAM, đĩa, mạng trên một màn hình; htop gọn hơn để sắp xếp theo RAM (F6, chọn PERCENT_MEM). Lệnh có sẵn không cần cài: free -h, vmstat 1, cat /proc/pressure/memory. Trên Waybar, rê chuột vào mũi tên bên trái để xem CPU/RAM, bấm để mở syslive.
+- Giám sát tài nguyên: btop xem CPU, RAM, đĩa, mạng trên một màn hình; sắp xếp theo RAM: bấm f rồi chọn mem (htop đã gỡ 2026-11-15, btop thay). Lệnh có sẵn không cần cài: free -h, vmstat 1, cat /proc/pressure/memory. Trên Waybar, rê chuột vào mũi tên bên trái để xem CPU/RAM, bấm để mở syslive.
 - Sau khi dựng xong Arch + Hyprland, chạy sysreport lúc rảnh để có số RAM thật so với Manjaro.
 - Kiểm tra nhanh tình trạng máy: sudo smartctl -H -A /dev/nvme0n1 (SSD), upower -i $(upower -e | grep BAT) (pin), systemctl --failed (dịch vụ lỗi), journalctl -b -p err (lỗi hệ thống), docker stats --no-stream (Docker). Hoặc chạy sysreport để có tất cả một lần.
 - Tắt máy đúng cách: systemctl poweroff hoặc systemctl reboot; tránh giữ nút nguồn để không làm tăng Unsafe Shutdowns của SSD. Khi máy đơ: Ctrl+Alt+F3 rồi pkill Hyprland hoặc systemctl poweroff.
@@ -183,7 +183,7 @@ Ghi chú 2026-11-10: phần này chỉ áp dụng cho Manjaro (chạy đến h�
 - Cấu hình atop nằm ở /etc/default/atop (đã xác nhận trên Manjaro): LOGINTERVAL là chu kỳ ghi tính bằng giây (mặc định 600, quá thưa), LOGGENERATIONS là số ngày giữ log (mặc định 28), LOGPATH là thư mục log. Đặt chu kỳ 60 giây: sudo sed -i 's/^LOGINTERVAL=600$/LOGINTERVAL=60/' /etc/default/atop, rồi sudo systemctl restart atop. Kiểm tra bằng systemctl status atop, dòng atop -w ... phải kết thúc bằng 60.
 - Xem lại: atop -r, bấm t (tiến) và T (lùi) để đi theo thời gian, bấm m để xem theo bộ nhớ. Sau một ngày chạy du -sh /var/log/atop; nếu nặng thì hạ LOGGENERATIONS xuống khoảng 7 (sửa bằng sed tương tự, rồi restart atop).
 - sysstat (lệnh sar): ghi số liệu tổng hợp theo thời gian. Cài: sudo pacman -S sysstat. Trên Manjaro có bảy unit; cần bật bốn cái: sudo systemctl enable --now sysstat.service sysstat-collect.timer sysstat-rotate.timer sysstat-summary.timer. Kiểm tra: systemctl list-timers 'sysstat*'. Xem RAM: sar -r, xem swap/paging: sar -B. Chu kỳ ghi mặc định khoảng 10 phút.
-- Bổ trợ: PSI (cat /proc/pressure/memory, atop/sar không ghi), journalctl -k xem log kernel nếu từng chạm giới hạn RAM. btop và htop chỉ xem trực tiếp, không lưu lịch sử. Netdata, Prometheus + Grafana nặng, không cần cho máy cá nhân.
+- Bổ trợ: PSI (cat /proc/pressure/memory, atop/sar không ghi), journalctl -k xem log kernel nếu từng chạm giới hạn RAM. btop chỉ xem trực tiếp, không lưu lịch sử. Netdata, Prometheus + Grafana nặng, không cần cho máy cá nhân.
 - Trạng thái: đã cài và chạy trên Manjaro (atop chu kỳ 600 giây; ở 60 giây log từng nặng 36 MB cho khoảng 5 giờ, ước khoảng 170 MB mỗi ngày). Đã xác nhận (2026-11-10) sar đã có dữ liệu, và chưa thử trên Arch thật.
 
 ## Đã chuẩn bị sẵn cho Arch

@@ -27,3 +27,15 @@ hl.window_rule({
     size   = "380 830",
     center = true,
 })
+
+-- Terminal popups from Waybar (bin/tui-popup): wiremix (volume) and bluetui (Bluetooth),
+-- floating under the right end of the bar. The bar is centred and ~77 % wide, so its
+-- right edge is at ~88.5 % of the screen width on every monitor.
+hl.window_rule({
+    name  = "tui-popup",
+    match = { class = "^(tui-.*)$" },
+
+    float = true,
+    size  = "900 560",
+    move  = "(monitor_w*0.885-900) 52",
+})

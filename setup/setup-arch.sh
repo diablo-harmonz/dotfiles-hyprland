@@ -19,9 +19,7 @@ packages=(
     "cliphist"
     "python-gobject"
     "gtk4-layer-shell"
-    "pavucontrol"
     "network-manager-applet"
-    "blueman"
     "bluez"
     "bluez-utils"
     "nautilus"
@@ -76,13 +74,14 @@ packages=(
     "fzf"
     "zoxide"
     "eza"
+    "wiremix"
+    "bluetui"
     "resvg"
     "tree-sitter-cli"
     "ripgrep"
     "poppler"
     "7zip"
     "btop"
-    "htop"
     "zram-generator"
     "earlyoom"
     "nftables"
@@ -230,10 +229,6 @@ sudo systemctl enable --now "fcitx5-lotus-server@$USER.service"
 
 # Nautilus: "Open in Terminal" opens WezTerm
 gsettings set com.github.stunkymonkey.nautilus-open-any-terminal terminal wezterm
-# Blueman: monochrome icons; no tray icon (Waybar's bluetooth module replaces it, the
-# applet keeps running for pairing and notifications)
-gsettings set org.blueman.general symbolic-status-icons true
-gsettings set org.blueman.general plugin-list "['!StatusNotifierItem']"
 
 # Qt apps: Fusion style with the Matugen palette (qt6ct needs an absolute path)
 mkdir -p ~/.config/qt6ct/colors
@@ -246,7 +241,7 @@ standard_dialogs=default
 style=Fusion
 EOT
 
-# GTK: dark adw-gtk3 theme for GTK 3 apps (pavucontrol, blueman...), Matugen colors
+# GTK: dark adw-gtk3 theme for GTK 3 apps (Nautilus dialogs, nm-applet...), Matugen colors
 # for GTK 3 and GTK 4, Papirus icons, Breeze cursor, Noto Sans
 mkdir -p ~/.config/gtk-3.0 ~/.config/gtk-4.0
 for v in 3.0 4.0; do

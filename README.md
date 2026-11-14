@@ -96,7 +96,8 @@ to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#
 | Clipboard | cliphist |
 | Screenshots, recording | grim, slurp, satty, wf-recorder |
 | Polkit, secrets | hyprpolkitagent, gnome-keyring |
-| Tray apps | nm-applet, pavucontrol; blueman runs without a tray icon (pairing, notifications) |
+| Tray apps | nm-applet |
+| Audio, Bluetooth | wiremix and bluetui in floating WezTerm windows (`bin/tui-popup`), opened from the Waybar volume and Bluetooth icons |
 | Bluetooth on the bar | `bin/bt-status`: devices and battery levels from UPower |
 | Browser | Firefox (FF Ultima theme) |
 
@@ -163,7 +164,7 @@ picks one at random. Wallpapers come from `~/Pictures/Wallpapers`; this repo shi
 
 After each change Matugen (`dotfiles/.config/matugen`) generates matching colors for
 rofi, Waybar, WezTerm, the Hyprland borders, hyprlock, wlogout, GTK 3, GTK 4, swaync, Qt (qt6ct), KDE apps,
-Firefox, yazi and cava. The generated files are git-ignored; run `wallpaper restore` once
+Firefox, yazi, cava and btop. The generated files are git-ignored; run `wallpaper restore` once
 after linking (Hyprland also runs it at login).
 
 ## Firefox
@@ -219,6 +220,7 @@ installs from `setup/system/`:
 | `screenshot`, `screenshot-preview` | Screenshots with file, clipboard and preview |
 | `screenrec` | Start/stop screen recording |
 | `capture-menu` | macOS-style screenshot / recording toolbar (rofi) |
+| `tui-popup` | Toggle wiremix / bluetui as a floating terminal under the bar |
 | `power-menu` | wlogout grid centred on the focused screen (Waybar power button) |
 | `rec-status` | Waybar red stop button with the elapsed time while recording |
 | `clipboard` | Clipboard history picker |

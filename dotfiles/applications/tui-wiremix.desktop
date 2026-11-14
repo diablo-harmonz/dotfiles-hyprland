@@ -1,0 +1,9 @@
+[Desktop Entry]
+# Hidden entry so the Waybar workspace taskbar finds an icon for the floating
+# wiremix window (bin/tui-popup, window class tui-wiremix)
+Type=Application
+Name=Audio mixer
+Icon=audio-volume-high
+Exec=tui-popup wiremix
+StartupWMClass=tui-wiremix
+NoDisplay=true

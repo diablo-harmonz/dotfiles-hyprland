@@ -13,6 +13,8 @@ configuration {
     display-window:      "Windows";
     drun-display-format: "{name}";
     font:                "FiraCode Nerd Font 10";
+    /* Terminal apps (btop, nmtui, ...) open in WezTerm, not whatever rofi finds first */
+    terminal:            "wezterm";
     show-icons:          true;
     icon-theme:          "Papirus-Dark";
 }
