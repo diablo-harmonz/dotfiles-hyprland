@@ -1,0 +1,9 @@
+[Desktop Entry]
+# Hidden entry so the Waybar workspace taskbar finds an icon for WezTerm windows
+# started with --class cava (looked up by window class)
+Type=Application
+Name=Cava visualizer
+Icon=org.wezfurlong.wezterm
+Exec=wezterm start --class cava
+StartupWMClass=cava
+NoDisplay=true

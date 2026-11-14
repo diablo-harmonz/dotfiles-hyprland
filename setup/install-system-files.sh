@@ -7,6 +7,8 @@
 #   - zram swap (size = RAM, zstd) and the vm.* sysctls for it
 #   - earlyoom: stop the biggest process (test browsers first) before memory runs out
 #   - Firefox policy: install uBlock Origin, Proton Pass and Unhook from addons.mozilla.org
+#   - Bluetooth: bluetoothd without its GATT battery plugin, so headsets show the
+#     battery level they send over HFP (forwarded by PipeWire)
 #   - Timeshift (btrfs): daily 5, weekly 3, /home excluded; grub-btrfsd keeps the GRUB
 #     snapshot menu up to date; cronie runs the schedule
 set -euo pipefail
@@ -91,6 +93,16 @@ if command -v earlyoom >/dev/null; then
     echo ":: earlyoom: $(systemctl is-active earlyoom.service)"
 else
     echo ":: earlyoom not installed (sudo pacman -S earlyoom), skipped"
+fi
+
+# --- Bluetooth: headset battery from HFP instead of GATT ---
+# Takes effect when bluetoothd restarts (Bluetooth devices reconnect) or at the next boot
+if ! cmp -s "$DIR/system/bluetooth.service.d/no-gatt-battery.conf" \
+        /etc/systemd/system/bluetooth.service.d/no-gatt-battery.conf; then
+    sudo install -D -m 644 "$DIR/system/bluetooth.service.d/no-gatt-battery.conf" \
+        /etc/systemd/system/bluetooth.service.d/no-gatt-battery.conf
+    sudo systemctl daemon-reload
+    echo ":: Bluetooth: GATT battery plugin off, applies after: sudo systemctl restart bluetooth"
 fi
 
 # --- Timeshift + GRUB snapshot menu ---

@@ -5,6 +5,7 @@
 #   dotfiles/.config/<name>   -> ~/.config/<name>
 #   bin/<script>              -> ~/.local/bin/<script>
 #   dotfiles/icons/<icon>.svg -> ~/.local/share/icons/hicolor/scalable/status/<icon>.svg
+#   dotfiles/applications/*.desktop -> ~/.local/share/applications/
 #   ../wallpapers             -> ~/Pictures/Wallpapers (private repo cloned next to
 #                                this one; skipped when it is not there)
 # Existing files/dirs that are not already the right symlink are moved to
@@ -40,6 +41,11 @@ done
 # Own icons (dot-matrix OSD icons), found by name through the hicolor theme
 for src in "$REPO"/dotfiles/icons/*.svg; do
     _link "$src" "$HOME/.local/share/icons/hicolor/scalable/status/$(basename -- "$src")"
+done
+
+# Hidden desktop entries: icons for WezTerm windows with their own class (Waybar taskbar)
+for src in "$REPO"/dotfiles/applications/*.desktop; do
+    _link "$src" "$HOME/.local/share/applications/$(basename -- "$src")"
 done
 
 for src in "$REPO"/bin/*; do

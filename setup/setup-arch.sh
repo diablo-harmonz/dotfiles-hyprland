@@ -228,8 +228,10 @@ sudo systemctl enable --now "fcitx5-lotus-server@$USER.service"
 
 # Nautilus: "Open in Terminal" opens WezTerm
 gsettings set com.github.stunkymonkey.nautilus-open-any-terminal terminal wezterm
-# Blueman: monochrome tray icon like the other Waybar icons (its default is a coloured badge)
+# Blueman: monochrome icons; no tray icon (Waybar's bluetooth module replaces it, the
+# applet keeps running for pairing and notifications)
 gsettings set org.blueman.general symbolic-status-icons true
+gsettings set org.blueman.general plugin-list "['!StatusNotifierItem']"
 
 # Qt apps: Fusion style with the Matugen palette (qt6ct needs an absolute path)
 mkdir -p ~/.config/qt6ct/colors

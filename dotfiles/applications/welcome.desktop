@@ -1,0 +1,9 @@
+[Desktop Entry]
+# Hidden entry so the Waybar workspace taskbar finds an icon for WezTerm windows
+# started with --class welcome (looked up by window class)
+Type=Application
+Name=Welcome terminal
+Icon=org.wezfurlong.wezterm
+Exec=wezterm start --class welcome
+StartupWMClass=welcome
+NoDisplay=true

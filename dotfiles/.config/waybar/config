@@ -37,11 +37,34 @@
             "on-click-middle": "~/.local/bin/wallpaper select"
         },
         "hyprland/window": {
-            "format": "{title}",
+            // App name only (from the window class), never the window title
+            "format": "{class}",
             "icon": true,
             "icon-size": 15,
             "max-length": 32,
-            "separate-outputs": true
+            "separate-outputs": true,
+            // Full-match, case-insensitive; classes not listed are shown as they are
+            "rewrite": {
+                "org\\.wezfurlong\\.wezterm": "WezTerm",
+                "welcome": "WezTerm",
+                "cava": "Cava",
+                "firefox": "Firefox",
+                "brave-browser": "Brave",
+                "chromium": "Chromium",
+                "google-chrome": "Chrome",
+                "code": "VS Code",
+                "org\\.gnome\\.nautilus": "Files",
+                "org\\.telegram\\.desktop": "Telegram",
+                "org\\.pulseaudio\\.pavucontrol": "Volume",
+                "blueman-manager": "Bluetooth",
+                "nm-connection-editor": "Network",
+                "com\\.gabm\\.satty": "Satty",
+                "mpv": "mpv",
+                "org\\.gnome\\.seahorse\\.application": "Passwords",
+                "qt6ct": "Qt Settings",
+                "jetbrains-studio": "Android Studio",
+                "libreoffice-.*": "LibreOffice"
+            }
         },
         "group/info": {
             "orientation": "inherit",
@@ -64,23 +87,30 @@
             "interval": 5,
             "on-click": "wezterm start -- ~/.local/bin/syslive"
         },
+        // Empty workspace: Roman numeral. With windows: one app icon per window instead
+        // (the numeral is hidden in style.css). Click an icon to focus that window.
         "hyprland/workspaces": {
-            "format": "{icon}",
+            "format": "{icon}{windows}",
             "all-outputs": false,
             "sort-by-number": true,
             "on-click": "activate",
+            "workspace-taskbar": {
+                "enable": true,
+                "format": "{icon}",
+                "icon-size": 15,
+                "on-click-window": "hyprctl dispatch 'hl.dsp.focus({ window = \"address:{address}\" })'"
+            },
             "format-icons": {
-                "1": "",
-                "2": "",
-                "3": "",
-                "4": "󰨞",
-                "5": "",
-                "6": "",
-                "7": "",
-                "8": "",
-                "9": "󰨞",
-                "10": "",
-                "default": ""
+                "1": "I",
+                "2": "II",
+                "3": "III",
+                "4": "IV",
+                "5": "V",
+                "6": "VI",
+                "7": "VII",
+                "8": "VIII",
+                "9": "IX",
+                "10": "X"
             },
             "on-scroll-up": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e-1\" })'",
             "on-scroll-down": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e+1\" })'"
@@ -96,6 +126,7 @@
             "orientation": "inherit",
             "modules": [
                 "tray",
+                "custom/bluetooth",
                 "pulseaudio",
                 "custom/media",
                 "custom/batmode",
@@ -105,6 +136,16 @@
         "tray": {
             "icon-size": 15,
             "spacing": 8
+        },
+        // Bluetooth (replaces the blueman tray icon): bin/bt-status, event driven. Bar: icon
+        // only (tinted when a battery is low); tooltip: every connected device with its battery.
+        // Levels come from UPower (headset over HFP via PipeWire, Logitech via HID++).
+        "custom/bluetooth": {
+            "exec": "~/.local/bin/bt-status",
+            "return-type": "json",
+            "restart-interval": 5,
+            "escape": false,
+            "on-click": "blueman-manager"
         },
         "pulseaudio": {
             "format": "{icon} {volume}%",
@@ -251,11 +292,34 @@
             "on-click-middle": "~/.local/bin/wallpaper select"
         },
         "hyprland/window": {
-            "format": "{title}",
+            // App name only (from the window class), never the window title
+            "format": "{class}",
             "icon": true,
             "icon-size": 15,
             "max-length": 32,
-            "separate-outputs": true
+            "separate-outputs": true,
+            // Full-match, case-insensitive; classes not listed are shown as they are
+            "rewrite": {
+                "org\\.wezfurlong\\.wezterm": "WezTerm",
+                "welcome": "WezTerm",
+                "cava": "Cava",
+                "firefox": "Firefox",
+                "brave-browser": "Brave",
+                "chromium": "Chromium",
+                "google-chrome": "Chrome",
+                "code": "VS Code",
+                "org\\.gnome\\.nautilus": "Files",
+                "org\\.telegram\\.desktop": "Telegram",
+                "org\\.pulseaudio\\.pavucontrol": "Volume",
+                "blueman-manager": "Bluetooth",
+                "nm-connection-editor": "Network",
+                "com\\.gabm\\.satty": "Satty",
+                "mpv": "mpv",
+                "org\\.gnome\\.seahorse\\.application": "Passwords",
+                "qt6ct": "Qt Settings",
+                "jetbrains-studio": "Android Studio",
+                "libreoffice-.*": "LibreOffice"
+            }
         },
         "group/info": {
             "orientation": "inherit",
@@ -278,23 +342,30 @@
             "interval": 5,
             "on-click": "wezterm start -- ~/.local/bin/syslive"
         },
+        // Empty workspace: Roman numeral. With windows: one app icon per window instead
+        // (the numeral is hidden in style.css). Click an icon to focus that window.
         "hyprland/workspaces": {
-            "format": "{icon}",
+            "format": "{icon}{windows}",
             "all-outputs": false,
             "sort-by-number": true,
             "on-click": "activate",
+            "workspace-taskbar": {
+                "enable": true,
+                "format": "{icon}",
+                "icon-size": 15,
+                "on-click-window": "hyprctl dispatch 'hl.dsp.focus({ window = \"address:{address}\" })'"
+            },
             "format-icons": {
-                "1": "",
-                "2": "",
-                "3": "",
-                "4": "󰨞",
-                "5": "",
-                "6": "",
-                "7": "",
-                "8": "",
-                "9": "󰨞",
-                "10": "",
-                "default": ""
+                "1": "I",
+                "2": "II",
+                "3": "III",
+                "4": "IV",
+                "5": "V",
+                "6": "VI",
+                "7": "VII",
+                "8": "VIII",
+                "9": "IX",
+                "10": "X"
             },
             "on-scroll-up": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e-1\" })'",
             "on-scroll-down": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e+1\" })'"
@@ -310,6 +381,7 @@
             "orientation": "inherit",
             "modules": [
                 "tray",
+                "custom/bluetooth",
                 "pulseaudio",
                 "custom/media",
                 "custom/batmode",
@@ -319,6 +391,16 @@
         "tray": {
             "icon-size": 15,
             "spacing": 8
+        },
+        // Bluetooth (replaces the blueman tray icon): bin/bt-status, event driven. Bar: icon
+        // only (tinted when a battery is low); tooltip: every connected device with its battery.
+        // Levels come from UPower (headset over HFP via PipeWire, Logitech via HID++).
+        "custom/bluetooth": {
+            "exec": "~/.local/bin/bt-status",
+            "return-type": "json",
+            "restart-interval": 5,
+            "escape": false,
+            "on-click": "blueman-manager"
         },
         "pulseaudio": {
             "format": "{icon} {volume}%",

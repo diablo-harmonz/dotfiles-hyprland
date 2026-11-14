@@ -96,7 +96,8 @@ to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#
 | Clipboard | cliphist |
 | Screenshots, recording | grim, slurp, satty, wf-recorder |
 | Polkit, secrets | hyprpolkitagent, gnome-keyring |
-| Tray apps | nm-applet, blueman, pavucontrol |
+| Tray apps | nm-applet, pavucontrol; blueman runs without a tray icon (pairing, notifications) |
+| Bluetooth on the bar | `bin/bt-status`: devices and battery levels from UPower |
 | Browser | Firefox (FF Ultima theme) |
 
 The full package list is the `packages` array in `setup/setup-arch.sh`.
@@ -146,6 +147,9 @@ small preview (drag and drop, click to edit). Recordings go to `~/Videos/Recordi
 Workspaces 1–5 stay on the laptop screen and 6–10 on the first external monitor.
 
 On the Waybar launcher button, left click opens rofi and middle click the wallpaper picker.
+The workspace pill shows a Roman numeral for an empty workspace and one app icon per
+window otherwise (click an icon to focus that window); the left pill shows the app name of
+the active window.
 
 ## Wallpaper and colors
 
@@ -184,6 +188,9 @@ installs from `setup/system/`:
 - **earlyoom**: stops the biggest process (test browsers first) before memory runs out;
   avoids the desktop, terminal, editor, lock screen, audio and input method.
 - **Firefox policy**: installs uBlock Origin, Proton Pass and Unhook from addons.mozilla.org.
+- **Bluetooth**: bluetoothd runs without its GATT battery plugin, so headsets that report
+  0 % over GATT but the real level over HFP (Marshall Major V) show the HFP level,
+  forwarded by PipeWire. Logitech devices report through the kernel HID++ driver.
 - **Timeshift** (btrfs): daily 5, weekly 3, `/home` excluded; grub-btrfsd keeps the GRUB
   snapshot menu up to date, cronie runs the schedule. timeshift-autosnap takes a
   snapshot before every pacman upgrade.
@@ -209,6 +216,7 @@ installs from `setup/system/`:
 | `battery-mode` | Charge limit 75–80 % or 100 % |
 | `powermode-notify` | Notification when the power profile changes (Fn+F8) |
 | `media-status` | Waybar media module |
+| `bt-status` | Waybar Bluetooth module: icon on the bar, connected devices and their batteries in the tooltip |
 | `sysinfo-bar`, `sysmetrics`, `syslive` | CPU/RAM on Waybar, metrics, live status view |
 | `sysreport` | One-shot machine health report |
 | `cava-toggle` | Floating audio visualizer |

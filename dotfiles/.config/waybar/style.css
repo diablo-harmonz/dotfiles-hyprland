@@ -116,6 +116,23 @@ window#waybar.empty #window {
     color: @on_surface_variant;
 }
 
+/* Roman numeral only on empty workspaces; with windows the app icons replace it */
+#workspaces button:not(.empty) .workspace-label {
+    font-size: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+}
+
+#workspaces .taskbar-window {
+    padding: 0 3px;
+    background: transparent;
+}
+
+#workspaces .taskbar-window image {
+    -gtk-icon-effect: none;
+}
+
 #workspaces button.active {
     color: @on_surface;
     background: alpha(@primary, 0.25);
@@ -137,12 +154,25 @@ window#waybar.empty #window {
 }
 
 #tray,
+#custom-bluetooth,
 #pulseaudio,
 #custom-media,
 #custom-batmode,
 #battery {
     background: transparent;
     padding: 0 9px;
+}
+
+#custom-bluetooth.off {
+    color: @on_surface_variant;
+}
+
+#custom-bluetooth.low {
+    color: @tertiary;
+}
+
+#custom-bluetooth.none {
+    padding: 0;
 }
 
 #pulseaudio.muted {
