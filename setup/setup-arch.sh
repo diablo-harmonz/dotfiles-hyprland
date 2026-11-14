@@ -75,6 +75,7 @@ packages=(
     "fd"
     "fzf"
     "zoxide"
+    "eza"
     "resvg"
     "tree-sitter-cli"
     "ripgrep"
