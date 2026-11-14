@@ -21,6 +21,10 @@ input_path = '~/.config/matugen/templates/hyprland.lua'
 output_path = '~/.config/hypr/colors.lua'
 post_hook = 'hyprctl eval "$(cat ~/.config/hypr/colors.lua)" >/dev/null 2>&1 || true'
 
+[templates.hyprlock]
+input_path = '~/.config/matugen/templates/hyprlock.conf'
+output_path = '~/.config/hypr/hyprlock-colors.conf'
+
 [templates.gtk4]
 input_path = '~/.config/matugen/templates/gtk.css'
 output_path = '~/.config/gtk-4.0/matugen.css'

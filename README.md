@@ -158,7 +158,7 @@ picks one at random. Wallpapers come from `~/Pictures/Wallpapers`; this repo shi
 (they are third-party art, kept in a private repo).
 
 After each change Matugen (`dotfiles/.config/matugen`) generates matching colors for
-rofi, Waybar, WezTerm, the Hyprland borders, GTK 3, GTK 4, swaync, Qt (qt6ct), KDE apps,
+rofi, Waybar, WezTerm, the Hyprland borders, hyprlock, GTK 3, GTK 4, swaync, Qt (qt6ct), KDE apps,
 Firefox, yazi and cava. The generated files are git-ignored; run `wallpaper restore` once
 after linking (Hyprland also runs it at login).
 
@@ -188,6 +188,9 @@ installs from `setup/system/`:
 - **earlyoom**: stops the biggest process (test browsers first) before memory runs out;
   avoids the desktop, terminal, editor, lock screen, audio and input method.
 - **Firefox policy**: installs uBlock Origin, Proton Pass and Unhook from addons.mozilla.org.
+- **faillock**: 5 wrong passwords (lock screen, sudo, login) within 15 minutes lock
+  the account for 2 minutes instead of 3 for 10 minutes. hyprlock also ignores Enter on
+  an empty field, so the key that wakes the laptop is not a failed attempt.
 - **Bluetooth**: bluetoothd runs without its GATT battery plugin, so headsets that report
   0 % over GATT but the real level over HFP (Marshall Major V) show the HFP level,
   forwarded by PipeWire. Logitech devices report through the kernel HID++ driver.

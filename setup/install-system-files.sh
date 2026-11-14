@@ -7,6 +7,7 @@
 #   - zram swap (size = RAM, zstd) and the vm.* sysctls for it
 #   - earlyoom: stop the biggest process (test browsers first) before memory runs out
 #   - Firefox policy: install uBlock Origin, Proton Pass and Unhook from addons.mozilla.org
+#   - faillock: 5 wrong passwords -> locked for 2 minutes (default: 3 -> 10 minutes)
 #   - Bluetooth: bluetoothd without its GATT battery plugin, so headsets show the
 #     battery level they send over HFP (forwarded by PipeWire)
 #   - Timeshift (btrfs): daily 5, weekly 3, /home excluded; grub-btrfsd keeps the GRUB
@@ -93,6 +94,14 @@ if command -v earlyoom >/dev/null; then
     echo ":: earlyoom: $(systemctl is-active earlyoom.service)"
 else
     echo ":: earlyoom not installed (sudo pacman -S earlyoom), skipped"
+fi
+
+# --- faillock: wrong passwords (lock screen, sudo, login) ---
+if ! cmp -s "$DIR/system/faillock.conf" /etc/security/faillock.conf; then
+    [ -f /etc/security/faillock.conf.bak-dotfiles ] || \
+        sudo cp /etc/security/faillock.conf /etc/security/faillock.conf.bak-dotfiles
+    sudo install -m 644 "$DIR/system/faillock.conf" /etc/security/faillock.conf
+    echo ":: faillock: 5 failures -> 2 min lock"
 fi
 
 # --- Bluetooth: headset battery from HFP instead of GATT ---
