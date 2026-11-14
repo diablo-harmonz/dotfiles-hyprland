@@ -1,23 +1,103 @@
 #!/usr/bin/env bash
-# media-status: Waybar custom/media module (play/pause icon of the current player).
+# media-status: Waybar custom/media module (play/pause icon of the active player).
 # Replaces Waybar's built-in mpris module, which crashed the whole bar (SIGSEGV in
 # Waybar 0.15.0) when Firefox media players appeared and vanished quickly.
 # playerctl runs in this separate process, so a player glitch cannot take the bar down.
+#
+# "Active player" = the one playerctld (started in hypr/conf/autostart.lua) tracks: the
+# most recently active one. Plain `playerctl` commands (this button, the media keys)
+# act on it. Clicks (waybar/config): left play/pause, right pause every player,
+# middle switch to the next player.
 # Prints one JSON line per change; empty text hides the module (no player / stopped).
 set -uo pipefail
 
 ICON_PLAYING=$'\xef\x81\x8c'   # U+F04C pause (click to pause)
 ICON_PAUSED=$'\xef\x81\x8b'    # U+F04B play (click to play)
 
-playerctl --follow metadata \
-    --format $'{{status}}\t{{playerName}}\t{{title}}\t{{artist}}' 2>/dev/null |
-while IFS=$'\t' read -r status player title artist; do
-    case "$status" in
-        Playing) icon=$ICON_PLAYING ;;
-        Paused)  icon=$ICON_PAUSED ;;
-        *)       printf '{"text":""}\n'; continue ;;
+# Small glyph of the player the button controls (changes on middle click)
+player_icon() {   # $1 = player name
+    case "$1" in
+        firefox*)                 printf '\U000F0239' ;;   # Firefox
+        chromium*|chrome*|brave*) printf '\U000F02AF' ;;   # Chromium-based browsers
+        mpd*|rmpc*)               printf '\U000F075A' ;;   # music (MPD / rmpc)
+        mpv*)                     printf '\U000F0231' ;;   # film (mpv)
+        spotify*)                 printf '\U000F04C7' ;;
+        *)                        printf '\U000F0387' ;;   # music note
     esac
-    jq -cn --arg text "$icon" --arg class "${status,,}" \
-        --arg tooltip "$player: $title${artist:+ - $artist}" \
-        '{text: $text, class: $class, tooltip: $tooltip}'
+}
+
+# Without playerctld, playerctl would follow the first player on the bus (often a
+# paused Firefox tab), not the one making sound
+pgrep -x playerctld >/dev/null || playerctld daemon >/dev/null 2>&1
+
+tooltip() {   # every player, the active one first and marked
+    local active line
+    active=$(playerctl metadata --format '{{playerInstance}}' 2>/dev/null)
+    playerctl -a metadata --format $'{{playerInstance}}\t{{status}}\t{{playerName}}\t{{title}}\t{{artist}}' 2>/dev/null |
+    while IFS=$'\t' read -r instance status name title artist; do
+        case "$status" in
+            Playing) mark="▶" ;;
+            Paused)  mark="⏸" ;;
+            *)       mark="■" ;;
+        esac
+        line="$mark  $name: ${title:-(no title)}${artist:+ - $artist}"
+        if [ "$instance" = "$active" ]; then
+            printf '0\t%s  ←\n' "$line"
+        else
+            printf '1\t%s\n' "$line"
+        fi
+    done | sort -s -k1,1 | cut -f2-
+    printf '\nLeft click: play/pause  ·  Right: pause all  ·  Middle: next player'
+}
+
+events() {   # one line per event that can change the button
+    # status / track changes of the active player (playerctld proxy)
+    playerctl --follow metadata --format '{{status}}' 2>/dev/null &
+    # middle click / playerctld switching to another player: playerctl --follow stays
+    # silent then, playerctld announces it on D-Bus
+    dbus-monitor --session \
+        "type='signal',interface='com.github.altdesktop.playerctld',member='ActivePlayerChangeEnd'" \
+        2>/dev/null | grep --line-buffered -o 'ActivePlayerChangeEnd' &
+    wait
+}
+
+follow() {
+    events | while read -r _; do
+        IFS=$'\t' read -r player status < <(playerctl metadata --format $'{{playerName}}\t{{status}}' 2>/dev/null)
+        case "${status:-}" in
+            Playing) icon=$ICON_PLAYING ;;
+            Paused)  icon=$ICON_PAUSED ;;
+            *)       printf '{"text":""}\n'; continue ;;
+        esac
+        jq -cn --arg text "$(player_icon "$player")  $icon" --arg class "${status,,}" --arg tooltip "$(tooltip)" \
+            '{text: $text, class: $class, tooltip: $tooltip}'
+    done
+}
+
+# playerctl --follow waits for events forever, so when Waybar quits (restart, crash)
+# this script would live on as an orphan. Waybar starts it through "sh -c", and that
+# shell outlives Waybar, so watch the waybar process up the tree (or the parent when
+# run by hand) and clean up with it.
+parent=$PPID
+p=$PPID
+while [ -n "$p" ] && [ "$p" -gt 1 ]; do
+    if [ "$(ps -o comm= -p "$p")" = waybar ]; then parent=$p; break; fi
+    p=$(ps -o ppid= -p "$p" | tr -d ' ')
+done
+follow &
+child=$!
+# Waybar stops its modules with SIGTERM to this script only: take the children along
+killtree() {   # $1 and every process below it (playerctl, dbus-monitor, loops)
+    local c
+    for c in $(pgrep -P "$1"); do killtree "$c"; done
+    kill "$1" 2>/dev/null
+}
+cleanup() {
+    killtree "$child"
+}
+trap 'cleanup; exit 0' TERM INT HUP
+trap cleanup EXIT
+while kill -0 "$parent" 2>/dev/null && kill -0 "$child" 2>/dev/null; do
+    sleep 3 &
+    wait $!   # wait (not sleep) so a TERM is handled at once
 done

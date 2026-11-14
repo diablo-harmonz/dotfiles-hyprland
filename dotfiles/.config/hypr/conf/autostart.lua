@@ -14,6 +14,9 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("~/.local/bin/clipboard prune")
     -- Idle: dim, lock, screens off, suspend on battery (hypridle.conf)
     hl.exec_cmd("systemd-cat -t hypridle hypridle")   -- log: journalctl --user -t hypridle
+    -- Media: playerctld tracks the most recently active player, so the media keys and
+    -- the Waybar play button act on the one making sound (not the first one listed)
+    hl.exec_cmd("playerctld daemon")
     -- Night light (hyprsunset.conf)
     hl.exec_cmd("hyprsunset")
     -- Notify on power mode changes (Fn+F8 switches it in firmware, no key event)

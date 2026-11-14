@@ -144,7 +144,7 @@ Defined in `dotfiles/.config/hypr/conf/binds.lua`.
 | SUPER + CTRL + 5 | Recording toolbar: selection, window or entire screen, with or without sound; stop |
 | Fn+F7 | External monitor: mirror, extended, off, mirror... |
 | Volume, mic, brightness keys | Change the value and show an OSD popup |
-| Media keys | playerctl play/pause, next, previous, stop |
+| Media keys | playerctl play/pause, next, previous, stop on the most recently active player (playerctld) |
 
 Screenshots are saved to `~/Pictures/Screenshots`, copied to the clipboard and shown in a
 small preview (drag and drop, click to edit). Recordings go to `~/Videos/Recordings`;
@@ -233,7 +233,7 @@ installs from `setup/system/`:
 | `osd` | Volume, mic and brightness with a popup |
 | `battery-mode` | Charge limit 75–80 % or 100 % |
 | `powermode-notify` | Notification when the power profile changes (Fn+F8) |
-| `media-status` | Waybar media module |
+| `media-status` | Waybar play/pause button for the active player (playerctld): left click play/pause, right click pause every player, middle click next player |
 | `bt-status` | Waybar Bluetooth module: icon on the bar, connected devices and their batteries in the tooltip |
 | `sysinfo-bar`, `sysmetrics`, `syslive` | CPU/RAM on Waybar, metrics, live status view |
 | `sysreport` | One-shot machine health report |

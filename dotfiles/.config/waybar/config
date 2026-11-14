@@ -209,6 +209,8 @@
             "return-type": "json",
             "restart-interval": 5,
             "on-click": "playerctl play-pause",
+            "on-click-right": "playerctl -a pause",
+            "on-click-middle": "playerctld shift",
             "on-scroll-up": "playerctl next",
             "on-scroll-down": "playerctl previous"
         },
@@ -498,6 +500,8 @@
             "return-type": "json",
             "restart-interval": 5,
             "on-click": "playerctl play-pause",
+            "on-click-right": "playerctl -a pause",
+            "on-click-middle": "playerctld shift",
             "on-scroll-up": "playerctl next",
             "on-scroll-down": "playerctl previous"
         },
