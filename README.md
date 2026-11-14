@@ -91,7 +91,7 @@ to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#
 | Editor | Neovim with LazyVim (`lazy-lock.json` pins the plugins) |
 | Wallpaper, colors | awww, Matugen |
 | Lock, idle, night light | hyprlock, hypridle, hyprsunset |
-| Logout menu | wlogout |
+| Power menu | wlogout via `bin/power-menu`: Lock, Shutdown, Suspend, Reboot, Logout, BIOS over the blurred desktop |
 | Input method | fcitx5 with Lotus (Vietnamese), Bamboo as fallback |
 | Clipboard | cliphist |
 | Screenshots, recording | grim, slurp, satty, wf-recorder |
@@ -162,7 +162,7 @@ picks one at random. Wallpapers come from `~/Pictures/Wallpapers`; this repo shi
 (they are third-party art, kept in a private repo).
 
 After each change Matugen (`dotfiles/.config/matugen`) generates matching colors for
-rofi, Waybar, WezTerm, the Hyprland borders, hyprlock, GTK 3, GTK 4, swaync, Qt (qt6ct), KDE apps,
+rofi, Waybar, WezTerm, the Hyprland borders, hyprlock, wlogout, GTK 3, GTK 4, swaync, Qt (qt6ct), KDE apps,
 Firefox, yazi and cava. The generated files are git-ignored; run `wallpaper restore` once
 after linking (Hyprland also runs it at login).
 
@@ -219,6 +219,7 @@ installs from `setup/system/`:
 | `screenshot`, `screenshot-preview` | Screenshots with file, clipboard and preview |
 | `screenrec` | Start/stop screen recording |
 | `capture-menu` | macOS-style screenshot / recording toolbar (rofi) |
+| `power-menu` | wlogout grid centred on the focused screen (Waybar power button) |
 | `rec-status` | Waybar red stop button with the elapsed time while recording |
 | `clipboard` | Clipboard history picker |
 | `web-search` | Quick search / address bar |

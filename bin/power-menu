@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# power-menu: wlogout as a 3 x 2 grid of tiles centred on the focused screen
+# (Lock, Shutdown, Suspend / Reboot, Logout, BIOS). Waybar's power button runs it;
+# running it again closes the menu. Look: ~/.config/wlogout/style.css. wlogout fills the
+# grid column by column, so ~/.config/wlogout/layout lists lock, reboot, shutdown,
+# logout, suspend, bios.
+set -euo pipefail
+
+pkill -x wlogout && exit 0
+
+TILE_W=300 TILE_H=190 GAP=14 COLS=3 ROWS=2
+
+# Logical size of the focused monitor (pixels / scale; rotated screens swap w and h)
+read -r w h < <(hyprctl -j monitors | jq -r '.[] | select(.focused) |
+    (if (.transform % 2) == 1 then [.height, .width] else [.width, .height] end) as $s |
+    "\(($s[0] / .scale) | floor) \(($s[1] / .scale) | floor)"')
+
+grid_w=$((COLS * TILE_W + (COLS - 1) * GAP))
+grid_h=$((ROWS * TILE_H + (ROWS - 1) * GAP))
+side=$(( (w - grid_w) / 2 )); (( side < 0 )) && side=0
+top=$(( (h - grid_h) / 2 )); (( top < 0 )) && top=0
+
+exec wlogout -b "$COLS" -c "$GAP" -r "$GAP" -L "$side" -R "$side" -T "$top" -B "$top"

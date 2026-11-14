@@ -16,6 +16,7 @@ hl.layer_rule({ match = { namespace = "rofi" },   blur = true, ignore_alpha = 0.
 hl.layer_rule({ match = { namespace = "waybar" }, blur = true, ignore_alpha = 0.1 })
 hl.layer_rule({ match = { namespace = "swaync-notification-window" }, blur = true, ignore_alpha = 0.1 })
 hl.layer_rule({ match = { namespace = "swaync-control-center" },      blur = true, ignore_alpha = 0.1 })
+hl.layer_rule({ match = { namespace = "logout_dialog" },              blur = true })   -- wlogout (bin/power-menu)
 
 -- cava audio visualizer (bin/cava-toggle, SUPER+A): tall floating panel
 hl.window_rule({

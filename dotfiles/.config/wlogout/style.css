@@ -1,72 +1,49 @@
 /*
-          _                         _    
-__      _| | ___   __ _  ___  _   _| |_  
-\ \ /\ / / |/ _ \ / _` |/ _ \| | | | __| 
- \ V  V /| | (_) | (_| | (_) | |_| | |_  
-  \_/\_/ |_|\___/ \__, |\___/ \__,_|\__| 
-                  |___/                  
- 
-by Stephan Raabe (2024) 
------------------------------------------------------ 
-*/
+ * wlogout power menu (bin/power-menu): a 3 x 2 grid of rounded tiles over the blurred
+ * desktop (Hyprland layer rule "logout_dialog" in hypr/conf/windowrules.lua).
+ * Colors from colors.css (Matugen, follows the wallpaper). Icons: the PNG files in icons/, white
+ * Nerd Font glyphs. Keys: l lock, s shutdown, u suspend, r reboot, e logout, b BIOS.
+ */
+@import url("colors.css");
 
 * {
-    font-family: "Fira Sans Semibold", FontAwesome, Roboto, Helvetica, Arial, sans-serif;
-	background-image: none;
-	transition: 20ms;
-	box-shadow: none;
+    font-family: "FiraCode Nerd Font", monospace;
+    font-weight: bold;
+    background-image: none;
+    box-shadow: none;
+    transition: 150ms ease;
 }
 
 window {
-	background-color: rgba(12, 12, 12, 0.9);
+    background-color: rgba(0, 0, 0, 0.25);
 }
 
 button {
-	color: #FFFFFF;
-    font-size:20px;
-
+    color: @wl_text;
+    font-size: 14px;
+    background-color: alpha(@wl_tile, 0.72);
     background-repeat: no-repeat;
-	background-position: center;
-	background-size: 25%;
-	border-style: solid;
-	border: 3px solid #FFFFFF;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-
+    background-position: center 38%;
+    background-size: 22%;
+    border: none;
+    border-radius: 14px;
+    margin: 0;
+    outline-style: none;
 }
 
 button:focus,
-button:active,
 button:hover {
-    color: #FFFFFF;
-	border: 3px solid #FFFFFF;
+    background-color: alpha(@wl_tile_hover, 0.85);
+    background-size: 24%;
 }
 
-/* 
------------------------------------------------------ 
-Buttons
------------------------------------------------------ 
-*/
-
-#lock {
-	margin: 10px;
-	border-radius: 20px;
-	background-image: image(url("icons/lock.png"));
+button:active {
+    background-color: alpha(@wl_accent, 0.35);
 }
 
-#logout {
-	margin: 10px;
-	border-radius: 20px;
-	background-image: image(url("icons/logout.png"));
-}
-
-#shutdown {
-	margin: 10px;
-	border-radius: 20px;
-	background-image: image(url("icons/shutdown.png"));
-}
-
-#reboot {
-	margin: 10px;
-	border-radius: 20px;
-	background-image: image(url("icons/reboot.png"));
-}
+#lock     { background-image: image(url("icons/lock.png")); }
+#shutdown { background-image: image(url("icons/shutdown.png")); }
+#suspend  { background-image: image(url("icons/suspend.png")); }
+#reboot   { background-image: image(url("icons/reboot.png")); }
+#logout   { background-image: image(url("icons/logout.png")); }
+#bios     { background-image: image(url("icons/bios.png")); }

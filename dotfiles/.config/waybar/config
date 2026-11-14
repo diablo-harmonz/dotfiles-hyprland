@@ -260,7 +260,7 @@
         "custom/power": {
             "format": "⏻",
             "tooltip-format": "Power menu",
-            "on-click": "wlogout -b 4"
+            "on-click": "~/.local/bin/power-menu"
         },
         "custom/batmode": {
             "exec": "~/.local/bin/battery-mode status",
@@ -525,7 +525,7 @@
         "custom/power": {
             "format": "⏻",
             "tooltip-format": "Power menu",
-            "on-click": "wlogout -b 4"
+            "on-click": "~/.local/bin/power-menu"
         },
         "custom/batmode": {
             "exec": "~/.local/bin/battery-mode status",
