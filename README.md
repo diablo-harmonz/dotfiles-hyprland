@@ -193,9 +193,10 @@ installs from `setup/system/`:
   avoids the desktop, terminal, editor, lock screen, audio and input method.
 - **Firefox policy**: installs uBlock Origin, Proton Pass and Unhook from addons.mozilla.org.
 - **Firewall** (nftables, `setup/system/nftables.conf`): nothing from the network may
-  connect in, replies to the laptop's own connections pass. Docker containers and
-  libvirt VMs can still reach the host and the internet (no forward chain). Ports
-  published by Docker bypass it: publish them as `127.0.0.1:PORT:PORT`.
+  connect in, replies to the laptop's own connections pass. Ports published by Docker
+  are reachable from this laptop only (a forward rule drops new connections from the
+  network to containers); containers and libvirt VMs still reach the host and the
+  internet.
 - **faillock**: 5 wrong passwords (lock screen, sudo, login) within 15 minutes lock
   the account for 2 minutes instead of 3 for 10 minutes. hyprlock also ignores Enter on
   an empty field, so the key that wakes the laptop is not a failed attempt.
