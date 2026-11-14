@@ -99,6 +99,7 @@ to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#
 | Audio, Bluetooth, Wi-Fi | wiremix, bluetui and nmtui in floating WezTerm windows (`bin/tui-popup`), opened from the Waybar volume, Bluetooth and Wi-Fi icons |
 | Bluetooth on the bar | `bin/bt-status`: devices and battery levels from UPower |
 | Browser | Firefox (FF Ultima theme) |
+| Media | mpv (video, also for yt-x), yt-dlp (downloads to `~/Videos/YouTube`), yt-x (YouTube in the terminal), MPD + rmpc (music in `~/Music`); media keys and Waybar control mpv and MPD through MPRIS |
 
 The full package list is the `packages` array in `setup/setup-arch.sh`.
 

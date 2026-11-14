@@ -75,6 +75,14 @@ packages=(
     "zoxide"
     "eza"
     "wiremix"
+    "mpv"
+    "mpv-mpris"
+    "yt-dlp"
+    "yt-x"
+    "chafa"
+    "mpd"
+    "mpd-mpris"
+    "rmpc"
     "bluetui"
     "resvg"
     "tree-sitter-cli"
@@ -271,6 +279,11 @@ sudo systemctl enable --now NetworkManager.service bluetooth.service power-profi
 
 # Default folders (Pictures, Videos... used by the screenshot and recording scripts)
 xdg-user-dirs-update
+
+# Music: MPD as a user service (config dotfiles/.config/mpd) and mpd-mpris so media keys
+# and Waybar control it; rmpc is the player UI. The system-wide mpd.service stays off.
+mkdir -p ~/Music ~/.local/share/mpd/playlists ~/.local/state/mpd
+systemctl --user enable --now mpd.service mpd-mpris.service
 
 # zsh as the login shell (config: dotfiles/.zshrc + dotfiles/.config/zsh)
 [ "$(getent passwd "$USER" | cut -d: -f7)" = /usr/bin/zsh ] || chsh -s /usr/bin/zsh

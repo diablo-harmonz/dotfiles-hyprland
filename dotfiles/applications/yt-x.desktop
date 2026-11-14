@@ -1,0 +1,10 @@
+[Desktop Entry]
+# rofi entry: yt-x (browse and play YouTube in the terminal, plays with mpv)
+Type=Application
+Name=YouTube (yt-x)
+Comment=Search and watch YouTube with mpv
+Icon=youtube
+Exec=yt-x
+Terminal=true
+Categories=AudioVideo;Video;Network;ConsoleOnly;
+Keywords=youtube;video;yt;

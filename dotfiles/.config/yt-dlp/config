@@ -1,0 +1,18 @@
+# yt-dlp: downloads (yt-x uses it too). Update with pacman -Syu, not yt-dlp -U.
+# Download only what you may download, for personal use.
+
+# Best video up to 1080p + best audio, merged into one file
+-f bv*[height<=1080]+ba/b[height<=1080]/b
+--merge-output-format mkv
+
+# ~/Videos/YouTube/<channel>/<title> [<id>].<ext>
+-o "~/Videos/YouTube/%(uploader)s/%(title)s [%(id)s].%(ext)s"
+
+# Keep title, artist, date and chapters in the file
+--embed-metadata
+--embed-chapters
+--embed-subs
+--sub-langs en.*,vi.*
+
+# Skip files already downloaded
+--no-overwrites

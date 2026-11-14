@@ -1,0 +1,10 @@
+[Desktop Entry]
+# rofi entry: rmpc (MPD client) in WezTerm (rofi's terminal). Music: ~/Music
+Type=Application
+Name=Music (rmpc)
+Comment=Play the music in ~/Music
+Icon=multimedia-audio-player
+Exec=rmpc
+Terminal=true
+Categories=Audio;Music;Player;ConsoleOnly;
+Keywords=music;mpd;player;
