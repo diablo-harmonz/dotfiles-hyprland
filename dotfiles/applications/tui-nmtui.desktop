@@ -1,0 +1,9 @@
+[Desktop Entry]
+# Hidden entry so the Waybar workspace taskbar finds an icon for the floating
+# nmtui window (bin/tui-popup, window class tui-nmtui)
+Type=Application
+Name=Wi-Fi networks
+Icon=network-wireless
+Exec=tui-popup nmtui
+StartupWMClass=tui-nmtui
+NoDisplay=true

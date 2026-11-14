@@ -96,8 +96,7 @@ to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#
 | Clipboard | cliphist |
 | Screenshots, recording | grim, slurp, satty, wf-recorder |
 | Polkit, secrets | hyprpolkitagent, gnome-keyring |
-| Tray apps | nm-applet |
-| Audio, Bluetooth | wiremix and bluetui in floating WezTerm windows (`bin/tui-popup`), opened from the Waybar volume and Bluetooth icons |
+| Audio, Bluetooth, Wi-Fi | wiremix, bluetui and nmtui in floating WezTerm windows (`bin/tui-popup`), opened from the Waybar volume, Bluetooth and Wi-Fi icons |
 | Bluetooth on the bar | `bin/bt-status`: devices and battery levels from UPower |
 | Browser | Firefox (FF Ultima theme) |
 
@@ -220,7 +219,7 @@ installs from `setup/system/`:
 | `screenshot`, `screenshot-preview` | Screenshots with file, clipboard and preview |
 | `screenrec` | Start/stop screen recording |
 | `capture-menu` | macOS-style screenshot / recording toolbar (rofi) |
-| `tui-popup` | Toggle wiremix / bluetui as a floating terminal under the bar |
+| `tui-popup` | Toggle wiremix / bluetui / nmtui as a floating terminal under the bar |
 | `power-menu` | wlogout grid centred on the focused screen (Waybar power button) |
 | `rec-status` | Waybar red stop button with the elapsed time while recording |
 | `clipboard` | Clipboard history picker |

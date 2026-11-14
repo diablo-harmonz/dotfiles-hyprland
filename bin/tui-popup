@@ -3,12 +3,42 @@
 # Waybar, or close it when it is already open (Waybar click toggles).
 #   tui-popup wiremix   audio mixer (volume icon)
 #   tui-popup bluetui   Bluetooth devices (Bluetooth icon)
+#   tui-popup nmtui     Wi-Fi networks: nmtui's "connect" page (Wi-Fi icon)
 # The window class is "tui-<app>"; size and position: hypr/conf/windowrules.lua.
 set -euo pipefail
 
-app="${1:?usage: tui-popup <wiremix|bluetui>}"
+# nmtui draws with newt, blue and grey by default. This keeps the terminal's own
+# (translucent) background and colours: light text, selection black on white.
+NEWT_THEME='
+root=default,default
+roottext=gray,default
+helpline=gray,default
+border=gray,default
+window=default,default
+shadow=default,default
+title=white,default
+label=default,default
+textbox=default,default
+acttextbox=black,white
+entry=white,default
+disentry=gray,default
+button=default,default
+actbutton=black,white
+compactbutton=default,default
+checkbox=default,default
+actcheckbox=black,white
+listbox=default,default
+actlistbox=white,default
+sellistbox=white,default
+actsellistbox=black,white
+emptyscale=,gray
+fullscale=,white
+'
+
+app="${1:?usage: tui-popup <wiremix|bluetui|nmtui>}"
 case "$app" in
-    wiremix|bluetui) ;;
+    wiremix|bluetui) cmd=("$app") ;;
+    nmtui)           cmd=(env "NEWT_COLORS=$NEWT_THEME" nmtui connect) ;;
     *) echo "tui-popup: unknown app $app" >&2; exit 2 ;;
 esac
 
@@ -19,4 +49,4 @@ if ! command -v "$app" >/dev/null; then
     notify-send -a tui-popup "$app is not installed" "sudo pacman -S $app"
     exit 1
 fi
-setsid -f wezterm start --class "tui-$app" -- "$app" >/dev/null 2>&1
+setsid -f wezterm start --class "tui-$app" -- "${cmd[@]}" >/dev/null 2>&1

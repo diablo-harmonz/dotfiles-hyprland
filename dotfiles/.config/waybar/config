@@ -58,6 +58,7 @@
                 "org\\.telegram\\.desktop": "Telegram",
                 "tui-wiremix": "Audio",
                 "tui-bluetui": "Bluetooth",
+                "tui-nmtui": "Wi-Fi",
                 "nm-connection-editor": "Network",
                 "com\\.gabm\\.satty": "Satty",
                 "mpv": "mpv",
@@ -136,6 +137,7 @@
             "orientation": "inherit",
             "modules": [
                 "tray",
+                "network",
                 "custom/bluetooth",
                 "pulseaudio",
                 "custom/media",
@@ -146,6 +148,28 @@
         "tray": {
             "icon-size": 15,
             "spacing": 8
+        },
+        // Wi-Fi / Ethernet (replaces the nm-applet tray icon): signal-strength icon,
+        // details in the tooltip, click opens nmtui (bin/tui-popup)
+        "network": {
+            "format-wifi": "{icon}",
+            "format-ethernet": "󰈀",
+            "format-linked": "󰈀",
+            "format-disconnected": "󰤮",
+            "format-disabled": "󰤮",
+            "format-icons": [
+                "󰤯",
+                "󰤟",
+                "󰤢",
+                "󰤥",
+                "󰤨"
+            ],
+            "tooltip-format-wifi": "{essid}  {signalStrength}%\n{ipaddr}/{cidr} on {ifname}\n\u21e3 {bandwidthDownBytes}  \u21e1 {bandwidthUpBytes}",
+            "tooltip-format-ethernet": "{ifname}  {ipaddr}/{cidr}\n\u21e3 {bandwidthDownBytes}  \u21e1 {bandwidthUpBytes}",
+            "tooltip-format-disconnected": "Not connected",
+            "tooltip-format-disabled": "Wi-Fi off",
+            "interval": 5,
+            "on-click": "~/.local/bin/tui-popup nmtui"
         },
         // Bluetooth: bin/bt-status, event driven. Bar: icon
         // only (tinted when a battery is low); tooltip: every connected device with its battery.
@@ -323,6 +347,7 @@
                 "org\\.telegram\\.desktop": "Telegram",
                 "tui-wiremix": "Audio",
                 "tui-bluetui": "Bluetooth",
+                "tui-nmtui": "Wi-Fi",
                 "nm-connection-editor": "Network",
                 "com\\.gabm\\.satty": "Satty",
                 "mpv": "mpv",
@@ -401,6 +426,7 @@
             "orientation": "inherit",
             "modules": [
                 "tray",
+                "network",
                 "custom/bluetooth",
                 "pulseaudio",
                 "custom/media",
@@ -411,6 +437,28 @@
         "tray": {
             "icon-size": 15,
             "spacing": 8
+        },
+        // Wi-Fi / Ethernet (replaces the nm-applet tray icon): signal-strength icon,
+        // details in the tooltip, click opens nmtui (bin/tui-popup)
+        "network": {
+            "format-wifi": "{icon}",
+            "format-ethernet": "󰈀",
+            "format-linked": "󰈀",
+            "format-disconnected": "󰤮",
+            "format-disabled": "󰤮",
+            "format-icons": [
+                "󰤯",
+                "󰤟",
+                "󰤢",
+                "󰤥",
+                "󰤨"
+            ],
+            "tooltip-format-wifi": "{essid}  {signalStrength}%\n{ipaddr}/{cidr} on {ifname}\n\u21e3 {bandwidthDownBytes}  \u21e1 {bandwidthUpBytes}",
+            "tooltip-format-ethernet": "{ifname}  {ipaddr}/{cidr}\n\u21e3 {bandwidthDownBytes}  \u21e1 {bandwidthUpBytes}",
+            "tooltip-format-disconnected": "Not connected",
+            "tooltip-format-disabled": "Wi-Fi off",
+            "interval": 5,
+            "on-click": "~/.local/bin/tui-popup nmtui"
         },
         // Bluetooth: bin/bt-status, event driven. Bar: icon
         // only (tinted when a battery is low); tooltip: every connected device with its battery.

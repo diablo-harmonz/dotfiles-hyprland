@@ -12,7 +12,6 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("wl-paste --type text --watch ~/.local/bin/clipboard store text")
     hl.exec_cmd("wl-paste --type image --watch ~/.local/bin/clipboard store image")
     hl.exec_cmd("~/.local/bin/clipboard prune")
-    hl.exec_cmd("nm-applet --indicator")
     -- Idle: dim, lock, screens off, suspend on battery (hypridle.conf)
     hl.exec_cmd("systemd-cat -t hypridle hypridle")   -- log: journalctl --user -t hypridle
     -- Night light (hyprsunset.conf)

@@ -160,6 +160,7 @@ window#waybar.empty #window {
 }
 
 #tray,
+#network,
 #custom-bluetooth,
 #pulseaudio,
 #custom-media,
@@ -169,6 +170,8 @@ window#waybar.empty #window {
     padding: 0 9px;
 }
 
+#network.disconnected,
+#network.disabled,
 #custom-bluetooth.off {
     color: @on_surface_variant;
 }

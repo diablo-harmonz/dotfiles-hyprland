@@ -19,7 +19,7 @@ packages=(
     "cliphist"
     "python-gobject"
     "gtk4-layer-shell"
-    "network-manager-applet"
+    "network-manager-applet"   # nm-connection-editor (VPN, advanced settings); no tray icon
     "bluez"
     "bluez-utils"
     "nautilus"
