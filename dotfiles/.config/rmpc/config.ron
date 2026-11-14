@@ -6,9 +6,9 @@
 (
     address: "127.0.0.1:6600",
     password: None,
-    theme: None,
+    theme: "matugen",   // themes/matugen.ron, written by Matugen from the wallpaper
     cache_dir: None,
-    on_song_change: None,
+    on_song_change: ["~/.local/bin/rmpc-notify"],   // notification with album art (bin/rmpc-notify)
     volume_step: 5,
     max_fps: 30,
     scrolloff: 0,
@@ -146,76 +146,43 @@
     ),
     tabs: [
         (
+            // Big album art on the left, "Artist - Title" queue on the right, no borders
             name: "Queue",
+            // Percent sizes in one split must add up to 100; a fixed size next to one
+            // "100%" pane gives that pane the rest
             pane: Split(
                 direction: Horizontal,
                 panes: [
+                    (size: "2", pane: Pane(Empty())),
                     (
-                        size: "35%",
+                        size: "100%",
                         pane: Split(
-                            direction: Vertical,
+                            direction: Horizontal,
                             panes: [
+                                (size: "42%", pane: Pane(AlbumArt)),
                                 (
-                                    size: "100%",
-                                    borders: "LEFT | RIGHT | TOP",
-                                    border_symbols: Rounded,
-                                    pane: Pane(AlbumArt)
-                                ),
-                                (
-                                    size: "7",
-                                    borders: "ALL",
-                                    border_symbols: Inherited(parent: Rounded, top_left: "├", top_right: "┤",),
-                                    border_title: [(kind: Text(" Lyrics "))],
-                                    border_title_alignment: Right,
-                                    pane: Pane(Lyrics)
+                                    size: "58%",
+                                    pane: Split(
+                                        direction: Horizontal,
+                                        panes: [
+                                            (size: "4", pane: Pane(Empty())),
+                                            (
+                                                size: "100%",
+                                                pane: Split(
+                                                    direction: Vertical,
+                                                    panes: [
+                                                        (size: "2", borders: "BOTTOM", pane: Pane(QueueHeader())),
+                                                        (size: "100%", pane: Pane(Queue)),
+                                                    ],
+                                                ),
+                                            ),
+                                        ],
+                                    ),
                                 ),
                             ],
                         ),
-                    ), 
-                    (
-                        size: "65%",
-                        pane: Split(
-                            direction: Vertical,
-                            panes: [
-                                (
-                                    size: "3",
-                                    borders: "ALL",
-                                    border_symbols: Inherited(parent: Rounded, bottom_left: "├", bottom_right: "┤",),
-                                    pane: Split(
-                                        direction: Horizontal,
-                                        panes: [
-                                            (
-                                                size: "1",
-                                                pane: Pane(Empty())
-                                            ),
-                                            (
-                                                size: "100%",
-                                                pane: Pane(QueueHeader())
-                                            ),
-                                        ]
-                                    )
-                                ),
-                                (
-                                    size: "100%",
-                                    borders: "LEFT | RIGHT | BOTTOM",
-                                    border_symbols: Rounded,
-                                    pane: Split(
-                                        direction: Horizontal,
-                                        panes: [
-                                            (
-                                                size: "1",
-                                                pane: Pane(Empty())
-                                            ),
-                                            (
-                                                size: "100%",
-                                                pane: Pane(Queue)
-                                            ),
-                                        ]
-                                    )
-                                ),
-                            ],
-                        )
                     ),
+                    (size: "2", pane: Pane(Empty())),
                 ],
             ),
         ),

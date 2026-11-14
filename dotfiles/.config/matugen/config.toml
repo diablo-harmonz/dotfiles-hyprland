@@ -33,6 +33,10 @@ output_path = '~/.config/wlogout/colors.css'
 input_path = '~/.config/matugen/templates/btop.theme'
 output_path = '~/.config/btop/themes/matugen.theme'
 
+[templates.rmpc]
+input_path = '~/.config/matugen/templates/rmpc.ron'
+output_path = '~/.config/rmpc/themes/matugen.ron'
+
 [templates.gtk4]
 input_path = '~/.config/matugen/templates/gtk.css'
 output_path = '~/.config/gtk-4.0/matugen.css'

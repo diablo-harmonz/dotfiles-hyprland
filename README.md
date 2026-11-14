@@ -86,7 +86,7 @@ to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#
 | Launcher, menus | rofi 2.0 (Wayland) |
 | Terminal | WezTerm |
 | Shell | zsh with powerlevel10k, autosuggestions, syntax highlighting, history substring search |
-| Notifications, OSD | swaync |
+| Notifications, OSD | swaync: compact translucent cards, control center with a media player card; OSD popups for volume and brightness |
 | Files | Nautilus (GUI), yazi (terminal) |
 | Editor | Neovim with LazyVim (`lazy-lock.json` pins the plugins) |
 | Wallpaper, colors | awww, Matugen |
@@ -222,6 +222,7 @@ installs from `setup/system/`:
 | `capture-menu` | macOS-style screenshot / recording toolbar (rofi) |
 | `tui-popup` | Toggle wiremix / bluetui / nmtui as a floating terminal under the bar |
 | `power-menu` | wlogout grid centred on the focused screen (Waybar power button) |
+| `rmpc-notify` | rmpc song-change notification with the album art |
 | `rec-status` | Waybar red stop button with the elapsed time while recording |
 | `clipboard` | Clipboard history picker |
 | `web-search` | Quick search / address bar |

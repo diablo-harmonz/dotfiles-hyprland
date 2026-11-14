@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# rmpc-notify: rmpc's on_song_change hook (dotfiles/.config/rmpc/config.ron). Shows the
+# new song with its album art as one notification that replaces the previous one.
+# rmpc passes the song in the environment: TITLE, ARTIST, ALBUM, FILE.
+set -uo pipefail
+
+dir="${XDG_RUNTIME_DIR:-/tmp}/rmpc"
+mkdir -p "$dir"
+art="$dir/cover"
+
+# Album art of the playing song (embedded or cover.jpg next to it); none -> music icon
+if rmpc albumart --output "$art" >/dev/null 2>&1; then
+    icon="$art"
+else
+    icon="audio-x-generic"
+fi
+
+title="${TITLE:-${FILE##*/}}"
+artist="${ARTIST:-Unknown artist}"
+album="${ALBUM:-}"
+body="$artist${album:+ - $album}"
+
+notify-send -a rmpc -t 4000 -i "$icon" \
+    -h "string:x-canonical-private-synchronous:rmpc-song" \
+    "$title" "$body"

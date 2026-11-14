@@ -4,7 +4,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("systemd-cat -t waybar waybar")
     -- Wallpaper (awww) and its colors
     hl.exec_cmd("~/.local/bin/wallpaper restore")
-    -- Notifications (swaync) and tray applets for Wi-Fi and Bluetooth
+    -- Notifications (swaync)
     hl.exec_cmd("swaync")
     -- Password prompt for apps that need admin rights (polkit)
     hl.exec_cmd("systemctl --user start hyprpolkitagent")

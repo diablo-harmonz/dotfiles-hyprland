@@ -569,36 +569,230 @@ notificationwindow, blankwindow {
 
 /* ---- Matugen colours ---- */
 :root {
-  --cc-bg: rgba({{colors.surface.default.red}}, {{colors.surface.default.green}}, {{colors.surface.default.blue}}, 0.88);
-  --noti-border-color: {{colors.outline_variant.default.hex}};
+  --cc-bg: rgba({{colors.surface.default.red}}, {{colors.surface.default.green}}, {{colors.surface.default.blue}}, 0.78);
+  --noti-border-color: alpha({{colors.outline_variant.default.hex}}, 0.8);
   --noti-bg: {{colors.surface_container.default.red}}, {{colors.surface_container.default.green}}, {{colors.surface_container.default.blue}};
-  --noti-bg-alpha: 0.92;
+  --noti-bg-alpha: 0.86;
   --noti-bg-darker: {{colors.surface_container_low.default.hex}};
-  --noti-bg-hover: {{colors.surface_container_high.default.hex}};
-  --noti-bg-focus: {{colors.surface_container_highest.default.hex}};
-  --noti-close-bg: {{colors.surface_container_highest.default.hex}};
+  --noti-bg-hover: alpha({{colors.surface_container_highest.default.hex}}, 0.6);
+  --noti-bg-focus: alpha({{colors.surface_container_highest.default.hex}}, 0.5);
+  --noti-close-bg: alpha({{colors.surface_container_highest.default.hex}}, 0.9);
   --noti-close-bg-hover: {{colors.primary_container.default.hex}};
   --text-color: {{colors.on_surface.default.hex}};
   --text-color-disabled: {{colors.on_surface_variant.default.hex}};
   --bg-selected: {{colors.primary.default.hex}};
-  --font-size-body: 13px;
-  --font-size-summary: 14px;
+  --border-radius: 12px;
+  --notification-icon-size: 48px;
+  --notification-app-icon-size: 18px;
+  --font-size-body: 12px;
+  --font-size-summary: 13px;
+  --notification-shadow: none;
 }
 
-/* ---- Spacing (own) ---- */
-/* Keep popups off the screen edges (waybar sits above them) and give the close button room */
+/* ---- Clean, modern look (own) ----------------------------------------------- */
+* {
+  font-family: "FiraCode Nerd Font", monospace;
+}
+
+/* Popups: 360 px cards (window 405 px, config.json). The window starts under
+   Waybar's exclusive zone (y = 43); 22 + 8 px on top and 30 px on the right put the
+   first card 10 px inside the top right corner of the tiled windows (gaps_out 20 +
+   border 2 -> y 63, x 1900). Cards stack 8 px apart. */
+notificationwindow {
+  margin-top: 22px;
+}
 notificationwindow .notification-row .notification-background {
-  padding: 32px 32px 2px 12px;
+  padding: 8px 30px 0 15px;
 }
 .notification-row .notification-background .notification {
-  border-radius: 5px;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--noti-border-color);
+  box-shadow: none;
 }
 .notification-row .notification-background .notification .notification-default-action {
-  padding: 8px 10px;
+  padding: 12px 14px;
+  border-radius: var(--border-radius);
 }
+.notification-row .notification-background .notification .notification-default-action:hover {
+  background: var(--noti-bg-hover);
+}
+.notification.critical {
+  border: 1px solid alpha({{colors.error.default.hex}}, 0.8);
+}
+
+/* Image: a rounded square (album art, app pictures), not swaync's circle */
+.notification-row .notification-background .notification .notification-default-action .notification-content .image {
+  -gtk-icon-size: var(--notification-icon-size);
+  border-radius: 10px;
+  margin: 0 12px 0 0;
+}
+/* No small app badge on the picture (and no broken-icon badge for apps without one) */
+.notification-row .notification-background .notification .notification-default-action .notification-content .app-icon {
+  -gtk-icon-shadow: none;
+  -gtk-icon-size: 0;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  opacity: 0;
+}
+
+/* Text: bold title, muted body and time */
+.notification-row .notification-background .notification .notification-default-action .notification-content .text-box .summary {
+  font-size: var(--font-size-summary);
+  font-weight: 700;
+  color: {{colors.on_surface.default.hex}};
+}
+.notification-row .notification-background .notification .notification-default-action .notification-content .text-box .body {
+  font-size: var(--font-size-body);
+  color: {{colors.on_surface_variant.default.hex}};
+  margin-top: 2px;
+}
+.notification-row .notification-background .notification .notification-default-action .notification-content .text-box .time {
+  font-size: 11px;
+  font-weight: 400;
+  color: {{colors.outline.default.hex}};
+  margin-right: 26px;
+}
+
+/* Close button: small, shows on hover */
 .close-button {
-  margin-top: 8px;
-  margin-right: 8px;
+  min-width: 20px;
+  min-height: 20px;
+  margin-top: 10px;
+  margin-right: 10px;
+  opacity: 0;
+  transition: opacity 150ms ease-in-out;
+}
+.notification-row:hover .close-button,
+.notification-group:hover .close-button {
+  opacity: 1;
+}
+
+/* Action buttons (e.g. "Don't show this message again") */
+.notification-row .notification-background .notification .notification-action > button {
+  border-radius: 8px;
+  margin: 0 8px 8px 8px;
+  padding: 6px;
+  background: alpha({{colors.surface_container_highest.default.hex}}, 0.7);
+  color: {{colors.on_surface.default.hex}};
+  font-size: 12px;
+}
+.notification-row .notification-background .notification .notification-action > button:hover {
+  background: {{colors.primary_container.default.hex}};
+  color: {{colors.on_primary_container.default.hex}};
+}
+
+/* ---- Control center ------------------------------------------------------- */
+.control-center {
+  background: var(--cc-bg);
+  border: 1px solid var(--noti-border-color);
+  border-radius: 16px;
+  padding: 6px 4px;
+}
+.control-center .control-center-list {
+  background: transparent;
+}
+.control-center .control-center-list .notification {
+  box-shadow: none;
+}
+/* No extra dark box behind grouped or focused cards */
+.control-center .notification-group,
+.control-center .notification-group:focus,
+.control-center .notification-row,
+.control-center .notification-row:focus {
+  background: transparent;
+  box-shadow: none;
+}
+.control-center .notification-row .notification-background {
+  padding: 4px 10px;
+}
+.control-center .control-center-list-placeholder {
+  color: {{colors.outline.default.hex}};
+  font-size: 12px;
+}
+
+/* Small upper-case headers with a pill button, like a settings panel */
+.widget-title {
+  margin: 10px 14px 4px 14px;
+}
+.widget-title > label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: {{colors.on_surface_variant.default.hex}};
+}
+.widget-title > button {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 3px 12px;
+  border-radius: 99px;
+  border: none;
+  box-shadow: none;
+  background: alpha({{colors.surface_container_highest.default.hex}}, 0.8);
+  color: {{colors.on_surface.default.hex}};
+}
+.widget-title > button:hover {
+  background: {{colors.primary.default.hex}};
+  color: {{colors.on_primary.default.hex}};
+}
+.widget-dnd {
+  margin: 4px 14px 8px 14px;
+}
+.widget-dnd label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: {{colors.on_surface_variant.default.hex}};
+}
+.widget-dnd switch {
+  border-radius: 99px;
+  border: none;
+  background: alpha({{colors.surface_container_highest.default.hex}}, 0.9);
+}
+.widget-dnd switch:checked {
+  background: {{colors.primary.default.hex}};
+}
+.widget-dnd switch slider {
+  border-radius: 99px;
+  background: {{colors.on_surface.default.hex}};
+}
+
+/* Media player card (rmpc/MPD, Firefox, mpv) */
+.widget-mpris {
+  margin: 8px 10px 4px 10px;
+}
+.widget-mpris .widget-mpris-player {
+  border-radius: 14px;
+  border: 1px solid var(--noti-border-color);
+  box-shadow: none;
+}
+.widget-mpris .widget-mpris-player .mpris-overlay {
+  background: alpha({{colors.surface_container.default.hex}}, 0.72);
+  padding: 12px;
+}
+.widget-mpris .widget-mpris-player .mpris-overlay .widget-mpris-album-art {
+  border-radius: 10px;
+  -gtk-icon-size: 64px;
+}
+.widget-mpris .widget-mpris-player .mpris-overlay .widget-mpris-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: {{colors.on_surface.default.hex}};
+}
+.widget-mpris .widget-mpris-player .mpris-overlay .widget-mpris-subtitle {
+  font-size: 11px;
+  color: {{colors.on_surface_variant.default.hex}};
+}
+.widget-mpris .widget-mpris-player .mpris-overlay > box > button {
+  border-radius: 99px;
+  color: {{colors.on_surface.default.hex}};
+}
+.widget-mpris .widget-mpris-player .mpris-overlay > box > button:hover {
+  background: alpha({{colors.primary.default.hex}}, 0.25);
+}
+.widget-mpris > box > button {
+  color: {{colors.on_surface_variant.default.hex}};
 }
 
 /* ---- Volume / brightness popups (bin/osd): thin rounded progress bar ---- */
@@ -619,13 +813,15 @@ notificationwindow .notification-row .notification-background {
   background: {{colors.primary.default.hex}};
 }
 
-/* ---- OSD card: low-priority popups (only bin/osd sends those) ---- */
-/* swaync has one window width for all popups; a left margin makes this card compact */
+/* ---- OSD card: low-priority popups ---------------------------------------- */
+/* Only bin/osd sends low urgency: config.json raises every other app's low
+   notifications (e.g. Timeshift) to normal, so they keep the full card.
+   swaync has one window width for all popups; a left margin makes this card compact. */
 .notification-row .notification-background .notification.low {
-  margin-left: 230px;
+  margin-left: 134px;   /* 360 px card -> 226 px OSD card */
   background: rgba({{colors.surface.default.red}}, {{colors.surface.default.green}}, {{colors.surface.default.blue}}, 0.55);
   border: 1px solid alpha({{colors.primary.default.hex}}, 0.6);
-  border-radius: 5px;
+  border-radius: var(--border-radius);
   box-shadow: none;
 }
 .notification.low .notification-default-action {
@@ -637,6 +833,7 @@ notificationwindow .notification-row .notification-background {
 /* full path: swaync's default .image rule (margin: 4px) is more specific than a short one */
 .notification-row .notification-background .notification.low .notification-default-action .notification-content .image {
   -gtk-icon-size: 40px;
+  border-radius: 0;
   margin: 0 16px 0 2px;
   color: {{colors.primary.default.hex}};
 }
