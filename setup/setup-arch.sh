@@ -85,6 +85,7 @@ packages=(
     "htop"
     "zram-generator"
     "earlyoom"
+    "nftables"
     "timeshift"
     "timeshift-autosnap"
     "grub-btrfs"

@@ -7,6 +7,8 @@
 #   - zram swap (size = RAM, zstd) and the vm.* sysctls for it
 #   - earlyoom: stop the biggest process (test browsers first) before memory runs out
 #   - Firefox policy: install uBlock Origin, Proton Pass and Unhook from addons.mozilla.org
+#   - firewall (nftables): nothing from the network may connect in; Docker/libvirt keep
+#     working (setup/system/nftables.conf)
 #   - faillock: 5 wrong passwords -> locked for 2 minutes (default: 3 -> 10 minutes)
 #   - Bluetooth: bluetoothd without its GATT battery plugin, so headsets show the
 #     battery level they send over HFP (forwarded by PipeWire)
@@ -94,6 +96,27 @@ if command -v earlyoom >/dev/null; then
     echo ":: earlyoom: $(systemctl is-active earlyoom.service)"
 else
     echo ":: earlyoom not installed (sudo pacman -S earlyoom), skipped"
+fi
+
+# --- Firewall (nftables) ---
+if command -v nft >/dev/null; then
+    if ! cmp -s "$DIR/system/nftables.conf" /etc/nftables.conf; then
+        [ ! -f /etc/nftables.conf ] || [ -f /etc/nftables.conf.bak-dotfiles ] || \
+            sudo cp /etc/nftables.conf /etc/nftables.conf.bak-dotfiles
+        sudo nft -c -f "$DIR/system/nftables.conf"   # syntax check before installing
+        sudo install -m 644 "$DIR/system/nftables.conf" /etc/nftables.conf
+    fi
+    # oneshot without RemainAfterExit: it loads the rules and then shows "inactive",
+    # so check the table itself
+    sudo systemctl enable nftables.service
+    sudo systemctl restart nftables.service
+    if sudo nft list table inet firewall >/dev/null 2>&1; then
+        echo ":: Firewall: loaded"
+    else
+        echo ":: WARNING: firewall rules not loaded (sudo nft -f /etc/nftables.conf)"
+    fi
+else
+    echo ":: nft not found (sudo pacman -S nftables), firewall skipped"
 fi
 
 # --- faillock: wrong passwords (lock screen, sudo, login) ---
