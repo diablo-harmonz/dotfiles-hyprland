@@ -2,16 +2,23 @@
 # screenrec: start/stop screen recording on Hyprland with wf-recorder.
 #   screenrec area   select a region and start recording (run again to stop)
 #   screenrec full   record the whole screen (run again to stop)
+#   screenrec window click a window and record its area (run again to stop)
 # Add "audio" as second argument to also record the default audio output:
 #   screenrec area audio
 # Files go to ~/Videos/Recordings as .mp4.
+# While recording, Waybar shows a red stop button with the elapsed time (bin/rec-status);
+# the start time is kept in $XDG_RUNTIME_DIR/screenrec.start.
 set -euo pipefail
 
 notify() { command -v notify-send >/dev/null && notify-send -a screenrec "$@" || true; }
+state="${XDG_RUNTIME_DIR:-/tmp}/screenrec.start"
+bar() { pkill -RTMIN+10 -x waybar || true; }   # refresh the Waybar stop button now
 
 # Second press: stop the running recording (SIGINT lets wf-recorder finish the file)
 if pgrep -x wf-recorder >/dev/null; then
     pkill -INT -x wf-recorder
+    rm -f "$state"
+    bar
     notify "Recording stopped" "Saved in ~/Videos/Recordings"
     exit 0
 fi
@@ -19,9 +26,28 @@ fi
 dir="$HOME/Videos/Recordings"
 mkdir -p "$dir"
 file="$dir/$(date +%F_%H-%M-%S).mp4"
+# Rectangles of the windows on the workspaces shown right now, for `slurp -r`
+# (click a window to pick it, like Space in the macOS capture)
+window_rects() {
+    local ws
+    ws=$(hyprctl -j monitors | jq -c '[.[].activeWorkspace.id]')
+    hyprctl -j clients | jq -r --argjson ws "$ws" \
+        '.[] | select(.mapped and (.hidden | not) and (.workspace.id as $w | $ws | index($w))) | "\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"'
+}
+
 mode="${1:-area}"
 args=(-f "$file")
-[ "${2:-}" = "audio" ] && args+=(--audio)
+# Sound = what the computer plays: the monitor of the default output (speakers or
+# headset). Plain --audio would take the default *input*, i.e. the microphone (and a
+# Bluetooth headset mic switches the headset to its low-quality call mode).
+if [ "${2:-}" = "audio" ]; then
+    sink=$(pactl get-default-sink 2>/dev/null || true)
+    if [ -n "$sink" ]; then
+        args+=("--audio=$sink.monitor")
+    else
+        args+=(--audio)
+    fi
+fi
 
 case "$mode" in
     area)
@@ -29,11 +55,20 @@ case "$mode" in
         args+=(-g "$geom")
         ;;
     full) ;;
+    window)
+        geom=$(window_rects | slurp -r) || exit 0
+        args+=(-g "$geom")
+        ;;
     *)
-        echo "usage: screenrec [area|full] [audio]" >&2
+        echo "usage: screenrec [area|full|window] [audio]" >&2
         exit 2
         ;;
 esac
 
-notify "Recording started" "Press the shortcut again to stop"
-exec wf-recorder "${args[@]}"
+notify "Recording started" "Stop: the red button on Waybar or the shortcut again"
+date +%s >"$state"
+bar
+wf-recorder "${args[@]}" || true
+# wf-recorder ended (stopped above, or failed): hide the button
+rm -f "$state"
+bar

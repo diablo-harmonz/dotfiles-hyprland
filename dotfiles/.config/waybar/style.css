@@ -221,6 +221,19 @@ window#waybar.empty #window {
     border-radius: 4px;
 }
 
+/* Recording: red stop button with the elapsed time (hidden when not recording).
+   A fixed red, not Matugen's error color (pale pink in dark mode). */
+#custom-recording {
+    background: #e5393f;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 0 12px;
+}
+
+#custom-recording:hover {
+    background: #c62f35;
+}
+
 #custom-caffeine.on {
     color: @primary;
 }

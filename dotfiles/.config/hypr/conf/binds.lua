@@ -58,6 +58,10 @@ hl.bind("SHIFT + Print",            exec("~/.local/bin/screenshot area"))   -- S
 hl.bind(mainMod .. " + Print",      exec("~/.local/bin/screenshot edit"))   -- Select a region -> annotate in satty
 hl.bind(mainMod .. " + SHIFT + R",  exec("~/.local/bin/screenrec area"))    -- Start/stop recording a region
 hl.bind(mainMod .. " + ALT + R",    exec("~/.local/bin/screenrec full"))    -- Start/stop recording the whole screen
+-- macOS-style capture keys (CTRL instead of SHIFT: SUPER+SHIFT+number moves windows)
+hl.bind(mainMod .. " + CTRL + 3",   exec("~/.local/bin/screenshot full"))   -- Whole screen right away
+hl.bind(mainMod .. " + CTRL + 4",   exec("~/.local/bin/capture-menu shot")) -- Screenshot toolbar
+hl.bind(mainMod .. " + CTRL + 5",   exec("~/.local/bin/capture-menu rec"))  -- Recording toolbar (also stops)
 
 -- Move focus with mainMod + arrow keys
 for _, dir in ipairs({ "left", "right", "up", "down" }) do

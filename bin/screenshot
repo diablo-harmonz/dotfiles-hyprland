@@ -2,6 +2,8 @@
 # screenshot: take a screenshot on Hyprland with grim/slurp.
 #   screenshot area   select a region  -> saved file + clipboard + preview
 #   screenshot full   whole screen     -> saved file + clipboard + preview
+#   screenshot window click a window -> saved file + clipboard + preview
+#   screenshot timer  whole screen after 5 seconds
 #   screenshot edit   select a region  -> open in satty to annotate (save/copy from satty)
 # Files go to ~/Pictures/Screenshots. Press Esc while selecting to cancel.
 # The preview (bin/screenshot-preview) floats bottom-right for a few seconds:
@@ -16,6 +18,15 @@ mode="${1:-area}"
 preview() {
     pkill -f "screenshot-preview" 2>/dev/null || true   # one preview at a time
     setsid -f "$HOME/.local/bin/screenshot-preview" "$file" >/dev/null 2>&1
+}
+
+# Rectangles of the windows on the workspaces shown right now, for `slurp -r`
+# (click a window to pick it, like Space in the macOS capture)
+window_rects() {
+    local ws
+    ws=$(hyprctl -j monitors | jq -c '[.[].activeWorkspace.id]')
+    hyprctl -j clients | jq -r --argjson ws "$ws" \
+        '.[] | select(.mapped and (.hidden | not) and (.workspace.id as $w | $ws | index($w))) | "\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"'
 }
 
 select_region() {
@@ -35,12 +46,25 @@ case "$mode" in
         wl-copy --type image/png < "$file"
         preview
         ;;
+    window)
+        geom=$(window_rects | slurp -r) || exit 0
+        grim -g "$geom" "$file"
+        wl-copy --type image/png < "$file"
+        preview
+        ;;
+    timer)
+        command -v notify-send >/dev/null && notify-send -a screenshot -t 2000 "Screenshot in 5 seconds"
+        sleep 5
+        grim "$file"
+        wl-copy --type image/png < "$file"
+        preview
+        ;;
     edit)
         geom=$(select_region)
         grim -g "$geom" - | satty --filename - --output-filename "$file" --copy-command wl-copy --early-exit all
         ;;
     *)
-        echo "usage: screenshot [area|full|edit]" >&2
+        echo "usage: screenshot [area|full|window|timer|edit]" >&2
         exit 2
         ;;
 esac

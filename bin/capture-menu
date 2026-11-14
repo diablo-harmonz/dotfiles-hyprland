@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# capture-menu: macOS-style capture toolbar (rofi, one row near the bottom of the screen).
+#   capture-menu shot   SUPER+CTRL+4: selection, window, entire screen, annotate, timer
+#   capture-menu rec    SUPER+CTRL+5: selection / window / entire screen, with or without
+#                       sound; while recording it offers "Stop recording" first
+# Left/Right (or Tab / Shift+Tab) to move, Enter or click to pick, Esc to cancel. Pressing the
+# shortcut again closes the toolbar. The work is done by bin/screenshot and bin/screenrec.
+set -euo pipefail
+
+pkill -x rofi && exit 0
+
+SEL=$'\U000F0485'      # selection
+WIN=$'\U000F05AF'      # window
+SCREEN=$'\U000F0379'   # monitor
+PEN=$'\U000F03EB'      # annotate
+TIMER=$'\U000F051B'    # timer
+REC=$'\U000F044A'      # record
+SOUND=$'\U000F057E'    # sound
+STOP=$'\U000F04DB'     # stop
+
+labels=()
+actions=()
+add() {   # $1 = glyph, $2 = label, $3 = command
+    labels+=("<span size='x-large'>$1</span>"$'\n'"$2")
+    actions+=("$3")
+}
+
+case "${1:-shot}" in
+    shot)
+        title="Screenshot"
+        add "$SEL"    "Selection"     "screenshot area"
+        add "$WIN"    "Window"        "screenshot window"
+        add "$SCREEN" "Entire screen" "screenshot full"
+        add "$PEN"    "Annotate"      "screenshot edit"
+        add "$TIMER"  "In 5 seconds"  "screenshot timer"
+        ;;
+    rec)
+        title="Screen recording"
+        if pgrep -x wf-recorder >/dev/null; then
+            add "$STOP" "Stop recording" "screenrec"
+        fi
+        add "$SEL"    "Selection"          "screenrec area"
+        add "$SEL $SOUND"    "Selection + sound"  "screenrec area audio"
+        add "$WIN"    "Window"             "screenrec window"
+        add "$SCREEN" "Entire screen"      "screenrec full"
+        add "$SCREEN $SOUND" "Screen + sound"     "screenrec full audio"
+        ;;
+    *)
+        echo "usage: capture-menu [shot|rec]" >&2
+        exit 2
+        ;;
+esac
+
+# Entries are separated by "|" so each one can hold two lines (icon, label).
+# Left/Right move between buttons (Tab / Shift+Tab also work by default); one click
+# runs a button (rofi's default needs a double click).
+choice=$(IFS='|'; printf '%s' "${labels[*]}" | rofi -dmenu -sep '|' -markup-rows -eh 2 \
+    -no-custom -format i -selected-row 0 -mesg "$title" \
+    -kb-move-char-back "Control+b" -kb-move-char-forward "Control+f" \
+    -kb-row-left "Left,Control+Page_Up" -kb-row-right "Right,Control+Page_Down" \
+    -me-select-entry "" -me-accept-entry "MousePrimary" \
+    -theme-str "listview { columns: ${#labels[@]}; }" \
+    -config "$HOME/.config/rofi/config-capture.rasi") || exit 0
+[ -n "$choice" ] || exit 0
+
+# Let rofi's window close before slurp or grim look at the screen
+sleep 0.2
+read -r -a cmd <<<"${actions[$choice]}"
+exec "$HOME/.local/bin/${cmd[0]}" "${cmd[@]:1}"

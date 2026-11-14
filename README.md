@@ -138,12 +138,16 @@ Defined in `dotfiles/.config/hypr/conf/binds.lua`.
 | SUPER + Print | Region screenshot, annotate in satty |
 | SUPER + SHIFT + R | Start/stop recording a region |
 | SUPER + ALT + R | Start/stop recording the whole screen |
+| SUPER + CTRL + 3 | Screenshot of the whole screen (like macOS ⌘⇧3) |
+| SUPER + CTRL + 4 | Screenshot toolbar: selection, window, entire screen, annotate, in 5 seconds |
+| SUPER + CTRL + 5 | Recording toolbar: selection, window or entire screen, with or without sound; stop |
 | Fn+F7 | External monitor: mirror, extended, off, mirror... |
 | Volume, mic, brightness keys | Change the value and show an OSD popup |
 | Media keys | playerctl play/pause, next, previous, stop |
 
 Screenshots are saved to `~/Pictures/Screenshots`, copied to the clipboard and shown in a
-small preview (drag and drop, click to edit). Recordings go to `~/Videos/Recordings`.
+small preview (drag and drop, click to edit). Recordings go to `~/Videos/Recordings`;
+while recording, Waybar shows a red stop button with the elapsed time.
 Workspaces 1–5 stay on the laptop screen and 6–10 on the first external monitor.
 
 On the Waybar launcher button, left click opens rofi and middle click the wallpaper picker.
@@ -209,6 +213,8 @@ installs from `setup/system/`:
 | `wallpaper` | Pick, set and theme from the wallpaper (`select`, `random`, `restore`) |
 | `screenshot`, `screenshot-preview` | Screenshots with file, clipboard and preview |
 | `screenrec` | Start/stop screen recording |
+| `capture-menu` | macOS-style screenshot / recording toolbar (rofi) |
+| `rec-status` | Waybar red stop button with the elapsed time while recording |
 | `clipboard` | Clipboard history picker |
 | `web-search` | Quick search / address bar |
 | `caffeine` | Keep the laptop awake, also handles the lid while on |

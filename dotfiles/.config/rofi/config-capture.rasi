@@ -1,0 +1,88 @@
+/*
+ * Screenshot / recording toolbar (bin/capture-menu, SUPER+SHIFT+4 / SUPER+SHIFT+5):
+ * one row of buttons near the bottom of the screen, like the macOS capture toolbar.
+ * Colors from colors.rasi.
+ */
+@theme "/dev/null"
+@import "colors.rasi"
+
+configuration {
+    font:                "FiraCode Nerd Font 10";
+    show-icons:          false;
+    /* The button under the pointer becomes the selected one (lit like with the keys) */
+    hover-select:        true;
+}
+
+window {
+    transparency:        "real";
+    location:            south;
+    anchor:              south;
+    y-offset:            -60px;
+    width:               820px;
+    border:              2px solid;
+    border-color:        @border;
+    border-radius:       15px;
+    background-color:    @bg;
+}
+
+mainbox {
+    padding:             12px;
+    spacing:             8px;
+    background-color:    transparent;
+    children:            [ "message", "listview" ];
+}
+
+message {
+    background-color:    transparent;
+}
+
+textbox {
+    background-color:    transparent;
+    text-color:          @text-muted;
+    horizontal-align:    0.5;
+}
+
+/* One row: a 1-line grid, capture-menu sets "columns" to the number of buttons */
+listview {
+    lines:               1;
+    columns:             5;
+    fixed-height:        true;
+    fixed-columns:       true;
+    scrollbar:           false;
+    spacing:             8px;
+    background-color:    transparent;
+}
+
+element {
+    padding:             10px 4px;
+    border-radius:       10px;
+    cursor:              pointer;
+    background-color:    transparent;
+    text-color:          @text;
+}
+
+element normal.normal,
+element alternate.normal {
+    background-color:    transparent;
+    text-color:          @text;
+}
+
+element normal.active,
+element alternate.active {
+    background-color:    transparent;
+    text-color:          @primary;
+}
+
+element selected.normal,
+element selected.active {
+    background-color:    @primary;
+    text-color:          @on-primary;
+}
+
+element-text {
+    cursor:              inherit;
+    background-color:    transparent;
+    text-color:          inherit;
+    horizontal-align:    0.5;
+    vertical-align:      0.5;
+}

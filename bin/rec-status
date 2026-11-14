@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# rec-status: Waybar custom/recording module. While bin/screenrec records, prints a red
+# stop button with the elapsed time; prints nothing otherwise (Waybar hides the module).
+# Click runs screenrec, which stops the recording and saves the file.
+state="${XDG_RUNTIME_DIR:-/tmp}/screenrec.start"
+if ! pgrep -x wf-recorder >/dev/null || [ ! -f "$state" ]; then
+    echo
+    exit 0
+fi
+s=$(( $(date +%s) - $(cat "$state") ))
+printf '{"text": "\U000F04DB %02d:%02d", "class": "recording", "tooltip": "Recording - click to stop and save"}\n' \
+    $((s / 60)) $((s % 60))

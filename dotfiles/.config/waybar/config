@@ -24,6 +24,7 @@
             "hyprland/workspaces"
         ],
         "modules-right": [
+            "custom/recording",
             "custom/caffeine",
             "group/status",
             "group/hub",
@@ -114,6 +115,15 @@
             },
             "on-scroll-up": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e-1\" })'",
             "on-scroll-down": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e+1\" })'"
+        },
+        // Red stop button while bin/screenrec records (hidden otherwise): elapsed time,
+        // click to stop and save. screenrec refreshes it at once with signal 10.
+        "custom/recording": {
+            "exec": "~/.local/bin/rec-status",
+            "return-type": "json",
+            "interval": 1,
+            "signal": 10,
+            "on-click": "~/.local/bin/screenrec"
         },
         "custom/caffeine": {
             "exec": "~/.local/bin/caffeine status",
@@ -279,6 +289,7 @@
             "hyprland/workspaces"
         ],
         "modules-right": [
+            "custom/recording",
             "custom/caffeine",
             "group/status",
             "group/hub",
@@ -369,6 +380,15 @@
             },
             "on-scroll-up": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e-1\" })'",
             "on-scroll-down": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e+1\" })'"
+        },
+        // Red stop button while bin/screenrec records (hidden otherwise): elapsed time,
+        // click to stop and save. screenrec refreshes it at once with signal 10.
+        "custom/recording": {
+            "exec": "~/.local/bin/rec-status",
+            "return-type": "json",
+            "interval": 1,
+            "signal": 10,
+            "on-click": "~/.local/bin/screenrec"
         },
         "custom/caffeine": {
             "exec": "~/.local/bin/caffeine status",
