@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# matugen-verify-config: render a user's Matugen templates into a temporary folder and
+# report templates that fail, produce nothing or keep "{{ ... }}" placeholders.
+# The real colour files are not touched and no post_hook runs (they would reload Waybar,
+# kitty, swaync...): a copy of config.toml points every output_path to the temp folder.
+# A fixed source colour is used, so no wallpaper is needed.
+#   run by the pacman hook as root: checks every /home/*/.config/matugen/config.toml as that user
+#   run by a user: checks ~/.config/matugen/config.toml, or the config given as $1
+# Installed root-owned to /usr/local/lib/dotfiles-hyprland/. Never fails, so it can never
+# block a pacman transaction.
+
+check() {   # $1 = user, $2 = home, $3 = config.toml
+    local user="$1" home="$2" cfg="$3" report
+    local runner=()
+    [ "$(id -u)" = 0 ] && runner=(runuser -u "$user" -- env HOME="$home")
+    report=$(cd / && timeout 60 "${runner[@]}" python3 - "$cfg" <<'PY'
+import os, re, shutil, subprocess, sys, tempfile, tomllib
+
+cfg_path = sys.argv[1]
+with open(cfg_path, "rb") as fh:
+    cfg = tomllib.load(fh)
+templates = cfg.get("templates", {})
+tmp = tempfile.mkdtemp(prefix="matugen-check-")
+
+def q(v):                     # TOML basic string
+    return '"' + str(v).replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+lines = ["[config]"]
+for k, v in cfg.get("config", {}).items():
+    if isinstance(v, (str, bool, int, float)):
+        lines.append(f"{k} = " + (q(v) if isinstance(v, str) else str(v).lower()))
+outs = {}
+for name, t in templates.items():
+    out = os.path.join(tmp, re.sub(r"[^A-Za-z0-9_.-]", "_", name) + ".out")
+    outs[name] = out
+    lines.append(f"\n[templates.{q(name)}]")
+    lines.append("input_path = " + q(os.path.expanduser(t.get("input_path", ""))))
+    lines.append("output_path = " + q(out))        # no post_hook / pre_hook
+conf = os.path.join(tmp, "config.toml")
+with open(conf, "w") as fh:
+    fh.write("\n".join(lines) + "\n")
+
+res = subprocess.run(["matugen", "-c", conf, "color", "hex", "#4c8c7e", "--mode", "dark"],
+                     capture_output=True, text=True, timeout=50)
+problems = []
+plain = re.sub(r"\x1b\[[0-9;]*m", "", res.stderr + "\n" + res.stdout)
+# matugen marks each error with "[ <template>:<line>:<col> ]" and explains it below
+found = []
+for m in re.finditer(r"\[ ([^:\]\s]+):(\d+):\d+ \](.*?)(?=\[ [^:\]\s]+:\d+:\d+ \]|\Z)", plain, flags=re.S):
+    why = re.search(r"(Parse Error|Error)[^\n\[]*", m.group(3))
+    reason = why.group(0).split(". Available")[0].strip() if why else "error"
+    found.append(f"  template {m.group(1)}, line {m.group(2)}: {reason}")
+for l in plain.splitlines():                       # e.g. a template file that is missing
+    if "doesn't exist" in l:
+        found.append("  " + l.strip(" ⚠"))
+if res.returncode != 0:
+    problems.append(f"matugen stopped (exit {res.returncode}), so no template was written:")
+    lines_ = list(dict.fromkeys(found)) or ["  " + l for l in plain.strip().splitlines()[-3:]]
+    problems += lines_[:10]
+    outs = {}
+elif found:
+    problems += list(dict.fromkeys(found))[:10]
+for name, out in outs.items():
+    if not os.path.isfile(out) or os.path.getsize(out) == 0:
+        problems.append(f"{name}: no output ({templates[name].get('input_path', '')})")
+        continue
+    left = re.findall(r"\{\{[^}]*\}\}", open(out, encoding="utf-8", errors="replace").read())
+    if left:
+        problems.append(f"{name}: placeholders left: " + ", ".join(sorted(set(left))[:3]))
+shutil.rmtree(tmp, ignore_errors=True)
+print(f"OK {len(outs)}" if not problems else "\n".join(problems))
+PY
+)
+    if [[ "$report" == OK* ]]; then
+        echo ":: Matugen templates OK for $user (${report#OK } templates, $cfg)"
+    else
+        echo "==> WARNING: matugen $(matugen --version 2>/dev/null | awk '{print $2}') has problems with $user's templates ($cfg):"
+        sed 's/^/    /' <<<"${report:-the check itself failed to run}"
+        echo "    Fix dotfiles/.config/matugen/templates before changing the wallpaper, or roll back with Timeshift."
+    fi
+}
+
+command -v matugen >/dev/null && command -v python3 >/dev/null || exit 0
+
+if [ -n "${1:-}" ]; then
+    check "$(id -un)" "$HOME" "$1"
+elif [ "$(id -u)" = 0 ]; then
+    for home in /home/*; do
+        [ -e "$home/.config/matugen/config.toml" ] && check "$(stat -c %U "$home")" "$home" "$home/.config/matugen/config.toml"
+    done
+else
+    [ -e "$HOME/.config/matugen/config.toml" ] && check "$(id -un)" "$HOME" "$HOME/.config/matugen/config.toml"
+fi
+exit 0

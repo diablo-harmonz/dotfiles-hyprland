@@ -1,0 +1,14 @@
+# Installed to /etc/pacman.d/hooks/ by setup/install-pacman-hooks.sh.
+# After matugen is installed or upgraded, render every user's templates into a temporary
+# folder with the new version, so a template syntax change shows up in the pacman output
+# instead of as missing colors in every app after the next wallpaper change.
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = matugen
+
+[Action]
+Description = Checking Matugen templates with the new Matugen version...
+When = PostTransaction
+Exec = /usr/local/lib/dotfiles-hyprland/matugen-verify-config

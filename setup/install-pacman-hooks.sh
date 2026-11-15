@@ -7,7 +7,8 @@ set -euo pipefail
 SRC="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/pacman-hooks"
 # hyprland-verify-config: Hyprland config after Hyprland upgrades
 # rmpc-verify-config:     rmpc config + theme after rmpc upgrades
-for name in hyprland-verify-config rmpc-verify-config; do
+# matugen-verify-config:  Matugen templates after Matugen upgrades
+for name in hyprland-verify-config rmpc-verify-config matugen-verify-config; do
     sudo install -D -m 755 -o root -g root "$SRC/$name" "/usr/local/lib/dotfiles-hyprland/$name"
     sudo install -D -m 644 -o root -g root "$SRC/$name.hook" "/etc/pacman.d/hooks/$name.hook"
     echo ":: Installed pacman hook: /etc/pacman.d/hooks/$name.hook"
