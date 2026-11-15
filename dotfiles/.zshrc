@@ -127,6 +127,9 @@ command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
 
 # Neovim (LazyVim) for vim/vi
 alias vim=nvim vi=nvim
+# Own Neovim config being built step by step (dotfiles/.config/nvim-own, docs/neovim.md);
+# plain nvim stays LazyVim until nv is ready to take over
+alias nv='NVIM_APPNAME=nvim-own nvim'
 
 # Fastfetch: only in the welcome terminal opened at login (hypr/conf/startup-layout.lua);
 # unset so shells started from it do not run it again. Type `fastfetch` any time.

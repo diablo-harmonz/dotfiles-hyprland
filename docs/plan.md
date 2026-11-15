@@ -24,6 +24,8 @@ Cập nhật lần cuối: Nov 12, 2026 · @diablo harmonz
 - Yazi (quản lý file): gõ `y` trong terminal hoặc SUPER + SHIFT + E. Phím: j/k lên xuống, h/l ra/vào thư mục, Space chọn, y copy, x cắt, p dán, d xoá vào thùng rác, r đổi tên, `.` hiện file ẩn, / tìm, z nhảy thư mục (zoxide), q thoát (terminal chuyển tới thư mục vừa xem).
 - LazyVim (Neovim): `nvim` (hoặc vim, vi). Học phím Vim: trong nvim gõ `:Tutor`. Phím Space mở menu lệnh của LazyVim; Space Space tìm file; Space e cây thư mục; Space gg mở lazygit.
 - Lộ trình: tuần đầu :Tutor + Yazi + lazygit; sau đó giải LeetCode trong LazyVim (thêm leetcode.nvim khi cần); dự án công việc vẫn dùng VS Code.
+- Tự dựng cấu hình Neovim (quyết định 2026-11-15): lệnh `nv` mở cấu hình riêng `dotfiles/.config/nvim-own` dựng từng giai đoạn (0 thiết lập + phím đã xong; tiếp theo màu, tìm file, Tree-sitter, LSP, gợi ý, format, git, cây thư mục, thanh trạng thái); `nvim` vẫn là LazyVim cho tới khi `nv` đủ dùng. Lộ trình chi tiết: [docs/neovim.md](neovim.md).
+- VS Code: **giữ lại** (quyết định 2026-11-15), không xoá kể cả khi đã quen Neovim. Lý do: debug có giao diện (breakpoint, React/Node), và là đường lui khi cấu hình Neovim hỏng giữa tuần. Chỉ cân nhắc gỡ nếu vài tháng liền không mở lần nào.
 - Plugin LazyVim ghim phiên bản bằng `lazy-lock.json` trong repo; cập nhật bằng `:Lazy update` rồi commit file đó.
 
 ## Cập nhật hệ thống
