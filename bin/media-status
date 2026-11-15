@@ -18,7 +18,7 @@ ICON_PAUSED=$'\xef\x81\x8b'    # U+F04B play (click to play)
 player_icon() {   # $1 = player name
     case "$1" in
         firefox*)                 printf '\U000F0239' ;;   # Firefox
-        chromium*|chrome*|brave*) printf '\U000F02AF' ;;   # Chromium-based browsers
+        chromium*|chrome*)        printf '\U000F02AF' ;;   # Chromium, Chrome
         mpd*|rmpc*)               printf '\U000F075A' ;;   # music (MPD / rmpc)
         mpv*)                     printf '\U000F0231' ;;   # film (mpv)
         spotify*)                 printf '\U000F04C7' ;;
