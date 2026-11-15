@@ -164,7 +164,7 @@ picks one at random. Wallpapers come from `~/Pictures/Wallpapers`; this repo shi
 
 After each change Matugen (`dotfiles/.config/matugen`) generates matching colors for
 rofi, Waybar, kitty, the Control Center, the Hyprland borders, hyprlock, wlogout, GTK 3, GTK 4, swaync, Qt (qt6ct), KDE apps,
-Firefox, yazi, cava, btop, rmpc and yt-x. The generated files are git-ignored; run `wallpaper restore` once
+Firefox, yazi, cava, btop, rmpc, yt-x and navi. The generated files are git-ignored; run `wallpaper restore` once
 after linking (Hyprland also runs it at login).
 
 ## Firefox
@@ -227,6 +227,7 @@ installs from `setup/system/`:
 | `vinyl-cover` | Record picture for rmpc: square sleeve with a vinyl pulled half out (cover.png per folder) |
 | `rmpc-notify` | rmpc song-change notification with the album art |
 | `sysupdate` | Guided weekly update (see Updating) |
+| `navi` (Ctrl+G in zsh) | Command notebook: every command of this setup with a description, searchable; add your own in `dotfiles/.config/navi/cheats/dotfiles.cheat`. `tldr <command>` (tealdeer) for common commands |
 | `rec-status` | Waybar red stop button with the elapsed time while recording |
 | `clipboard` | Clipboard history picker |
 | `web-search` | Quick search / address bar |

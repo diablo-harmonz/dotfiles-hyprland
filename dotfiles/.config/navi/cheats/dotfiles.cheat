@@ -1,0 +1,199 @@
+; Command notebook for this desktop (navi). Open it with Ctrl+G in the terminal (or type
+; `navi`), type a few letters to search, Enter puts the command on the prompt.
+;
+; Add your own: copy a block below.
+;   % tag1, tag2        tags of the commands that follow (shown on the left, searchable)
+;   # description       one line: what the command does (searchable)
+;   command <name>      the command; <name> is a blank navi asks you to fill in
+;   $ name: command     optional: a command whose output lists choices for <name>
+; Lines starting with ; are notes. Keep a blank line between commands. Save the file;
+; navi reads it again on the next Ctrl+G (no reload needed).
+
+% update, system
+
+# Guided weekly update (see docs/update.md)
+sysupdate
+
+# Read the Arch news
+yay -Pw
+
+# List packages with updates, without changing anything
+checkupdates; yay -Qua
+
+# Merge new default config files (.pacnew): v view, o overwrite, r remove, s skip
+sudo DIFFPROG="nvim -d" pacdiff
+
+# Remove packages nothing needs any more (orphans)
+sudo pacman -Rns $(pacman -Qdtq)
+
+% snapshots, timeshift, rollback
+
+# List Timeshift snapshots
+sudo timeshift --list
+
+# Take a snapshot that is kept (tag O)
+sudo timeshift --create --comments "<comment>" --tags O
+
+# Restore a snapshot (pick one, the machine reboots)
+sudo timeshift --restore
+
+% config checks, hooks
+
+# Check the Hyprland config (prints "config ok")
+Hyprland --verify-config --config ~/.config/hypr/hyprland.lua
+
+# Check the rmpc config and theme
+~/Documents/personal/dotfiles-hyprland/setup/pacman-hooks/rmpc-verify-config
+
+# Check the Matugen templates (writes nothing real)
+~/Documents/personal/dotfiles-hyprland/setup/pacman-hooks/matugen-verify-config
+
+# Reinstall the pacman hooks after editing setup/pacman-hooks/
+~/Documents/personal/dotfiles-hyprland/setup/install-pacman-hooks.sh
+
+% music, rmpc, mpd
+
+# Download a song (best audio) into ~/Music with its record picture
+yt-music "<url>"
+
+# Make the record picture (cover.png) for a song or album folder
+vinyl-cover "<folder>"
+
+# Remake the record picture even if one exists
+vinyl-cover --force "<folder>"
+
+# Stop / pause the music (MPD keeps running in the background)
+rmpc stop
+
+# Rescan ~/Music after copying music in by hand
+rmpc update
+
+# Stop MPD completely (until the next login)
+systemctl --user stop mpd
+
+# Start MPD again
+systemctl --user start mpd
+
+% video, youtube, mpv
+
+# Browse and watch YouTube in the terminal
+yt-x
+
+# Watch a video or stream
+mpv "<url>"
+
+# Download a video (up to 1080p) into ~/Videos/YouTube
+yt-dlp "<url>"
+
+# Download only the audio as mp3
+yt-dlp -x --audio-format mp3 "<url>"
+
+# Bring back the yt-x terminal if it stayed hidden after a video
+hyprctl dispatch 'hl.dsp.workspace.toggle_special("ytx")'
+
+# Turn a screen recording into a GIF
+ffmpeg -i "<video>" -vf "fps=12,scale=720:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" "<gif>"
+
+$ video: ls -t ~/Videos/Recordings/*.mp4 2>/dev/null
+$ gif: echo ~/Videos/recording.gif
+
+% screen, capture
+
+# Screenshot toolbar (also SUPER+CTRL+4)
+capture-menu shot
+
+# Recording toolbar, also stops a recording (also SUPER+CTRL+5)
+capture-menu rec
+
+# Change the wallpaper (colors follow it; also SUPER+W)
+wallpaper select
+
+# Recreate all colours from the current wallpaper
+wallpaper restore
+
+% hyprland, desktop, fix
+
+# Reload the Hyprland config (also SUPER+CTRL+R; from a TTY add -i 0)
+hyprctl reload
+
+# Black or dead lock screen: turn the screens on and restart hyprlock
+lock-recover
+
+# Restart Waybar (also SUPER+SHIFT+B)
+~/.config/ml4w/scripts/reload-waybar.sh
+
+# Restart the notification daemon
+systemctl --user restart swaync
+
+# Reload the colours / style of the notifications
+swaync-client -rs
+
+# Restart the Vietnamese input method server (Lotus)
+systemctl restart "fcitx5-lotus-server@$USER"
+
+# Open the Control Center
+control-center
+
+% system, info
+
+# Live system view (CPU, RAM, temperatures, battery)
+kitty ~/.local/bin/syslive
+
+# One-shot health report (SSD, battery, failed services, errors)
+sysreport
+
+# System monitor
+btop
+
+# Failed services
+systemctl --failed
+
+# Errors since this boot
+journalctl -b -p err
+
+# Battery health
+upower -i $(upower -e | grep BAT)
+
+# Charge limit: 75-80 % (care) or 100 % (full)
+battery-mode <mode>
+
+$ mode: echo -e "care\nfull"
+
+% network, firewall, docker
+
+# Wi-Fi networks (also the Wi-Fi icon on Waybar)
+nmtui connect
+
+# Firewall rules
+sudo nft list table inet firewall
+
+# Running containers and their ports
+docker ps --format "table {{.Names}}\t{{.Ports}}"
+
+# Container resource use
+docker stats --no-stream
+
+% git, dotfiles
+
+# Push the dotfiles repo (asks for the SSH key passphrase)
+git -C ~/Documents/personal/dotfiles-hyprland push
+
+# What changed in the dotfiles repo
+git -C ~/Documents/personal/dotfiles-hyprland status --short
+
+# Relink the dotfiles into $HOME (safe to run again)
+~/Documents/personal/dotfiles-hyprland/setup/link-dotfiles.sh
+
+# Check SSH and identity for the personal GitHub account in this repo
+personal-verify
+
+# Check SSH and identity for the work GitHub account in this repo
+work-verify
+
+% help
+
+# Short examples for any common command (tealdeer)
+tldr <command>
+
+# Update the tldr pages
+tldr --update

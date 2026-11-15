@@ -74,6 +74,8 @@ packages=(
     "fzf"
     "zoxide"
     "eza"
+    "navi"
+    "tealdeer"
     "wiremix"
     "mpv"
     "mpv-mpris"

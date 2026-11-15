@@ -118,6 +118,10 @@ y() {
   command rm -f -- "$tmp"
 }
 
+# navi: command notebook (dotfiles/.config/navi/cheats). Ctrl+G opens it and puts the
+# chosen command on the prompt; tldr <command> shows examples for common commands
+command -v navi >/dev/null && eval "$(navi widget zsh)"
+
 # zoxide: `z part-of-a-folder-name` jumps to a folder visited before (Yazi uses it too)
 command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
 
