@@ -12,6 +12,35 @@ các file liên quan và cách xử lý khi có sự cố.
 
 ---
 
+## Quy tắc: cập nhật cuối tuần, trong tuần chỉ làm việc
+
+Phần tuỳ biến của máy này chủ yếu là **giao diện** (Waybar, Control Center, thông báo, màn
+khoá, menu nguồn, rmpc, màu Matugen…); phần lõi (kernel, mạng, âm thanh, ổ đĩa mã hoá) gần
+như mặc định. Hỏng giao diện thì xấu hoặc thiếu tiện ích, **không chặn công việc**, nên sửa
+cuối tuần là được.
+
+1. **Chỉ chạy `sysupdate` vào tối thứ Sáu hoặc cuối tuần.** Cấu hình không tự hỏng: gần như
+   mọi lỗi xuất hiện ngay sau khi cập nhật. Cập nhật lúc rảnh = lỗi (nếu có) đến lúc rảnh.
+2. **Trong tuần không cập nhật**, trừ khi có tin bảo mật khẩn trên archlinux.org.
+3. **Lỗi chặn công việc giữa tuần → quay lại snapshot, đừng sửa vội:**
+   `sudo timeshift --restore`, chọn bản trước lần cập nhật (vài phút). Cuối tuần cập nhật
+   lại và sửa cho đúng (xem mục **Sự cố**).
+
+Lỗi **chặn công việc** và cách tạm để làm việc tiếp:
+
+| Sự cố | Cách tạm |
+|---|---|
+| Không vào được desktop (Hyprland) | Hook đã báo trước khi đăng xuất. Đã lỡ: Ctrl+Alt+F3, `sudo timeshift --restore` |
+| Không khởi động được (kernel, GRUB) | Menu GRUB → "… Linux snapshots" → vào máy → `sudo timeshift --restore` |
+| Không gõ được tiếng Việt | Chuyển sang Bamboo (dự phòng), hoặc `systemctl restart fcitx5-lotus-server@$USER` |
+| Mất Wi-Fi / mạng | Bấm icon Wi-Fi (nmtui), hoặc cắm dây LAN |
+| Tai nghe Bluetooth không kết nối | Mở bluetui từ Control Center, hoặc dùng loa laptop |
+
+Để được tới cuối tuần: Waybar, Control Center, thông báo, màn khoá xấu đi (vẫn mở khoá
+được), màu không theo hình nền, rmpc / yt-x / cava / btop, thẻ xem trước ảnh chụp, đĩa than…
+
+---
+
 ## Chuẩn bị (chỉ làm một lần)
 
 | Việc | Lệnh | Để làm gì |
