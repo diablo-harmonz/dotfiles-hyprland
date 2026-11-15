@@ -12,7 +12,7 @@ packages=(
     "hyprland"
     "waybar"
     "rofi"
-    "wezterm"
+    "kitty"
     "swaync"
     "hyprpolkitagent"
     "qt6ct"
@@ -235,8 +235,8 @@ _installPackages "${packages[@]}"
 # Lotus input method: its uinput server sends the backspaces that fix Vietnamese marks
 sudo systemctl enable --now "fcitx5-lotus-server@$USER.service"
 
-# Nautilus: "Open in Terminal" opens WezTerm
-gsettings set com.github.stunkymonkey.nautilus-open-any-terminal terminal wezterm
+# Nautilus: "Open in Terminal" opens kitty
+gsettings set com.github.stunkymonkey.nautilus-open-any-terminal terminal kitty
 
 # Qt apps: Fusion style with the Matugen palette (qt6ct needs an absolute path)
 mkdir -p ~/.config/qt6ct/colors

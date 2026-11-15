@@ -46,8 +46,8 @@
             "separate-outputs": true,
             // Full-match, case-insensitive; classes not listed are shown as they are
             "rewrite": {
-                "org\\.wezfurlong\\.wezterm": "WezTerm",
-                "welcome": "WezTerm",
+                "kitty": "kitty",
+                "welcome": "kitty",
                 "cava": "Cava",
                 "firefox": "Firefox",
                 "brave-browser": "Brave",
@@ -87,7 +87,7 @@
             "exec": "~/.local/bin/sysinfo-bar",
             "return-type": "json",
             "interval": 5,
-            "on-click": "wezterm start -- ~/.local/bin/syslive"
+            "on-click": "kitty ~/.local/bin/syslive"
         },
         // Empty workspace: Roman numeral. With windows: one app icon per window instead
         // (the numeral is hidden in style.css). Click an icon to focus that window.
@@ -337,8 +337,8 @@
             "separate-outputs": true,
             // Full-match, case-insensitive; classes not listed are shown as they are
             "rewrite": {
-                "org\\.wezfurlong\\.wezterm": "WezTerm",
-                "welcome": "WezTerm",
+                "kitty": "kitty",
+                "welcome": "kitty",
                 "cava": "Cava",
                 "firefox": "Firefox",
                 "brave-browser": "Brave",
@@ -378,7 +378,7 @@
             "exec": "~/.local/bin/sysinfo-bar",
             "return-type": "json",
             "interval": 5,
-            "on-click": "wezterm start -- ~/.local/bin/syslive"
+            "on-click": "kitty ~/.local/bin/syslive"
         },
         // Empty workspace: Roman numeral. With windows: one app icon per window instead
         // (the numeral is hidden in style.css). Click an icon to focus that window.

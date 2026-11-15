@@ -43,7 +43,7 @@ for src in "$REPO"/dotfiles/icons/*.svg; do
     _link "$src" "$HOME/.local/share/icons/hicolor/scalable/status/$(basename -- "$src")"
 done
 
-# Hidden desktop entries: icons for WezTerm windows with their own class (Waybar taskbar)
+# Hidden desktop entries: icons for kitty windows with their own class (Waybar taskbar)
 for src in "$REPO"/dotfiles/applications/*.desktop; do
     _link "$src" "$HOME/.local/share/applications/$(basename -- "$src")"
 done

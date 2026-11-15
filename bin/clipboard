@@ -47,7 +47,7 @@ paste() {   # $1 = "image" or "text"
     fi
     class=$(hyprctl activewindow -j | jq -r '.class // ""')
     case "$class" in
-        org.wezfurlong.wezterm|kitty|Alacritty|foot|konsole|org.kde.konsole|yakuake)
+        kitty|Alacritty|foot|konsole|org.kde.konsole|yakuake)
             wtype -M ctrl -M shift -k v -m shift -m ctrl ;;   # terminals paste with Ctrl+Shift+V
         *)
             wtype -M ctrl -k v -m ctrl ;;

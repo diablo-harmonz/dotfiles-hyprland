@@ -52,8 +52,8 @@
         thumb_style: (fg: "{{colors.primary.default.hex}}"),
     ),
     tab_bar: (
-        active_style: (fg: "{{colors.on_primary.default.hex}}", bg: "{{colors.primary.default.hex}}", modifiers: "Bold"),
-        inactive_style: (fg: "{{colors.on_surface_variant.default.hex}}"),
+        active_style: (fg: "{{colors.primary.default.hex}}", bg: "reset", modifiers: "Bold"),
+        inactive_style: (fg: "{{colors.outline.default.hex}}", bg: "reset"),
     ),
     lyrics: (
         timestamp: false
@@ -106,109 +106,147 @@
             alignment: Right,
         ),
     ],
+    // Top line: the tabs as icons, centred (click or 1-6); the rest of the
+    // screen is the tab. Tab panes live in config.ron; "player" and "keys" are below.
     layout: Split(
         direction: Vertical,
         panes: [
             (size: "1", pane: Pane(Empty())),
-            (
-                size: "2",
-                pane: Split(
-                    direction: Horizontal,
-                    panes: [
-                        (size: "2", pane: Pane(Empty())),
-                        (size: "30", pane: Component("header_left")),
-                        (size: "100%", pane: Component("header_center")),
-                        (size: "30", pane: Component("header_right")),
-                        (size: "2", pane: Pane(Empty())),
-                    ]
-                )
-            ),
+            // rmpc centres the tabs inside their pane: full width = centred on screen
+            (size: "1", pane: Pane(Tabs)),
             (size: "1", pane: Pane(Empty())),
-            // Tab bar hidden like in the reference: 1-7 switch tabs, Tab / Shift+Tab cycle
-            (pane: Pane(Tabs), size: "0"),
-            (pane: Pane(TabContent), size: "100%"),
-            (
-                size: "1",
-                pane: Split(
-                    direction: Horizontal,
-                    panes: [
-                        (size: "2", pane: Pane(Empty())),
-                        (size: "100%", pane: Pane(ProgressBar)),
-                        (size: "2", pane: Pane(Empty())),
-                    ]
-                ),
-            ),
-            (size: "1", pane: Pane(Empty())),
+            (size: "100%", pane: Pane(TabContent)),
         ],
     ),
     components: {
-        "state": Pane(Property(
+        // Player tab: the record (cover.png from bin/vinyl-cover) centred, then title,
+        // artist, time, controls, volume and bitrate
+        "player": Split(
+            direction: Vertical,
+            panes: [
+                // 12 % above and below keep the whole group in the middle; the picture
+                // is centred across and sits on the bottom of its pane (config.ron)
+                (size: "12%", pane: Pane(Empty())),
+                (size: "100%", pane: Pane(AlbumArt)),
+                (size: "3", pane: Pane(Empty())),
+                (size: "1", pane: Component("np_title")),
+                (size: "1", pane: Component("np_artist")),
+                (size: "1", pane: Pane(Empty())),
+                (
+                    size: "1",
+                    pane: Split(
+                        direction: Horizontal,
+                        panes: [
+                            (size: "24%", pane: Pane(Empty())),
+                            (size: "52%", pane: Component("np_progress")),
+                            (size: "24%", pane: Pane(Empty())),
+                        ]
+                    )
+                ),
+                (size: "1", pane: Pane(Empty())),
+                (size: "1", pane: Component("np_controls")),
+                (size: "1", pane: Pane(Empty())),
+                (size: "1", pane: Component("np_meta")),
+                (size: "12%", pane: Pane(Empty())),
+            ]
+        ),
+        "np_title": Pane(Property(
             content: [
-                (kind: Text("["), style: (fg: "{{colors.outline.default.hex}}")),
-                (kind: Property(Status(StateV2( ))), style: (fg: "{{colors.primary.default.hex}}", modifiers: "Bold")),
-                (kind: Text("]"), style: (fg: "{{colors.outline.default.hex}}")),
-            ], align: Left,
-        )),
-        "elapsed": Pane(Property(
-            content: [
-                (kind: Text("["), style: (fg: "{{colors.outline.default.hex}}")),
-                (kind: Property(Status(Elapsed))),
-                (kind: Text(" / "), style: (fg: "{{colors.outline.default.hex}}")),
-                (kind: Property(Status(Duration))),
-                (kind: Text("]"), style: (fg: "{{colors.outline.default.hex}}")),
-            ], align: Left,
-        )),
-        "title": Pane(Property(
-            content: [
-                (kind: Text("󰝚  "), style: (fg: "{{colors.primary.default.hex}}")),
-                (kind: Property(Song(Title)), style: (modifiers: "Bold"),
-                    default: (kind: Text("No song"), style: (modifiers: "Bold"))),
-                (kind: Text("  󰝚"), style: (fg: "{{colors.primary.default.hex}}")),
+                (kind: Property(Song(Title)), style: (fg: "{{colors.on_surface.default.hex}}", modifiers: "Bold"),
+                    default: (kind: Property(Song(Filename)), style: (fg: "{{colors.on_surface.default.hex}}", modifiers: "Bold"))),
             ], align: Center, scroll_speed: 1
         )),
-        "artist_and_album": Pane(Property(
+        "np_artist": Pane(Property(
             content: [
                 (kind: Property(Song(Artist)), style: (fg: "{{colors.tertiary.default.hex}}"),
-                    default: (kind: Text("Unknown"), style: (fg: "{{colors.tertiary.default.hex}}"))),
-                (kind: Text(" - "), style: (fg: "{{colors.outline.default.hex}}")),
-                (kind: Property(Song(Album)), style: (fg: "{{colors.on_surface_variant.default.hex}}"),
-                    default: (kind: Text("Unknown album"), style: (fg: "{{colors.on_surface_variant.default.hex}}"))),
+                    default: (kind: Text("Unknown artist"), style: (fg: "{{colors.tertiary.default.hex}}"))),
+                (kind: Group([
+                    (kind: Text("  ·  "), style: (fg: "{{colors.outline.default.hex}}")),
+                    (kind: Property(Song(Album)), style: (fg: "{{colors.on_surface_variant.default.hex}}")),
+                ])),
             ], align: Center, scroll_speed: 1
         )),
-        "volume": Split(
+        "np_progress": Split(
             direction: Horizontal,
             panes: [
-                (size: "100%", pane: Pane(Property(content: [(kind: Text("Volume: "), style: (fg: "{{colors.on_surface_variant.default.hex}}"))], align: Right))),
-                (size: "10", pane: Pane(Volume(kind: Slider(symbols: (filled: "━", thumb: "●", track: "─"))))),
-                (size: "5", pane: Pane(Property(content: [(kind: Property(Status(Volume)), style: (fg: "{{colors.primary.default.hex}}")), (kind: Text("%"), style: (fg: "{{colors.primary.default.hex}}"))], align: Right))),
+                (size: "6", pane: Pane(Property(content: [(kind: Property(Status(Elapsed)), style: (fg: "{{colors.on_surface_variant.default.hex}}"))], align: Right))),
+                (size: "2", pane: Pane(Empty())),
+                (size: "100%", pane: Pane(ProgressBar)),
+                (size: "2", pane: Pane(Empty())),
+                (size: "6", pane: Pane(Property(content: [(kind: Property(Status(Duration)), style: (fg: "{{colors.on_surface_variant.default.hex}}"))], align: Left))),
             ]
         ),
-        "bitrate": Pane(Property(
+        // Controls: state icons (keys in the  tab); shuffle / repeat light up when on
+        "np_controls": Pane(Property(
             content: [
-                (kind: Text("Bitrate: "), style: (fg: "{{colors.on_surface_variant.default.hex}}")),
-                (kind: Property(Status(Bitrate)), default: (kind: Text("-"))),
-                (kind: Text(" kbps"), style: (fg: "{{colors.on_surface_variant.default.hex}}")),
-            ], align: Right,
+                (kind: Text("󰒮    󰑟    "), style: (fg: "{{colors.on_surface_variant.default.hex}}")),
+                (kind: Property(Status(StateV2(
+                    playing_label: "󰏤",
+                    paused_label: "󰐊",
+                    stopped_label: "󰐊",
+                    playing_style: (fg: "{{colors.primary.default.hex}}", modifiers: "Bold"),
+                    paused_style: (fg: "{{colors.primary.default.hex}}", modifiers: "Bold"),
+                    stopped_style: (fg: "{{colors.outline.default.hex}}"),
+                )))),
+                (kind: Text("    󰈑    󰒭        "), style: (fg: "{{colors.on_surface_variant.default.hex}}")),
+                (kind: Property(Status(RandomV2(
+                    on_label: "󰒝",
+                    off_label: "󰒞",
+                    on_style: (fg: "{{colors.primary.default.hex}}"),
+                    off_style: (fg: "{{colors.outline.default.hex}}"),
+                )))),
+                (kind: Text("   ")),
+                (kind: Property(Status(RepeatV2(
+                    on_label: "󰑖",
+                    off_label: "󰑗",
+                    on_style: (fg: "{{colors.primary.default.hex}}"),
+                    off_style: (fg: "{{colors.outline.default.hex}}"),
+                )))),
+            ], align: Center
         )),
-        "header_left": Split(
-            direction: Vertical,
+        "np_meta": Pane(Property(
+            content: [
+                (kind: Text("󰕾 "), style: (fg: "{{colors.outline.default.hex}}")),
+                (kind: Property(Status(Volume)), style: (fg: "{{colors.on_surface_variant.default.hex}}")),
+                (kind: Text("%      "), style: (fg: "{{colors.on_surface_variant.default.hex}}")),
+                (kind: Text("󰎃 "), style: (fg: "{{colors.outline.default.hex}}")),
+                (kind: Property(Status(Bitrate)), style: (fg: "{{colors.on_surface_variant.default.hex}}"), default: (kind: Text("-"), style: (fg: "{{colors.on_surface_variant.default.hex}}"))),
+                (kind: Text(" kbps"), style: (fg: "{{colors.on_surface_variant.default.hex}}")),
+            ], align: Center
+        )),
+        // Keys tab: the everyday shortcuts
+        "keys": Split(
+            direction: Horizontal,
             panes: [
-                (size: "1", pane: Component("state")),
-                (size: "1", pane: Component("elapsed")),
-            ]
-        ),
-        "header_center": Split(
-            direction: Vertical,
-            panes: [
-                (size: "1", pane: Component("title")),
-                (size: "1", pane: Component("artist_and_album")),
-            ]
-        ),
-        "header_right": Split(
-            direction: Vertical,
-            panes: [
-                (size: "1", pane: Component("volume")),
-                (size: "1", pane: Component("bitrate")),
+                (size: "25%", pane: Pane(Empty())),
+                (
+                    size: "50%",
+                    pane: Split(
+                        direction: Vertical,
+                        panes: [
+                (size: "1", pane: Pane(Property(content: [(kind: Text("Keys"), style: (fg: "{{colors.on_surface.default.hex}}", modifiers: "Bold"))], align: Left))),
+                (size: "1", pane: Pane(Empty())),
+                (size: "1", pane: Pane(Property(content: [(kind: Text("      p"), style: (fg: "{{colors.primary.default.hex}}", modifiers: "Bold")), (kind: Text("   play / pause"), style: (fg: "{{colors.on_surface_variant.default.hex}}"))], align: Left))),
+                (size: "1", pane: Pane(Property(content: [(kind: Text("[ ]  < >"), style: (fg: "{{colors.primary.default.hex}}", modifiers: "Bold")), (kind: Text("   previous / next song (z: repeat, so next wraps around)"), style: (fg: "{{colors.on_surface_variant.default.hex}}"))], align: Left))),
+                (size: "1", pane: Pane(Property(content: [(kind: Text("   b  f"), style: (fg: "{{colors.primary.default.hex}}", modifiers: "Bold")), (kind: Text("   seek back / forward"), style: (fg: "{{colors.on_surface_variant.default.hex}}"))], align: Left))),
+                (size: "1", pane: Pane(Property(content: [(kind: Text("   ,  ."), style: (fg: "{{colors.primary.default.hex}}", modifiers: "Bold")), (kind: Text("   volume down / up"), style: (fg: "{{colors.on_surface_variant.default.hex}}"))], align: Left))),
+                (size: "1", pane: Pane(Property(content: [(kind: Text("   x  z"), style: (fg: "{{colors.primary.default.hex}}", modifiers: "Bold")), (kind: Text("   shuffle / repeat"), style: (fg: "{{colors.on_surface_variant.default.hex}}"))], align: Left))),
+                (size: "1", pane: Pane(Property(content: [(kind: Text("   v  c"), style: (fg: "{{colors.primary.default.hex}}", modifiers: "Bold")), (kind: Text("   single / consume"), style: (fg: "{{colors.on_surface_variant.default.hex}}"))], align: Left))),
+                (size: "1", pane: Pane(Property(content: [(kind: Text("      s"), style: (fg: "{{colors.primary.default.hex}}", modifiers: "Bold")), (kind: Text("   stop"), style: (fg: "{{colors.on_surface_variant.default.hex}}"))], align: Left))),
+                (size: "1", pane: Pane(Property(content: [(kind: Text("  1 - 6"), style: (fg: "{{colors.primary.default.hex}}", modifiers: "Bold")), (kind: Text("   player, queue, library, artists, search, keys"), style: (fg: "{{colors.on_surface_variant.default.hex}}"))], align: Left))),
+                (size: "1", pane: Pane(Property(content: [(kind: Text("    Tab"), style: (fg: "{{colors.primary.default.hex}}", modifiers: "Bold")), (kind: Text("   next tab"), style: (fg: "{{colors.on_surface_variant.default.hex}}"))], align: Left))),
+                (size: "1", pane: Pane(Property(content: [(kind: Text("  Enter"), style: (fg: "{{colors.primary.default.hex}}", modifiers: "Bold")), (kind: Text("   play the selected song (queue, library)"), style: (fg: "{{colors.on_surface_variant.default.hex}}"))], align: Left))),
+                (size: "1", pane: Pane(Property(content: [(kind: Text("      a"), style: (fg: "{{colors.primary.default.hex}}", modifiers: "Bold")), (kind: Text("   add to the queue (library)"), style: (fg: "{{colors.on_surface_variant.default.hex}}"))], align: Left))),
+                (size: "1", pane: Pane(Property(content: [(kind: Text("   d  D"), style: (fg: "{{colors.primary.default.hex}}", modifiers: "Bold")), (kind: Text("   remove one / all (queue)"), style: (fg: "{{colors.on_surface_variant.default.hex}}"))], align: Left))),
+                (size: "1", pane: Pane(Property(content: [(kind: Text("      /"), style: (fg: "{{colors.primary.default.hex}}", modifiers: "Bold")), (kind: Text("   search in the list"), style: (fg: "{{colors.on_surface_variant.default.hex}}"))], align: Left))),
+                (size: "1", pane: Pane(Property(content: [(kind: Text("    C-u"), style: (fg: "{{colors.primary.default.hex}}", modifiers: "Bold")), (kind: Text("   rescan the music folder"), style: (fg: "{{colors.on_surface_variant.default.hex}}"))], align: Left))),
+                (size: "1", pane: Pane(Property(content: [(kind: Text("      ?"), style: (fg: "{{colors.primary.default.hex}}", modifiers: "Bold")), (kind: Text("   all keys"), style: (fg: "{{colors.on_surface_variant.default.hex}}"))], align: Left))),
+                (size: "1", pane: Pane(Property(content: [(kind: Text("      q"), style: (fg: "{{colors.primary.default.hex}}", modifiers: "Bold")), (kind: Text("   quit"), style: (fg: "{{colors.on_surface_variant.default.hex}}"))], align: Left))),
+                (size: "100%", pane: Pane(Empty())),
+                        ]
+                    )
+                ),
+                (size: "25%", pane: Pane(Empty())),
             ]
         ),
     },

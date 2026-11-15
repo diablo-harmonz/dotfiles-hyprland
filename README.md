@@ -14,7 +14,7 @@ Only Arch is supported. `setup/setup-fedora.sh`, `setup/setup-opensuse.sh` and t
 
 | Path | Contents |
 |---|---|
-| `dotfiles/.config/` | One folder per app: hypr, waybar, rofi, wezterm, swaync, matugen, fcitx5, zsh, nvim, yazi, cava, fastfetch, wlogout, firefox-chrome, ml4w |
+| `dotfiles/.config/` | One folder per app: hypr, waybar, rofi, kitty, swaync, matugen, fcitx5, zsh, nvim, yazi, cava, fastfetch, wlogout, firefox-chrome, ml4w |
 | `dotfiles/.zshrc`, `dotfiles/.zprofile` | zsh config; `.zprofile` starts Hyprland after a TTY1 login |
 | `dotfiles/icons/` | Dot-matrix icons for the OSD popup |
 | `bin/` | Scripts linked into `~/.local/bin` (see [Scripts](#scripts)) |
@@ -84,7 +84,7 @@ to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#
 | Compositor | Hyprland (Lua config in `~/.config/hypr/hyprland.lua` + `conf/*.lua`) |
 | Bar | Waybar |
 | Launcher, menus | rofi 2.0 (Wayland) |
-| Terminal | WezTerm |
+| Terminal | kitty (its image protocol keeps transparency for pictures in terminal apps) |
 | Shell | zsh with powerlevel10k, autosuggestions, syntax highlighting, history substring search |
 | Notifications, OSD | swaync: compact translucent cards, control center with a media player card; OSD popups for volume and brightness |
 | Files | Nautilus (GUI), yazi (terminal) |
@@ -96,10 +96,10 @@ to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#
 | Clipboard | cliphist |
 | Screenshots, recording | grim, slurp, satty, wf-recorder |
 | Polkit, secrets | hyprpolkitagent, gnome-keyring |
-| Audio, Bluetooth, Wi-Fi | wiremix, bluetui and nmtui in floating WezTerm windows (`bin/tui-popup`), opened from the Waybar volume, Bluetooth and Wi-Fi icons |
+| Audio, Bluetooth, Wi-Fi | wiremix, bluetui and nmtui in floating kitty windows (`bin/tui-popup`), opened from the Waybar volume, Bluetooth and Wi-Fi icons |
 | Bluetooth on the bar | `bin/bt-status`: devices and battery levels from UPower |
 | Browser | Firefox (FF Ultima theme) |
-| Media | mpv (video, also for yt-x), yt-dlp (downloads to `~/Videos/YouTube`), yt-x (YouTube in the terminal), MPD + rmpc (music in `~/Music`); media keys and Waybar control mpv and MPD through MPRIS |
+| Media | mpv (video, also for yt-x), yt-dlp (downloads to `~/Videos/YouTube`), yt-x (YouTube in the terminal), MPD + rmpc (music in `~/Music`; player view with the record picture, queue and library as icon tabs, a keys tab); media keys and Waybar control mpv and MPD through MPRIS |
 
 The full package list is the `packages` array in `setup/setup-arch.sh`.
 
@@ -109,11 +109,11 @@ Defined in `dotfiles/.config/hypr/conf/binds.lua`.
 
 | Keys | Action |
 |---|---|
-| SUPER + Return | WezTerm |
+| SUPER + Return | kitty |
 | SUPER + Space | rofi app launcher (also Fn+F12) |
 | SUPER + B | Browser |
 | SUPER + E | Nautilus |
-| SUPER + SHIFT + E | yazi in WezTerm |
+| SUPER + SHIFT + E | yazi in kitty |
 | SUPER + S | Quick web search or address, opens in Firefox |
 | SUPER + V | Clipboard history (Shift+Enter deletes an entry) |
 | SUPER + W / SUPER + SHIFT + W | Pick a wallpaper / random wallpaper |
@@ -164,7 +164,7 @@ picks one at random. Wallpapers come from `~/Pictures/Wallpapers`; this repo shi
 (they are third-party art, kept in a private repo).
 
 After each change Matugen (`dotfiles/.config/matugen`) generates matching colors for
-rofi, Waybar, WezTerm, the Hyprland borders, hyprlock, wlogout, GTK 3, GTK 4, swaync, Qt (qt6ct), KDE apps,
+rofi, Waybar, kitty, the Hyprland borders, hyprlock, wlogout, GTK 3, GTK 4, swaync, Qt (qt6ct), KDE apps,
 Firefox, yazi, cava, btop, rmpc and yt-x. The generated files are git-ignored; run `wallpaper restore` once
 after linking (Hyprland also runs it at login).
 
@@ -223,6 +223,8 @@ installs from `setup/system/`:
 | `capture-menu` | macOS-style screenshot / recording toolbar (rofi) |
 | `tui-popup` | Toggle wiremix / bluetui / nmtui as a floating terminal under the bar |
 | `power-menu` | wlogout grid centred on the focused screen (Waybar power button) |
+| `yt-music` | Download songs as best-quality audio into ~/Music/<artist>/<title>/ and make their record picture |
+| `vinyl-cover` | Record picture for rmpc: square sleeve with a vinyl pulled half out (cover.png per folder) |
 | `rmpc-notify` | rmpc song-change notification with the album art |
 | `rec-status` | Waybar red stop button with the elapsed time while recording |
 | `clipboard` | Clipboard history picker |

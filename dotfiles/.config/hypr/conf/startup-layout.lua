@@ -4,7 +4,7 @@
 -- Add more widgets (clock, cava, ...) as new blocks below.
 local M = {}
 
--- Welcome terminal: WezTerm, top-left, runs fastfetch once (see ~/.zshrc).
+-- Welcome terminal: kitty, top-left, runs fastfetch once (see ~/.zshrc).
 -- Other terminals no longer run fastfetch.
 hl.window_rule({
     name  = "welcome-terminal",
@@ -16,7 +16,7 @@ hl.window_rule({
 })
 
 function M.start()
-    hl.exec_cmd("wezterm start --class welcome -- env WELCOME_FASTFETCH=1 zsh")
+    hl.exec_cmd("kitty --class welcome env WELCOME_FASTFETCH=1 zsh")
 end
 
 return M

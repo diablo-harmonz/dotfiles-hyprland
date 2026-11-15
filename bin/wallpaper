@@ -5,7 +5,7 @@
 #   wallpaper set FILE  set FILE with a transition, then regenerate the colors
 #   wallpaper restore   at login: start awww, show the saved wallpaper, make sure colors exist
 # The wallpaper is shown by awww; Matugen turns it into colors for rofi, waybar,
-# WezTerm, GTK 4 and the Hyprland borders (see ~/.config/matugen/config.toml).
+# kitty, GTK 4 and the Hyprland borders (see ~/.config/matugen/config.toml).
 # ~/.cache/wallpaper/current links to the chosen file (used by rofi and hyprlock).
 set -euo pipefail
 

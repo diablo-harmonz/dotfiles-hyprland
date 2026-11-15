@@ -6,7 +6,7 @@
 CONFIG_ENABLE_COLORS="true"
 CONFIG_LAUNCHER="fzf"
 
-# Preview pane with the thumbnail (chafa draws it in WezTerm) and the video details
+# Preview pane with the thumbnail (chafa draws it in kitty) and the video details
 CONFIG_ENABLE_PREVIEW="true"
 CONFIG_ENABLE_PREVIEW_IMAGES="true"
 CONFIG_IMAGE_RENDERER="chafa"

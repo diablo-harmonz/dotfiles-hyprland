@@ -7,4 +7,4 @@
 #             in Firefox's process names, because these args are split on spaces.
 #   --avoid   never stopped: the desktop, terminal, editor, lock screen, audio, input
 #   -n        desktop notification when something is stopped;  -r 0  no periodic log
-EARLYOOM_ARGS="-m 4 -s 5 -r 0 -n --prefer (^|/)(brave|chrome|chromium|chrome-headless|chrome_crashpad|firefox|Web.Content|Isolated.Web.Co|WebExtensions|node|ffmpeg|playwright.*)$ --avoid (^|/)(Hyprland|start-hyprland|Xwayland|waybar|swaync|hyprlock|hypridle|wezterm|wezterm-gui|code|electron|fcitx5|fcitx5-lotus-server|pipewire|pipewire-pulse|wireplumber|systemd|systemd-.*|sshd|dbus-.*)$"
+EARLYOOM_ARGS="-m 4 -s 5 -r 0 -n --prefer (^|/)(brave|chrome|chromium|chrome-headless|chrome_crashpad|firefox|Web.Content|Isolated.Web.Co|WebExtensions|node|ffmpeg|playwright.*)$ --avoid (^|/)(Hyprland|start-hyprland|Xwayland|waybar|swaync|hyprlock|hypridle|kitty|code|electron|fcitx5|fcitx5-lotus-server|pipewire|pipewire-pulse|wireplumber|systemd|systemd-.*|sshd|dbus-.*)$"

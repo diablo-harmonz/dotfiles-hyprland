@@ -1,5 +1,5 @@
 [Desktop Entry]
-# rofi entry: rmpc (MPD client) in WezTerm (rofi's terminal). Music: ~/Music
+# rofi entry: rmpc (MPD client) in kitty (rofi's terminal). Music: ~/Music
 Type=Application
 Name=Music (rmpc)
 Comment=Play the music in ~/Music

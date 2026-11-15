@@ -1,9 +1,9 @@
 [Desktop Entry]
-# Hidden entry so the Waybar workspace taskbar finds an icon for WezTerm windows
+# Hidden entry so the Waybar workspace taskbar finds an icon for kitty windows
 # started with --class welcome (looked up by window class)
 Type=Application
 Name=Welcome terminal
-Icon=org.wezfurlong.wezterm
-Exec=wezterm start --class welcome
+Icon=kitty
+Exec=kitty --class welcome
 StartupWMClass=welcome
 NoDisplay=true

@@ -12,9 +12,10 @@ input_path = '~/.config/matugen/templates/waybar.css'
 output_path = '~/.config/waybar/colors.css'
 post_hook = 'pkill -SIGUSR2 -x waybar || true'
 
-[templates.wezterm]
-input_path = '~/.config/matugen/templates/wezterm.lua'
-output_path = '~/.config/wezterm/colors.lua'
+[templates.kitty]
+input_path = '~/.config/matugen/templates/kitty.conf'
+output_path = '~/.config/kitty/colors.conf'
+post_hook = 'pkill -USR1 -x kitty || true'
 
 [templates.hyprland]
 input_path = '~/.config/matugen/templates/hyprland.lua'

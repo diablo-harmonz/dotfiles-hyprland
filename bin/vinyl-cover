@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# vinyl-cover: make the "record pulled half out of its sleeve" picture rmpc shows.
+#   vinyl-cover [--force] PATH...   PATH = an audio file or a folder with audio files
+# Takes the cover art embedded in the (first) audio file, crops it to a square sleeve,
+# puts a vinyl record behind it sticking out on the right (the cover is also the
+# record's label) and writes <folder>/cover.png on a transparent background (kitty's
+# image protocol keeps it, so rmpc shows the record over the translucent terminal).
+# MPD serves that file as the folder's album art and rmpc prefers it (album_art order
+# FileFirst), so every song folder (bin/yt-music makes one per song) and every album
+# gets its own record. Existing cover.png files are kept unless --force.
+set -euo pipefail
+
+SLEEVE=1000                 # square sleeve, px
+DISC=940                    # record diameter
+LABEL=330                   # centre label diameter
+OUT_W=$((SLEEVE + DISC / 2 + 30))
+
+force=false
+[ "${1:-}" = "--force" ] && { force=true; shift; }
+[ $# -gt 0 ] || { echo "usage: vinyl-cover [--force] FILE_OR_FOLDER..." >&2; exit 2; }
+
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+
+make_cover() {   # $1 = cover image, $2 = output png
+    local art="$1" out="$2" c=$((DISC / 2)) r grooves=""
+
+    # Sleeve art: a square cover as is; a wide one (YouTube thumbnail) whole and centred
+    # on a blurred, darker copy of itself, so no text or faces are cut off
+    local w h
+    read -r w h < <(magick identify -format '%w %h\n' "$art" | head -1)
+    if [ $((w * 100)) -gt $((h * 115)) ] || [ $((h * 100)) -gt $((w * 115)) ]; then
+        magick \( "$art" -resize "$((SLEEVE / 10))x$((SLEEVE / 10))^" -gravity center \
+                   -extent "$((SLEEVE / 10))x$((SLEEVE / 10))" -blur 0x3 \
+                   -resize "${SLEEVE}x${SLEEVE}!" -modulate 60,110 \) \
+               \( "$art" -resize "${SLEEVE}x${SLEEVE}" \) -gravity center -compose over -composite \
+               "$tmp/square.png"
+    else
+        magick "$art" -resize "${SLEEVE}x${SLEEVE}^" -gravity center -extent "${SLEEVE}x${SLEEVE}" "$tmp/square.png"
+    fi
+
+    # Sleeve: the square art with slightly rounded corners
+    magick "$tmp/square.png" \
+        \( +clone -alpha extract -fill black -colorize 100 -fill white \
+           -draw "roundrectangle 0,0 $((SLEEVE - 1)),$((SLEEVE - 1)) 10,10" \) \
+        -alpha off -compose CopyOpacity -composite "$tmp/sleeve.png"
+
+    # Record: black disc with faint grooves
+    for ((r = LABEL / 2 + 18; r < c - 6; r += 7)); do
+        grooves+="circle $c,$c $c,$((c - r)) "
+    done
+    magick -size "${DISC}x${DISC}" xc:none \
+        -fill '#101010' -draw "circle $c,$c $c,0" \
+        -fill none -stroke 'rgba(255,255,255,0.045)' -strokewidth 1 -draw "$grooves" \
+        -stroke 'rgba(255,255,255,0.10)' -strokewidth 2 -draw "circle $c,$c $c,$((c - LABEL / 2 - 10))" \
+        "$tmp/disc.png"
+
+    # Label: the art again, round, with the spindle hole
+    magick "$art" -resize "${LABEL}x${LABEL}^" -gravity center -extent "${LABEL}x${LABEL}" \
+        \( -size "${LABEL}x${LABEL}" xc:black -fill white \
+           -draw "circle $((LABEL / 2)),$((LABEL / 2)) $((LABEL / 2)),0" \
+           -fill black -draw "circle $((LABEL / 2)),$((LABEL / 2)) $((LABEL / 2)),$((LABEL / 2 - 12))" \) \
+        -alpha off -compose CopyOpacity -composite "$tmp/label.png"
+    magick "$tmp/disc.png" "$tmp/label.png" -gravity center -compose over -composite "$tmp/record.png"
+
+    # Record behind the sleeve, its centre on the sleeve's right edge; soft shadow
+    magick -size "${OUT_W}x${SLEEVE}" xc:none \
+        "$tmp/record.png" -geometry "+$((SLEEVE - DISC / 2))+$(((SLEEVE - DISC) / 2))" -compose over -composite \
+        \( "$tmp/sleeve.png" -background black -shadow 60x14+8+0 \) -geometry +0+0 -compose over -composite \
+        "$tmp/sleeve.png" -geometry +0+0 -compose over -composite \
+        -trim +repage -depth 8 "$out"
+}
+
+art_of() {   # $1 = audio file -> image in $tmp/art.png (embedded picture)
+    rm -f "$tmp/art.png"
+    ffmpeg -v error -y -i "$1" -an -frames:v 1 "$tmp/art.png" 2>/dev/null && [ -s "$tmp/art.png" ]
+}
+
+for path in "$@"; do
+    if [ -d "$path" ]; then
+        dir=$path
+        file=$(find "$dir" -maxdepth 1 -type f \( -iname '*.opus' -o -iname '*.mp3' -o -iname '*.flac' \
+            -o -iname '*.m4a' -o -iname '*.ogg' -o -iname '*.wav' \) | sort | head -1)
+    else
+        dir=$(dirname "$path")
+        file=$path
+    fi
+    out="$dir/cover.png"
+    if [ -e "$out" ] && ! $force; then
+        echo ":: keep     $out"
+        continue
+    fi
+    if [ -z "$file" ] || ! art_of "$file"; then
+        echo ":: no art   ${file:-$dir}" >&2
+        continue
+    fi
+    make_cover "$tmp/art.png" "$out"
+    echo ":: cover    $out"
+done

@@ -6,11 +6,11 @@ local mainMod = "SUPER"
 local function exec(cmd) return hl.dsp.exec_cmd(cmd) end
 
 -- Actions
-hl.bind(mainMod .. " + RETURN",         exec("wezterm"))                                                   -- Open WezTerm
+hl.bind(mainMod .. " + RETURN",         exec("kitty"))                                                     -- Open kitty
 hl.bind(mainMod .. " + Q",              hl.dsp.window.close())                                             -- Close current window
 hl.bind(mainMod .. " + M",              hl.dsp.exit())                                                     -- Exit Hyprland
 hl.bind(mainMod .. " + E",              exec("~/.config/ml4w/settings/filemanager.sh"))                    -- Opens the filemanager
-hl.bind(mainMod .. " + SHIFT + E",      exec("wezterm start -- yazi"))                                     -- Yazi file manager in WezTerm
+hl.bind(mainMod .. " + SHIFT + E",      exec("kitty yazi"))                                                -- Yazi file manager in kitty
 hl.bind(mainMod .. " + T",              hl.dsp.window.float({ action = "toggle" }))                        -- Toggle tiling/floating
 hl.bind(mainMod .. " + F",              hl.dsp.window.fullscreen())                                        -- Fullscreen
 hl.bind(mainMod .. " + SPACE",          exec("rofi -show drun"))                                           -- Open rofi (app launcher)

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# yt-music: download songs from YouTube (or any yt-dlp site) for MPD / rmpc.
+#   yt-music URL...
+# Best audio as published (Opus on YouTube, no re-encoding), title / artist / cover
+# embedded, one folder per song: ~/Music/<artist>/<title>/<title>.opus, then
+# bin/vinyl-cover writes that folder's cover.png (sleeve + record) for rmpc.
+# MPD picks the new files up by itself (auto_update). Download only what you may
+# download, for personal use.
+set -euo pipefail
+[ $# -gt 0 ] || { echo "usage: yt-music URL..." >&2; exit 2; }
+
+yt-dlp --ignore-config -x -f ba --audio-format best --no-playlist \
+    --embed-metadata --embed-thumbnail --convert-thumbnails jpg \
+    --no-overwrites \
+    -o "$HOME/Music/%(artist,uploader)s/%(title)s/%(title)s.%(ext)s" \
+    --exec "$HOME/.local/bin/vinyl-cover {}" \
+    "$@"

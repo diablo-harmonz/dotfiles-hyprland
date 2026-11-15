@@ -1,24 +1,42 @@
 #!/usr/bin/env bash
 # rmpc-notify: rmpc's on_song_change hook (dotfiles/.config/rmpc/config.ron). Shows the
 # new song with its album art as one notification that replaces the previous one.
-# rmpc passes the song in the environment: TITLE, ARTIST, ALBUM, FILE.
+# rmpc passes the song in the environment: TITLE, ARTIST, ALBUM, FILE (relative to
+# ~/Music). Also makes a missing record picture (bin/vinyl-cover), see below.
 set -uo pipefail
 
 dir="${XDG_RUNTIME_DIR:-/tmp}/rmpc"
 mkdir -p "$dir"
 art="$dir/cover"
 
-# Album art of the playing song (embedded or cover.jpg next to it); none -> music icon
-if rmpc albumart --output "$art" >/dev/null 2>&1; then
+# Picture for the notification: the art embedded in the song (a plain cover; rmpc's
+# own albumart would return the wide record picture, cover.png), else what rmpc finds,
+# else a music icon
+icon="audio-x-generic"
+if [ -n "${FILE:-}" ] && ffmpeg -v error -y -i "$HOME/Music/$FILE" -an -frames:v 1 -f image2 "$art.png" 2>/dev/null \
+   && [ -s "$art.png" ]; then
+    icon="$art.png"
+elif rmpc albumart --output "$art" >/dev/null 2>&1; then
     icon="$art"
-else
-    icon="audio-x-generic"
 fi
 
 title="${TITLE:-${FILE##*/}}"
 artist="${ARTIST:-Unknown artist}"
 album="${ALBUM:-}"
 body="$artist${album:+ - $album}"
+
+# A song folder without a record picture (music copied in by hand, older downloads):
+# make one in the background when the folder holds just this song, so rmpc shows the
+# record from the next time on. Album folders get theirs with: vinyl-cover <folder>
+if [ -n "${FILE:-}" ]; then
+    song="$HOME/Music/$FILE"
+    folder=$(dirname "$song")
+    if [ -f "$song" ] && [ ! -e "$folder/cover.png" ] &&
+       [ "$(find "$folder" -maxdepth 1 -type f \( -iname '*.opus' -o -iname '*.mp3' -o -iname '*.flac' \
+            -o -iname '*.m4a' -o -iname '*.ogg' -o -iname '*.wav' \) | wc -l)" -eq 1 ]; then
+        setsid -f "$HOME/.local/bin/vinyl-cover" "$folder" >/dev/null 2>&1
+    fi
+fi
 
 notify-send -a rmpc -t 4000 -i "$icon" \
     -h "string:x-canonical-private-synchronous:rmpc-song" \
