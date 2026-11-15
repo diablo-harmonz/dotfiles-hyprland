@@ -82,7 +82,7 @@ to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#
 | Role | Program |
 |---|---|
 | Compositor | Hyprland (Lua config in `~/.config/hypr/hyprland.lua` + `conf/*.lua`) |
-| Bar | Waybar, minimal like macOS: launcher, app name, CPU / RAM, workspaces (Roman numerals), tray, Wi-Fi, battery, the Control Center icon, clock (click: notifications) |
+| Bar | Waybar, minimal like macOS: launcher, app name, CPU / RAM, workspaces (Roman numerals), tray, Wi-Fi, battery, the Control Center icon, clock (click: notifications), power button |
 | Launcher, menus | rofi 2.0 (Wayland) |
 | Terminal | kitty (its image protocol keeps transparency for pictures in terminal apps) |
 | Shell | zsh with powerlevel10k, autosuggestions, syntax highlighting, history substring search |

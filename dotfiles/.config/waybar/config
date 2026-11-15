@@ -2,7 +2,8 @@
 // Colors come from colors.css (Matugen, see bin/wallpaper). Workspaces show one
 // numeral per slot on each screen (laptop 1-5, external 6-10). Minimal right side like
 // macOS: tray, Wi-Fi, battery, the Control Center icon (everything else lives in that
-// panel, bin/control-center) and the clock (click: notifications, right click: date).
+// panel, bin/control-center), the clock (click: notifications, right click: date) and
+// the power button.
 // Two bars with the same modules: a fixed width keeps each bar centred (~77% of the
 // screen): 1480 px on the 1920 px laptop panel, 1970 px on 2560 px external screens.
 [
@@ -28,7 +29,8 @@
             "custom/recording",
             "group/status",
             "custom/control",
-            "clock"
+            "clock",
+            "custom/power"
         ],
         "custom/launcher": {
             "format": "",
@@ -103,6 +105,11 @@
                 "network",
                 "battery"
             ]
+        },
+        "custom/power": {
+            "format": "⏻",
+            "tooltip-format": "Power menu",
+            "on-click": "~/.local/bin/power-menu"
         },
         // CPU and RAM in use, all system values in the tooltip; click opens syslive
         "custom/sysinfo": {
@@ -199,7 +206,8 @@
             "custom/recording",
             "group/status",
             "custom/control",
-            "clock"
+            "clock",
+            "custom/power"
         ],
         "custom/launcher": {
             "format": "",
@@ -274,6 +282,11 @@
                 "network",
                 "battery"
             ]
+        },
+        "custom/power": {
+            "format": "⏻",
+            "tooltip-format": "Power menu",
+            "on-click": "~/.local/bin/power-menu"
         },
         // CPU and RAM in use, all system values in the tooltip; click opens syslive
         "custom/sysinfo": {

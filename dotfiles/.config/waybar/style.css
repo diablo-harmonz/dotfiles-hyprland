@@ -50,7 +50,8 @@ tooltip label {
 #workspaces,
 #status,
 #custom-control,
-#clock {
+#clock,
+#custom-power {
     background: alpha(@surface_highest, 0.55);
     color: @on_surface;
     border-radius: 6px;
@@ -72,7 +73,7 @@ window#waybar > box {
     color: @primary;
 }
 
-/* Control Center icon: a slightly larger glyph; the clock closes the row */
+/* Control Center icon: a slightly larger glyph */
 #custom-control {
     padding: 0 13px;
     font-size: 15px;
@@ -82,8 +83,10 @@ window#waybar > box {
     color: @primary;
 }
 
-#clock {
+/* Power button closes the row */
+#custom-power {
     margin-right: 6px;
+    padding: 0 15px 0 13px;
 }
 
 /* No window on this workspace: the app-name pill collapses, and the negative margin
