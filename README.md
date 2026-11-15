@@ -88,7 +88,7 @@ to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#
 | Shell | zsh with powerlevel10k, autosuggestions, syntax highlighting, history substring search |
 | Notifications, OSD | swaync: compact translucent cards, control center with a media player card; OSD popups for volume and brightness |
 | Files | Nautilus (GUI), yazi (terminal) |
-| Editor | Neovim with LazyVim (`lazy-lock.json` pins the plugins) |
+| Editor | Neovim with an own config built stage by stage (`dotfiles/.config/nvim`, roadmap `docs/neovim.md`); VS Code as the fallback |
 | Wallpaper, colors | awww, Matugen |
 | Lock, idle, night light | hyprlock, hypridle, hyprsunset |
 | Power menu | wlogout via `bin/power-menu`: Lock, Shutdown, Suspend, Reboot, Logout, BIOS over the blurred desktop |

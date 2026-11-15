@@ -4,26 +4,22 @@ Mục tiêu: hiểu từng phần của một trình soạn thảo kiểu IDE b�
 cấu hình dựng sẵn. Làm từng giai đoạn, mỗi lần một thứ, dùng vài ngày cho quen rồi mới sang
 giai đoạn sau.
 
-## Hai cấu hình song song
+## Cấu hình
 
-| Lệnh | Cấu hình | Dùng khi |
-|---|---|---|
-| `nvim` (cũng là `vim`, `vi`) | LazyVim, `dotfiles/.config/nvim` | Làm việc thật, khi cần chắc chạy |
-| `nv` | Cấu hình tự dựng, `dotfiles/.config/nvim-own/init.lua` | Học, thử, dựng dần |
-
-Hai cấu hình không ảnh hưởng nhau (Neovim tách chúng bằng `NVIM_APPNAME`: plugin, lịch sử,
-dữ liệu nằm riêng ở `~/.local/share/nvim-own`). Khi `nv` đủ dùng hằng ngày, đổi `nvim` sang
-nó (bước cuối) và xoá LazyVim nếu muốn.
-
-**VS Code vẫn giữ** làm đường lui (debug có giao diện, lúc cấu hình Neovim hỏng giữa tuần).
+- `nvim` (cũng là `vim`, `vi`) mở cấu hình tự dựng: `dotfiles/.config/nvim/init.lua`
+  (link vào `~/.config/nvim`). LazyVim đã được gỡ (2026-11-15), Neovim bắt đầu từ sạch.
+- Plugin, lịch sử, cache của Neovim nằm ở `~/.local/share/nvim`, `~/.local/state/nvim`,
+  `~/.cache/nvim` (không nằm trong repo).
+- **VS Code là đường lui** trong lúc cấu hình còn dựng dở, và khi nó hỏng giữa tuần
+  (debug có giao diện vẫn làm ở VS Code).
 
 ## Cách làm mỗi giai đoạn
 
-1. Đọc mục giai đoạn bên dưới, mở cấu hình: `nv ~/.config/nvim-own/init.lua`.
+1. Đọc mục giai đoạn bên dưới, mở cấu hình: `nvim ~/.config/nvim/init.lua`.
 2. Thêm phần mới vào cuối file (hoặc nhờ Claude viết cùng, có chú thích từng dòng).
-3. Lưu, rồi `:source %` hoặc thoát và mở lại `nv`.
+3. Lưu, rồi `:source %` hoặc thoát và mở lại `nvim`.
 4. Lỗi khi mở: `:messages` để đọc; `:checkhealth` kiểm tra tổng thể.
-5. Dùng vài ngày. Ổn thì commit: `git -C ~/Documents/personal/dotfiles-hyprland add -A dotfiles/.config/nvim-own && git -C ~/Documents/personal/dotfiles-hyprland commit -m "nvim-own: stage N ..."`.
+5. Dùng vài ngày. Ổn thì commit: `git -C ~/Documents/personal/dotfiles-hyprland add -A dotfiles/.config/nvim && git -C ~/Documents/personal/dotfiles-hyprland commit -m "nvim: stage N ..."`.
 
 Tra cứu trong Neovim: `:help <từ khoá>` (ví dụ `:help vim.pack`, `:help lsp`), tìm trong
 help: `:help` rồi `/từ khoá`.
@@ -50,7 +46,7 @@ Học kèm: `:Tutor` (khoảng 30 phút) cho các phím di chuyển và sửa c�
 - Học: cài plugin bằng trình quản lý có sẵn của Neovim 0.12, `vim.pack.add({ ... })`;
   cập nhật bằng `:lua vim.pack.update()`.
 - Thêm: một bảng màu (ví dụ catppuccin hoặc tokyonight), nền trong suốt để hợp với kitty.
-- Kiểm tra: mở lại `nv`, màu đổi; `:colorscheme` hiện tên bảng màu.
+- Kiểm tra: mở lại `nvim`, màu đổi; `:colorscheme` hiện tên bảng màu.
 
 ### Giai đoạn 2 · Tìm file và tìm chữ
 
@@ -86,7 +82,7 @@ Học kèm: `:Tutor` (khoảng 30 phút) cho các phím di chuyển và sửa c�
 ### Giai đoạn 7 · Git
 
 - Thêm: gitsigns (dòng thay đổi bên lề, xem / hoàn tác từng đoạn), mở lazygit trong
-  Neovim (Space g g, như LazyVim).
+  Neovim (Space g g).
 
 ### Giai đoạn 8 · Cây thư mục
 
@@ -95,10 +91,9 @@ Học kèm: `:Tutor` (khoảng 30 phút) cho các phím di chuyển và sửa c�
 ### Giai đoạn 9 · Thanh trạng thái và menu phím
 
 - Thêm: thanh trạng thái (mini.statusline hoặc lualine), which-key (bấm Space hiện menu
-  các phím đã đặt, như LazyVim).
+  các phím đã đặt).
 
-### Bước cuối · Cho `nv` thay LazyVim
+### Bước cuối · Dùng Neovim thay VS Code
 
-Khi dùng `nv` cả tuần không cần mở `nvim`: đổi alias trong `.zshrc`
-(`vim` / `vi` / `nvim` trỏ sang cấu hình mới), rồi quyết định giữ hay xoá
-`dotfiles/.config/nvim` (LazyVim).
+Khi đã làm được cả tuần trong Neovim mà không cần mở VS Code: chuyển dự án công việc sang
+Neovim. VS Code vẫn giữ trên máy (xem docs/plan.md).
