@@ -7,7 +7,8 @@ giai đoạn sau.
 ## Cấu hình
 
 - `nvim` (cũng là `vim`, `vi`) mở cấu hình tự dựng: `dotfiles/.config/nvim/init.lua`
-  (link vào `~/.config/nvim`). LazyVim đã được gỡ (2026-11-15), Neovim bắt đầu từ sạch.
+  (link vào `~/.config/nvim`). LazyVim đã được gỡ (2026-11-15); file bắt đầu trống, Neovim
+  chạy đúng như lúc mới cài, mọi dòng do bạn tự gõ theo từng giai đoạn.
 - Plugin, lịch sử, cache của Neovim nằm ở `~/.local/share/nvim`, `~/.local/state/nvim`,
   `~/.cache/nvim` (không nằm trong repo).
 - **VS Code là đường lui** trong lúc cấu hình còn dựng dở, và khi nó hỏng giữa tuần
@@ -26,20 +27,15 @@ help: `:help` rồi `/từ khoá`.
 
 ## Lộ trình
 
-### Giai đoạn 0 · Thiết lập và phím tắt (đã có)
+### Giai đoạn 0 · Thiết lập và phím tắt
 
-File hiện tại: số dòng tương đối, chuột, clipboard chung với hệ thống, thụt lề 4 dấu cách,
-tìm kiếm thông minh, lịch sử undo giữ sau khi đóng file, phím Space làm leader.
-
-| Phím | Việc |
-|---|---|
-| Space w / Space q | Lưu / đóng cửa sổ |
-| Esc | Bỏ tô sáng kết quả tìm |
-| Ctrl + h/j/k/l | Chuyển giữa các cửa sổ chia đôi |
-| J / K (khi chọn dòng) | Dời các dòng đang chọn xuống / lên |
-| Space e | Trình duyệt file có sẵn (netrw) |
-
-Học kèm: `:Tutor` (khoảng 30 phút) cho các phím di chuyển và sửa cơ bản.
+- Học: `vim.opt` (thiết lập), `vim.g.mapleader` (phím leader), `vim.keymap.set` (phím tắt),
+  autocmd đơn giản.
+- Thêm: số dòng tương đối, chuột, clipboard chung với hệ thống, thụt lề, tìm kiếm thông
+  minh, lịch sử undo giữ sau khi đóng file; Space làm leader, Space w lưu, Space q đóng,
+  Esc bỏ tô sáng, Ctrl + h/j/k/l giữa các cửa sổ, Space e trình duyệt file (netrw).
+- Học kèm: `:Tutor` (khoảng 30 phút) cho các phím di chuyển và sửa cơ bản.
+- Kiểm tra: `:set number?` in giá trị một thiết lập; `:map <leader>` liệt kê phím leader.
 
 ### Giai đoạn 1 · Màu sắc (plugin đầu tiên)
 
