@@ -46,16 +46,11 @@ tooltip label {
 /* Pills */
 #custom-launcher,
 #window,
-#custom-arrow-right,
 #custom-sysinfo,
 #workspaces,
-#custom-caffeine,
 #status,
-#custom-arrow-left,
-#custom-notification,
-#custom-wallpaper,
-#clock,
-#custom-power {
+#custom-control,
+#clock {
     background: alpha(@surface_highest, 0.55);
     color: @on_surface;
     border-radius: 6px;
@@ -77,9 +72,18 @@ window#waybar > box {
     color: @primary;
 }
 
-#custom-power {
+/* Control Center icon: a slightly larger glyph; the clock closes the row */
+#custom-control {
+    padding: 0 13px;
+    font-size: 15px;
+}
+
+#custom-control:hover {
+    color: @primary;
+}
+
+#clock {
     margin-right: 6px;
-    padding: 0 15px 0 13px;
 }
 
 /* No window on this workspace: the app-name pill collapses, and the negative margin
@@ -122,22 +126,6 @@ window#waybar.empty #window {
     color: @on_surface_variant;
 }
 
-/* Roman numeral only on empty workspaces; with windows the app icons replace it */
-#workspaces button:not(.empty) .workspace-label {
-    font-size: 0;
-    padding: 0;
-    margin: 0;
-    min-width: 0;
-}
-
-#workspaces .taskbar-window {
-    padding: 0 3px;
-    background: transparent;
-}
-
-#workspaces .taskbar-window image {
-    -gtk-icon-effect: none;
-}
 
 #workspaces button.active {
     color: @on_surface;
@@ -250,9 +238,6 @@ window#waybar.empty #window {
 }
 
 /* Drawers: the revealed pills keep the same 6 px gap as the rest of the bar */
-#custom-sysinfo {
-    margin-left: 6px;
-}
 
 #custom-notification,
 #custom-wallpaper {

@@ -82,7 +82,7 @@ to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#
 | Role | Program |
 |---|---|
 | Compositor | Hyprland (Lua config in `~/.config/hypr/hyprland.lua` + `conf/*.lua`) |
-| Bar | Waybar |
+| Bar | Waybar, minimal like macOS: launcher, app name, CPU / RAM, workspaces (Roman numerals), tray, Wi-Fi, battery, the Control Center icon, clock (click: notifications) |
 | Launcher, menus | rofi 2.0 (Wayland) |
 | Terminal | kitty (its image protocol keeps transparency for pictures in terminal apps) |
 | Shell | zsh with powerlevel10k, autosuggestions, syntax highlighting, history substring search |
@@ -153,9 +153,8 @@ the same preview shows the video (drag it into an app, click to play, copy or de
 Workspaces 1–5 stay on the laptop screen and 6–10 on the first external monitor.
 
 On the Waybar launcher button, left click opens rofi and middle click the wallpaper picker.
-The workspace pill shows a Roman numeral for an empty workspace and one app icon per
-window otherwise (click an icon to focus that window); the left pill shows the app name of
-the active window.
+The workspace pill shows Roman numerals; the left pill shows the app name of the active
+window and, next to it, CPU and RAM use.
 
 ## Wallpaper and colors
 
@@ -164,7 +163,7 @@ picks one at random. Wallpapers come from `~/Pictures/Wallpapers`; this repo shi
 (they are third-party art, kept in a private repo).
 
 After each change Matugen (`dotfiles/.config/matugen`) generates matching colors for
-rofi, Waybar, kitty, the Hyprland borders, hyprlock, wlogout, GTK 3, GTK 4, swaync, Qt (qt6ct), KDE apps,
+rofi, Waybar, kitty, the Control Center, the Hyprland borders, hyprlock, wlogout, GTK 3, GTK 4, swaync, Qt (qt6ct), KDE apps,
 Firefox, yazi, cava, btop, rmpc and yt-x. The generated files are git-ignored; run `wallpaper restore` once
 after linking (Hyprland also runs it at login).
 
@@ -221,6 +220,7 @@ installs from `setup/system/`:
 | `screenshot`, `screenshot-preview` | Screenshots with file, clipboard and preview |
 | `screenrec` | Start/stop screen recording |
 | `capture-menu` | macOS-style screenshot / recording toolbar (rofi) |
+| `control-center` | macOS-style Control Center from the Waybar icon: Wi-Fi, Bluetooth, Do Not Disturb, Caffeine, now playing, brightness and volume sliders, charge limit, power mode, record, screenshot, wallpaper, lock, notifications, power menu; x on the player stops it |
 | `tui-popup` | Toggle wiremix / bluetui / nmtui as a floating terminal under the bar |
 | `power-menu` | wlogout grid centred on the focused screen (Waybar power button) |
 | `yt-music` | Download songs as best-quality audio into ~/Music/<artist>/<title>/ and make their record picture |

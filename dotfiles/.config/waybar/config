@@ -1,7 +1,8 @@
 // Waybar, one translucent bar with small pills (style of the Hyprlust bar).
 // Colors come from colors.css (Matugen, see bin/wallpaper). Workspaces show one
-// icon per slot on each screen (laptop 1-5, external 6-10). The arrows are drawers:
-// hover the left one for system stats, the right one for notifications/wallpaper.
+// numeral per slot on each screen (laptop 1-5, external 6-10). Minimal right side like
+// macOS: tray, Wi-Fi, battery, the Control Center icon (everything else lives in that
+// panel, bin/control-center) and the clock (click: notifications, right click: date).
 // Two bars with the same modules: a fixed width keeps each bar centred (~77% of the
 // screen): 1480 px on the 1920 px laptop panel, 1970 px on 2560 px external screens.
 [
@@ -18,18 +19,16 @@
         "modules-left": [
             "custom/launcher",
             "hyprland/window",
-            "group/info"
+            "custom/sysinfo"
         ],
         "modules-center": [
             "hyprland/workspaces"
         ],
         "modules-right": [
             "custom/recording",
-            "custom/caffeine",
             "group/status",
-            "group/hub",
-            "clock",
-            "custom/power"
+            "custom/control",
+            "clock"
         ],
         "custom/launcher": {
             "format": "",
@@ -68,40 +67,12 @@
                 "libreoffice-.*": "LibreOffice"
             }
         },
-        "group/info": {
-            "orientation": "inherit",
-            "drawer": {
-                "transition-duration": 300,
-                "transition-left-to-right": true
-            },
-            "modules": [
-                "custom/arrow-right",
-                "custom/sysinfo"
-            ]
-        },
-        "custom/arrow-right": {
-            "format": "󰁙",
-            "tooltip": false
-        },
-        "custom/sysinfo": {
-            "exec": "~/.local/bin/sysinfo-bar",
-            "return-type": "json",
-            "interval": 5,
-            "on-click": "kitty ~/.local/bin/syslive"
-        },
-        // Empty workspace: Roman numeral. With windows: one app icon per window instead
-        // (the numeral is hidden in style.css). Click an icon to focus that window.
+        // Workspaces as Roman numerals (one per slot on each screen)
         "hyprland/workspaces": {
-            "format": "{icon}{windows}",
+            "format": "{icon}",
             "all-outputs": false,
             "sort-by-number": true,
             "on-click": "activate",
-            "workspace-taskbar": {
-                "enable": true,
-                "format": "{icon}",
-                "icon-size": 15,
-                "on-click-window": "hyprctl dispatch 'hl.dsp.focus({ window = \"address:{address}\" })'"
-            },
             "format-icons": {
                 "1": "I",
                 "2": "II",
@@ -126,24 +97,29 @@
             "signal": 10,
             "on-click": "~/.local/bin/screenrec"
         },
-        "custom/caffeine": {
-            "exec": "~/.local/bin/caffeine status",
-            "return-type": "json",
-            "interval": 30,
-            "signal": 9,
-            "on-click": "~/.local/bin/caffeine toggle"
-        },
         "group/status": {
             "orientation": "inherit",
             "modules": [
                 "tray",
                 "network",
-                "custom/bluetooth",
-                "pulseaudio",
-                "custom/media",
-                "custom/batmode",
                 "battery"
             ]
+        },
+        // CPU and RAM in use, all system values in the tooltip; click opens syslive
+        "custom/sysinfo": {
+            "exec": "~/.local/bin/sysinfo-bar",
+            "return-type": "json",
+            "interval": 5,
+            "on-click": "kitty ~/.local/bin/syslive"
+        },
+        // Control Center (bin/control-center): Bluetooth, Do Not Disturb, Caffeine, now
+        // playing, brightness, volume, charge limit, power mode, capture, wallpaper,
+        // CPU / RAM, notifications, power menu
+        "custom/control": {
+            "format": "󱕂",
+            "tooltip-format": "Control Center",
+            // LD_PRELOAD here saves the script a restart to load gtk4-layer-shell
+            "on-click": "LD_PRELOAD=/usr/lib/libgtk4-layer-shell.so ~/.local/bin/control-center"
         },
         "tray": {
             "icon-size": 15,
@@ -171,49 +147,6 @@
             "interval": 5,
             "on-click": "~/.local/bin/tui-popup nmtui"
         },
-        // Bluetooth: bin/bt-status, event driven. Bar: icon
-        // only (tinted when a battery is low); tooltip: every connected device with its battery.
-        // Levels come from UPower (headset over HFP via PipeWire, Logitech via HID++).
-        "custom/bluetooth": {
-            "exec": "~/.local/bin/bt-status",
-            "return-type": "json",
-            "restart-interval": 5,
-            "escape": false,
-            "on-click": "~/.local/bin/tui-popup bluetui"
-        },
-        "pulseaudio": {
-            "format": "{icon} {volume}%",
-            "format-muted": "󰝟 muted",
-            "format-bluetooth": " {volume}%",
-            "format-bluetooth-muted": "󰝟 muted",
-            "format-icons": {
-                "headphone": "",
-                "headset": "",
-                "default": [
-                    "",
-                    "",
-                    ""
-                ]
-            },
-            "scroll-step": 5,
-            "max-volume": 140,
-            "tooltip-format": "{desc}: {volume}%\nMic: {format_source}",
-            "format-source": "{volume}%",
-            "format-source-muted": "muted",
-            "on-click": "~/.local/bin/tui-popup wiremix",
-            "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
-            "on-click-middle": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
-        },
-        "custom/media": {
-            "exec": "~/.local/bin/media-status",
-            "return-type": "json",
-            "restart-interval": 5,
-            "on-click": "playerctl play-pause",
-            "on-click-right": "playerctl -a pause",
-            "on-click-middle": "playerctld shift",
-            "on-scroll-up": "playerctl next",
-            "on-scroll-down": "playerctl previous"
-        },
         "battery": {
             "states": {
                 "warning": 30,
@@ -231,50 +164,11 @@
             ],
             "tooltip-format": "{timeTo}, {power} W"
         },
-        "group/hub": {
-            "orientation": "inherit",
-            "drawer": {
-                "transition-duration": 300,
-                "transition-left-to-right": false
-            },
-            "modules": [
-                "custom/arrow-left",
-                "custom/notification",
-                "custom/wallpaper"
-            ]
-        },
-        "custom/arrow-left": {
-            "format": "󰁒",
-            "tooltip": false
-        },
-        "custom/notification": {
-            "exec": "swaync-client -swb",
-            "return-type": "json",
-            "format": "{icon} {text}",
-            "format-icons": {
-                "notification": "󱅫",
-                "none": "󰂚",
-                "dnd-notification": "󰂛",
-                "dnd-none": "󰂛",
-                "inhibited-notification": "󱅫",
-                "inhibited-none": "󰂚",
-                "dnd-inhibited-notification": "󰂛",
-                "dnd-inhibited-none": "󰂛"
-            },
-            "tooltip": false,
-            "escape": true,
-            "on-click": "swaync-client -t -sw",
-            "on-click-right": "swaync-client -d -sw"
-        },
-        "custom/wallpaper": {
-            "format": "",
-            "tooltip-format": "Wallpaper (right click: random)",
-            "on-click": "~/.local/bin/wallpaper select",
-            "on-click-right": "~/.local/bin/wallpaper random"
-        },
         "clock": {
             "format": "{:%I:%M %p}",
             "format-alt": "{:%a %d/%m/%Y}",
+            "on-click": "swaync-client -t -sw",
+            "on-click-right": "mode",
             "tooltip-format": "<tt>{calendar}</tt>",
             "calendar": {
                 "mode": "month",
@@ -282,18 +176,6 @@
                     "today": "<b><u>{}</u></b>"
                 }
             }
-        },
-        "custom/power": {
-            "format": "⏻",
-            "tooltip-format": "Power menu",
-            "on-click": "~/.local/bin/power-menu"
-        },
-        "custom/batmode": {
-            "exec": "~/.local/bin/battery-mode status",
-            "return-type": "json",
-            "interval": 60,
-            "signal": 8,
-            "on-click": "~/.local/bin/battery-mode toggle"
         }
     },
     {
@@ -309,18 +191,16 @@
         "modules-left": [
             "custom/launcher",
             "hyprland/window",
-            "group/info"
+            "custom/sysinfo"
         ],
         "modules-center": [
             "hyprland/workspaces"
         ],
         "modules-right": [
             "custom/recording",
-            "custom/caffeine",
             "group/status",
-            "group/hub",
-            "clock",
-            "custom/power"
+            "custom/control",
+            "clock"
         ],
         "custom/launcher": {
             "format": "",
@@ -359,40 +239,12 @@
                 "libreoffice-.*": "LibreOffice"
             }
         },
-        "group/info": {
-            "orientation": "inherit",
-            "drawer": {
-                "transition-duration": 300,
-                "transition-left-to-right": true
-            },
-            "modules": [
-                "custom/arrow-right",
-                "custom/sysinfo"
-            ]
-        },
-        "custom/arrow-right": {
-            "format": "󰁙",
-            "tooltip": false
-        },
-        "custom/sysinfo": {
-            "exec": "~/.local/bin/sysinfo-bar",
-            "return-type": "json",
-            "interval": 5,
-            "on-click": "kitty ~/.local/bin/syslive"
-        },
-        // Empty workspace: Roman numeral. With windows: one app icon per window instead
-        // (the numeral is hidden in style.css). Click an icon to focus that window.
+        // Workspaces as Roman numerals (one per slot on each screen)
         "hyprland/workspaces": {
-            "format": "{icon}{windows}",
+            "format": "{icon}",
             "all-outputs": false,
             "sort-by-number": true,
             "on-click": "activate",
-            "workspace-taskbar": {
-                "enable": true,
-                "format": "{icon}",
-                "icon-size": 15,
-                "on-click-window": "hyprctl dispatch 'hl.dsp.focus({ window = \"address:{address}\" })'"
-            },
             "format-icons": {
                 "1": "I",
                 "2": "II",
@@ -417,24 +269,29 @@
             "signal": 10,
             "on-click": "~/.local/bin/screenrec"
         },
-        "custom/caffeine": {
-            "exec": "~/.local/bin/caffeine status",
-            "return-type": "json",
-            "interval": 30,
-            "signal": 9,
-            "on-click": "~/.local/bin/caffeine toggle"
-        },
         "group/status": {
             "orientation": "inherit",
             "modules": [
                 "tray",
                 "network",
-                "custom/bluetooth",
-                "pulseaudio",
-                "custom/media",
-                "custom/batmode",
                 "battery"
             ]
+        },
+        // CPU and RAM in use, all system values in the tooltip; click opens syslive
+        "custom/sysinfo": {
+            "exec": "~/.local/bin/sysinfo-bar",
+            "return-type": "json",
+            "interval": 5,
+            "on-click": "kitty ~/.local/bin/syslive"
+        },
+        // Control Center (bin/control-center): Bluetooth, Do Not Disturb, Caffeine, now
+        // playing, brightness, volume, charge limit, power mode, capture, wallpaper,
+        // CPU / RAM, notifications, power menu
+        "custom/control": {
+            "format": "󱕂",
+            "tooltip-format": "Control Center",
+            // LD_PRELOAD here saves the script a restart to load gtk4-layer-shell
+            "on-click": "LD_PRELOAD=/usr/lib/libgtk4-layer-shell.so ~/.local/bin/control-center"
         },
         "tray": {
             "icon-size": 15,
@@ -462,49 +319,6 @@
             "interval": 5,
             "on-click": "~/.local/bin/tui-popup nmtui"
         },
-        // Bluetooth: bin/bt-status, event driven. Bar: icon
-        // only (tinted when a battery is low); tooltip: every connected device with its battery.
-        // Levels come from UPower (headset over HFP via PipeWire, Logitech via HID++).
-        "custom/bluetooth": {
-            "exec": "~/.local/bin/bt-status",
-            "return-type": "json",
-            "restart-interval": 5,
-            "escape": false,
-            "on-click": "~/.local/bin/tui-popup bluetui"
-        },
-        "pulseaudio": {
-            "format": "{icon} {volume}%",
-            "format-muted": "󰝟 muted",
-            "format-bluetooth": " {volume}%",
-            "format-bluetooth-muted": "󰝟 muted",
-            "format-icons": {
-                "headphone": "",
-                "headset": "",
-                "default": [
-                    "",
-                    "",
-                    ""
-                ]
-            },
-            "scroll-step": 5,
-            "max-volume": 140,
-            "tooltip-format": "{desc}: {volume}%\nMic: {format_source}",
-            "format-source": "{volume}%",
-            "format-source-muted": "muted",
-            "on-click": "~/.local/bin/tui-popup wiremix",
-            "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
-            "on-click-middle": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
-        },
-        "custom/media": {
-            "exec": "~/.local/bin/media-status",
-            "return-type": "json",
-            "restart-interval": 5,
-            "on-click": "playerctl play-pause",
-            "on-click-right": "playerctl -a pause",
-            "on-click-middle": "playerctld shift",
-            "on-scroll-up": "playerctl next",
-            "on-scroll-down": "playerctl previous"
-        },
         "battery": {
             "states": {
                 "warning": 30,
@@ -522,50 +336,11 @@
             ],
             "tooltip-format": "{timeTo}, {power} W"
         },
-        "group/hub": {
-            "orientation": "inherit",
-            "drawer": {
-                "transition-duration": 300,
-                "transition-left-to-right": false
-            },
-            "modules": [
-                "custom/arrow-left",
-                "custom/notification",
-                "custom/wallpaper"
-            ]
-        },
-        "custom/arrow-left": {
-            "format": "󰁒",
-            "tooltip": false
-        },
-        "custom/notification": {
-            "exec": "swaync-client -swb",
-            "return-type": "json",
-            "format": "{icon} {text}",
-            "format-icons": {
-                "notification": "󱅫",
-                "none": "󰂚",
-                "dnd-notification": "󰂛",
-                "dnd-none": "󰂛",
-                "inhibited-notification": "󱅫",
-                "inhibited-none": "󰂚",
-                "dnd-inhibited-notification": "󰂛",
-                "dnd-inhibited-none": "󰂛"
-            },
-            "tooltip": false,
-            "escape": true,
-            "on-click": "swaync-client -t -sw",
-            "on-click-right": "swaync-client -d -sw"
-        },
-        "custom/wallpaper": {
-            "format": "",
-            "tooltip-format": "Wallpaper (right click: random)",
-            "on-click": "~/.local/bin/wallpaper select",
-            "on-click-right": "~/.local/bin/wallpaper random"
-        },
         "clock": {
             "format": "{:%I:%M %p}",
             "format-alt": "{:%a %d/%m/%Y}",
+            "on-click": "swaync-client -t -sw",
+            "on-click-right": "mode",
             "tooltip-format": "<tt>{calendar}</tt>",
             "calendar": {
                 "mode": "month",
@@ -573,18 +348,6 @@
                     "today": "<b><u>{}</u></b>"
                 }
             }
-        },
-        "custom/power": {
-            "format": "⏻",
-            "tooltip-format": "Power menu",
-            "on-click": "~/.local/bin/power-menu"
-        },
-        "custom/batmode": {
-            "exec": "~/.local/bin/battery-mode status",
-            "return-type": "json",
-            "interval": 60,
-            "signal": 8,
-            "on-click": "~/.local/bin/battery-mode toggle"
         }
     }
 ]
