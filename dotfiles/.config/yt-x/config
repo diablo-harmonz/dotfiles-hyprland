@@ -6,10 +6,13 @@
 CONFIG_ENABLE_COLORS="true"
 CONFIG_LAUNCHER="fzf"
 
-# Preview pane with the thumbnail (chafa draws it in kitty) and the video details
+# Preview pane with the thumbnail and the video details. icat = kitty's own image tool
+# (kitten icat --clear): it removes the previous thumbnail before drawing the next one.
+# chafa also used kitty's protocol but never cleared, so old thumbnails stayed visible
+# under shorter new ones.
 CONFIG_ENABLE_PREVIEW="true"
 CONFIG_ENABLE_PREVIEW_IMAGES="true"
-CONFIG_IMAGE_RENDERER="chafa"
+CONFIG_IMAGE_RENDERER="icat"
 
 CONFIG_PLAYER="mpv"
 CONFIG_DISOWN_PLAYER="false"
