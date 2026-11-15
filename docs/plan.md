@@ -26,6 +26,10 @@ Cập nhật lần cuối: Nov 12, 2026 · @diablo harmonz
 - Lộ trình: tuần đầu :Tutor + Yazi + lazygit; sau đó giải LeetCode trong LazyVim (thêm leetcode.nvim khi cần); dự án công việc vẫn dùng VS Code.
 - Plugin LazyVim ghim phiên bản bằng `lazy-lock.json` trong repo; cập nhật bằng `:Lazy update` rồi commit file đó.
 
+## Cập nhật hệ thống
+
+Mỗi tuần chạy `sysupdate` trong terminal; hướng dẫn từng bước, các file liên quan và cách xử lý sự cố: [docs/update.md](update.md).
+
 ## Tình trạng hiện tại
 
 Manjaro KDE đã cài xong và chạy ổn; Hyprland đang chạy thử trên Manjaro bằng repo dotfiles-hyprland; bộ cài Arch trong repo đã đủ gói và cấu hình (2026-11-12), còn lại phần mềm công việc và sao lưu.

@@ -1,0 +1,175 @@
+#!/usr/bin/env bash
+# sysupdate: guided system update (official packages + AUR) in 6 numbered steps.
+#   sysupdate        run it in a terminal; it asks before anything that changes the system
+# Step by step, with what to do when something goes wrong: docs/update.md (Vietnamese).
+#   1 Arch news            yay -Pw: read manual interventions before updating
+#   2 What will change     checkupdates + AUR; flags kernel, Hyprland, Mesa, rmpc, Matugen
+#   3 Power                warns when not plugged in
+#   4 Extra snapshot       offered for big updates (kept, unlike the automatic ones)
+#   5 Update               yay -Syu (timeshift-autosnap takes a snapshot first; the pacman
+#                          hooks check the Hyprland, rmpc and Matugen configs afterwards)
+#   6 Summary              hook warnings, .pacnew files, reboot / log out needed
+# The whole update is recorded in ~/.local/state/sysupdate/<date>.log.
+set -uo pipefail
+
+# --- look ----------------------------------------------------------------------------
+if [ -t 1 ]; then
+    B=$'\e[1m' D=$'\e[2m' R=$'\e[31m' G=$'\e[32m' Y=$'\e[33m' C=$'\e[36m' N=$'\e[0m'
+else
+    B="" D="" R="" G="" Y="" C="" N=""
+fi
+step()  { printf '\n%s━━ Step %s/6 · %s%s\n' "$B$C" "$1" "$2" "$N"; }
+info()  { printf '   %s\n' "$*"; }
+good()  { printf '   %s✔%s %s\n' "$G" "$N" "$*"; }
+warn()  { printf '   %s!%s %s\n' "$Y" "$N" "$*"; }
+bad()   { printf '   %s✘%s %s\n' "$R" "$N" "$*"; }
+ask()   {   # $1 = question; default No
+    local a
+    read -r -p "   $1 [y/N] " a
+    [[ "$a" =~ ^[Yy]$ ]]
+}
+
+LOGDIR="$HOME/.local/state/sysupdate"
+mkdir -p "$LOGDIR"
+LOG="$LOGDIR/$(date +%F_%H-%M).log"
+KERNEL_RE='^linux[0-9]*(-lts|-zen|-hardened)?$'
+
+printf '%sSystem update%s %s(guide: docs/update.md in the dotfiles repo)%s\n' "$B" "$N" "$D" "$N"
+
+for tool in yay checkupdates timeshift; do
+    if ! command -v "$tool" >/dev/null; then
+        bad "$tool is missing."
+        [ "$tool" = checkupdates ] && info "Install it with: sudo pacman -S pacman-contrib"
+        exit 1
+    fi
+done
+
+# --- 1 news ----------------------------------------------------------------------------
+step 1 "Arch news"
+news=$(yay -Pw 2>/dev/null)
+if [ -n "$news" ]; then
+    printf '%s\n' "$news" | sed 's/^/   /'
+    warn "Read the news above. If one asks for a manual step, do it before updating."
+    ask "Continue with the update?" || { info "Stopped. Nothing was changed."; exit 0; }
+else
+    good "No new Arch news since the last update."
+fi
+
+# --- 2 what will change ----------------------------------------------------------------
+step 2 "What will change"
+info "Checking for updates (this does not change the system)..."
+repo=$(checkupdates 2>/dev/null)
+aur=$(yay -Qua 2>/dev/null)
+all=$(printf '%s\n%s\n' "$repo" "$aur" | sed '/^$/d')
+if [ -z "$all" ]; then
+    good "Everything is up to date. Nothing to do."
+    exit 0
+fi
+count=$(wc -l <<<"$all")
+info "$count packages: $(wc -l <<<"$(sed '/^$/d' <<<"$repo")") official, $(sed '/^$/d' <<<"$aur" | wc -l) from the AUR."
+
+big=false
+reboot_expected=false
+notes=()
+while read -r name old _ new; do
+    [ -z "$name" ] && continue
+    if [[ "$name" =~ $KERNEL_RE ]]; then
+        notes+=("${Y}kernel${N}   $name $old -> $new   (reboot afterwards)")
+        big=true; reboot_expected=true
+    elif [ "$name" = hyprland ]; then
+        o=$(cut -d. -f1,2 <<<"$old"); n=$(cut -d. -f1,2 <<<"$new")
+        if [ "$o" != "$n" ]; then
+            notes+=("${Y}Hyprland $o -> $n: new release. Read its notes first:${N} https://github.com/hyprwm/Hyprland/releases")
+            big=true
+        else
+            notes+=("Hyprland $old -> $new   (log out and in afterwards)")
+        fi
+    elif [[ "$name" =~ ^mesa$|^systemd$|^glibc$ ]]; then
+        notes+=("$name $old -> $new   (core package)")
+    elif [[ "$name" =~ ^(rmpc|matugen)$ ]]; then
+        notes+=("$name $old -> $new   (a pacman hook checks its config afterwards)")
+    fi
+done <<<"$all"
+
+if [ ${#notes[@]} -gt 0 ]; then
+    info "Worth knowing:"
+    for n in "${notes[@]}"; do printf '     • %s\n' "$n"; done
+fi
+if ask "Show the full list?"; then
+    printf '%s\n' "$all" | sed 's/^/     /'
+fi
+
+# --- 3 power ---------------------------------------------------------------------------
+step 3 "Power"
+ac=$(cat /sys/class/power_supply/AC*/online 2>/dev/null | head -1)
+bat=$(cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -1)
+if [ "${ac:-1}" = 1 ]; then
+    good "Plugged in."
+else
+    warn "On battery (${bat:-?} %). An update cut off by an empty battery can break the system."
+    ask "Continue anyway?" || { info "Stopped. Plug in and run sysupdate again."; exit 0; }
+fi
+
+# --- 4 extra snapshot ------------------------------------------------------------------
+step 4 "Extra snapshot"
+info "timeshift-autosnap takes a snapshot right before the update anyway, but keeps only"
+info "the last 3. A manual one (tag O) stays until you delete it."
+if $big; then
+    warn "This is a big update (kernel or a new Hyprland release): a manual snapshot is worth it."
+    if ask "Take a manual snapshot now? (asks for your password, takes a few seconds)"; then
+        sudo timeshift --create --comments "Before update $(date +%F)" --tags O \
+            && good "Snapshot taken." || bad "Snapshot failed; the automatic one will still be taken."
+    fi
+else
+    good "No kernel or new Hyprland release: the automatic snapshot is enough."
+fi
+
+# --- 5 update --------------------------------------------------------------------------
+step 5 "Update"
+info "Now running: yay -Syu"
+info "• It asks for your password, then confirmation ('Proceed with installation? [Y/n]': press Enter)."
+info "• For AUR packages it may ask to show diffs or the PKGBUILD: answer and read the changes."
+info "• Everything is also written to: $LOG"
+ask "Start the update?" || { info "Stopped. Nothing was changed."; exit 0; }
+# script records the session while keeping yay fully interactive
+script -q -e -c "yay -Syu" "$LOG"
+status=$?
+
+# --- 6 summary -------------------------------------------------------------------------
+step 6 "Summary"
+plain=$(sed 's/\x1b\[[0-9;]*[A-Za-z]//g; s/\r//g' "$LOG")
+if [ $status -ne 0 ]; then
+    bad "yay stopped with an error (code $status). Read the end of the log: $LOG"
+    info "Nothing is half-done as long as pacman did not start installing; you can run sysupdate again."
+else
+    good "Packages updated."
+fi
+
+hook_warn=$(grep -E '==> WARNING' -A12 <<<"$plain" | grep -vE '^--$')
+if [ -n "$hook_warn" ]; then
+    bad "A config check reported a problem:"
+    printf '%s\n' "$hook_warn" | sed 's/^/     /'
+    info "Hyprland: fix it BEFORE logging out. rmpc / Matugen: can wait. See docs/update.md."
+else
+    for what in Hyprland rmpc Matugen; do
+        grep -q ":: $what.*OK" <<<"$plain" && good "$what config checked: OK."
+    done
+fi
+
+pacnew=$(grep -oE '/[^ ]+\.pacnew' <<<"$plain" | sort -u)
+if [ -n "$pacnew" ]; then
+    warn "New default config files to merge (.pacnew):"
+    printf '%s\n' "$pacnew" | sed 's/^/     /'
+    info "Merge them with: sudo pacdiff   (see docs/update.md, step 8)"
+fi
+
+if [ ! -d "/usr/lib/modules/$(uname -r)" ] || { $reboot_expected && [ $status -eq 0 ]; }; then
+    warn "The kernel was updated: reboot when convenient (systemctl reboot)."
+elif grep -qE 'upgrading hyprland|installing hyprland' <<<"$plain"; then
+    warn "Hyprland was updated: log out and in (SUPER+M) to start the new version."
+else
+    good "No reboot needed."
+fi
+
+info "Quick check: Waybar, Control Center, change the wallpaper once (SUPER+W), open rmpc."
+info "Log of this update: $LOG"

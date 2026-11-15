@@ -95,6 +95,7 @@ packages=(
     "nftables"
     "timeshift"
     "timeshift-autosnap"
+    "pacman-contrib"     # checkupdates, pacdiff (bin/sysupdate)
     "grub-btrfs"
     "inotify-tools"
     "cronie"

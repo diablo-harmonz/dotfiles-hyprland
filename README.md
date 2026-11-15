@@ -226,6 +226,7 @@ installs from `setup/system/`:
 | `yt-music` | Download songs as best-quality audio into ~/Music/<artist>/<title>/ and make their record picture |
 | `vinyl-cover` | Record picture for rmpc: square sleeve with a vinyl pulled half out (cover.png per folder) |
 | `rmpc-notify` | rmpc song-change notification with the album art |
+| `sysupdate` | Guided weekly update (see Updating) |
 | `rec-status` | Waybar red stop button with the elapsed time while recording |
 | `clipboard` | Clipboard history picker |
 | `web-search` | Quick search / address bar |
@@ -242,6 +243,10 @@ installs from `setup/system/`:
 | `sysreport` | One-shot machine health report |
 | `cava-toggle` | Floating audio visualizer |
 | `firefox-theme` | Link the Firefox theme into the default profile |
+
+## Updating
+
+Run `sysupdate` (`bin/sysupdate`): Arch news, the packages that will change (kernel and Hyprland releases flagged), a power check, an optional manual Timeshift snapshot, `yay -Syu` recorded to `~/.local/state/sysupdate/`, then a summary of hook warnings, `.pacnew` files and whether to reboot. Step-by-step guide (Vietnamese): `docs/update.md`.
 
 ## Checking the config
 
