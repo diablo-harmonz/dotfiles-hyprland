@@ -70,16 +70,22 @@ def log(msg):
         pass
 
 
+# Child processes must not inherit LD_PRELOAD=gtk4-layer-shell: GTK 3 apps such as
+# wlogout (power menu) break with it ("cannot register existing type 'GdkDisplay'")
+CHILD_ENV = {k: v for k, v in os.environ.items() if k != "LD_PRELOAD"}
+
+
 def run(*cmd, timeout=2):
     try:
-        return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout).stdout.strip()
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout,
+                              env=CHILD_ENV).stdout.strip()
     except Exception:
         return ""
 
 
 def spawn(*cmd):
     try:
-        subprocess.Popen(cmd, start_new_session=True,
+        subprocess.Popen(cmd, start_new_session=True, env=CHILD_ENV,
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except Exception:
         pass
