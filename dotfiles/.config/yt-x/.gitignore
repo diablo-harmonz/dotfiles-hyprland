@@ -1,0 +1,10 @@
+# Only the config and own extensions are tracked: watch history (my/), the extension
+# folders yt-x creates and the theme written by Matugen stay local
+*
+!.gitignore
+!config
+!extensions/
+extensions/*
+!extensions/ui/
+extensions/ui/*
+!extensions/ui/preview-refresh.sh

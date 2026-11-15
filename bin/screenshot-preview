@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
-"""screenshot-preview FILE: macOS-style floating thumbnail after a screenshot.
+"""screenshot-preview FILE: macOS-style floating thumbnail after a screenshot or a
+screen recording.
 
 Shows FILE in the bottom-right corner of the focused screen for a few seconds
 (the timer pauses while the pointer is over it):
   drag it   -> drop the file into any app (browser upload, chat, file manager...)
-  click     -> open it in satty to annotate (saving overwrites the file)
-  buttons   -> edit, delete (moves the file to the trash), close
-The file is already saved and on the clipboard; closing the preview keeps it.
-Started by bin/screenshot. Runs as a layer-shell surface (gtk4-layer-shell).
+  image     -> click opens satty to annotate (saving overwrites the file);
+               buttons: edit, delete (to the trash), close
+  video     -> first frame with a play badge and the length; click plays it in mpv;
+               buttons: play, copy (the file, to paste into apps), delete, close
+Closing the preview keeps the file. Started by bin/screenshot and bin/screenrec.
+Runs as a layer-shell surface (gtk4-layer-shell).
 """
 import os
 import subprocess
@@ -50,7 +53,48 @@ window { background: transparent; }
     border-radius: 8px;
 }
 .name { font-size: 11px; opacity: 0.75; }
+.play-badge {
+    background: rgba(0, 0, 0, 0.55);
+    border-radius: 99px;
+    padding: 10px;
+    color: white;
+}
+.duration {
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border-radius: 6px;
+    padding: 1px 6px;
+    margin: 6px;
+    font-size: 11px;
+    font-weight: bold;
+}
 """
+
+VIDEO_EXT = (".mp4", ".mkv", ".webm", ".mov", ".gif")
+
+
+def video_frame(path):
+    """First frame of a video as a PNG in the runtime dir, or None."""
+    out = os.path.join(os.environ.get("XDG_RUNTIME_DIR", "/tmp"), "screenshot-preview-frame.png")
+    try:
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", path, "-frames:v", "1", out],
+                       check=True, timeout=10)
+        return out
+    except Exception:
+        return None
+
+
+def video_length(path):
+    """'m:ss' length of a video, or ''."""
+    try:
+        out = subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+             "-of", "default=nw=1:nk=1", path],
+            capture_output=True, text=True, timeout=5).stdout.strip()
+        secs = round(float(out))
+        return f"{secs // 60}:{secs % 60:02d}"
+    except Exception:
+        return ""
 
 
 def thumbnail(path, w, h):
@@ -80,6 +124,7 @@ class Preview(Gtk.Application):
         self.file = Gio.File.new_for_path(self.path)
         self.timer = 0
         self.hovered = False
+        self.is_video = self.path.lower().endswith(VIDEO_EXT)
 
     # --- timer: close after TIMEOUT_S, paused while hovered or dragging ---
     def arm(self):
@@ -106,6 +151,18 @@ class Preview(Gtk.Application):
         )
         self.quit()
 
+    def play(self, *_):
+        subprocess.Popen(["mpv", "--keep-open=no", self.path], start_new_session=True)
+        self.quit()
+
+    def copy(self, *_):
+        # The file itself: file managers, chats and browsers paste it as an upload
+        uri = self.file.get_uri()
+        subprocess.run(["wl-copy", "--type", "text/uri-list"], input=uri.encode(), timeout=5)
+        subprocess.run(["notify-send", "-a", "screenrec", "-t", "2000",
+                        "Copied", os.path.basename(self.path)], timeout=5)
+        self.quit()
+
     def delete(self, *_):
         try:
             self.file.trash(None)
@@ -118,13 +175,14 @@ class Preview(Gtk.Application):
         self.disarm()
         files = Gdk.FileList.new_from_list([self.file])
         uri = (self.file.get_uri() + "\r\n").encode()
-        with open(self.path, "rb") as fh:
-            png = fh.read()
-        return Gdk.ContentProvider.new_union([
+        providers = [
             Gdk.ContentProvider.new_for_value(GObject.Value(Gdk.FileList, files)),
             Gdk.ContentProvider.new_for_bytes("text/uri-list", GLib.Bytes.new(uri)),
-            Gdk.ContentProvider.new_for_bytes("image/png", GLib.Bytes.new(png)),
-        ])
+        ]
+        if not self.is_video:   # images also go as PNG data (apps that take no files)
+            with open(self.path, "rb") as fh:
+                providers.append(Gdk.ContentProvider.new_for_bytes("image/png", GLib.Bytes.new(fh.read())))
+        return Gdk.ContentProvider.new_union(providers)
 
     def on_drag_begin(self, source, drag):
         source.set_icon(self.texture, 20, 20)
@@ -153,14 +211,24 @@ class Preview(Gtk.Application):
             if mon.get_connector() == name:
                 LayerShell.set_monitor(win, mon)
 
-        self.texture = thumbnail(self.path, THUMB_W, THUMB_H)
+        if self.is_video:
+            frame = video_frame(self.path)
+            if frame:
+                self.texture = thumbnail(frame, THUMB_W, THUMB_H)
+            else:   # no frame (e.g. ffmpeg failed): a plain dark card
+                blank = GdkPixbuf.Pixbuf.new(GdkPixbuf.Colorspace.RGB, False, 8, THUMB_W, THUMB_H)
+                blank.fill(0x202020ff)
+                self.texture = Gdk.Texture.new_for_pixbuf(blank)
+        else:
+            self.texture = thumbnail(self.path, THUMB_W, THUMB_H)
         pic = Gtk.Picture.new_for_paintable(self.texture)
         pic.set_can_shrink(True)
         pic.set_content_fit(Gtk.ContentFit.COVER)
         pic.set_size_request(THUMB_W, THUMB_H)
         pic.add_css_class("thumb")
         pic.set_cursor(Gdk.Cursor.new_from_name("grab"))
-        pic.set_tooltip_text("Drag into an app, click to edit")
+        pic.set_tooltip_text("Drag into an app, click to play" if self.is_video
+                             else "Drag into an app, click to edit")
 
         drag = Gtk.DragSource(actions=Gdk.DragAction.COPY)
         drag.connect("prepare", self.on_drag_prepare)
@@ -169,8 +237,29 @@ class Preview(Gtk.Application):
         pic.add_controller(drag)
 
         click = Gtk.GestureClick()
-        click.connect("released", lambda *_: self.edit())
+        click.connect("released", lambda *_: self.play() if self.is_video else self.edit())
         pic.add_controller(click)
+
+        # Video: play badge in the middle, length in the corner
+        thumb = pic
+        if self.is_video:
+            thumb = Gtk.Overlay()
+            thumb.set_child(pic)
+            badge = Gtk.Image.new_from_icon_name("media-playback-start-symbolic")
+            badge.set_pixel_size(28)
+            badge.add_css_class("play-badge")
+            badge.set_halign(Gtk.Align.CENTER)
+            badge.set_valign(Gtk.Align.CENTER)
+            badge.set_can_target(False)
+            thumb.add_overlay(badge)
+            length = video_length(self.path)
+            if length:
+                lbl = Gtk.Label(label=length)
+                lbl.add_css_class("duration")
+                lbl.set_halign(Gtk.Align.END)
+                lbl.set_valign(Gtk.Align.END)
+                lbl.set_can_target(False)
+                thumb.add_overlay(lbl)
 
         def button(icon, tip, cb):
             b = Gtk.Button.new_from_icon_name(icon)
@@ -184,13 +273,17 @@ class Preview(Gtk.Application):
         bar = Gtk.Box(spacing=4)
         bar.add_css_class("bar")
         bar.append(label)
-        bar.append(button("document-edit-symbolic", "Edit in satty", self.edit))
+        if self.is_video:
+            bar.append(button("media-playback-start-symbolic", "Play in mpv", self.play))
+            bar.append(button("edit-copy-symbolic", "Copy the file (paste it into an app)", self.copy))
+        else:
+            bar.append(button("document-edit-symbolic", "Edit in satty", self.edit))
         bar.append(button("user-trash-symbolic", "Delete", self.delete))
         bar.append(button("window-close-symbolic", "Close", lambda *_: self.quit()))
 
         card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         card.add_css_class("card")
-        card.append(pic)
+        card.append(thumb)
         card.append(bar)
 
         motion = Gtk.EventControllerMotion()

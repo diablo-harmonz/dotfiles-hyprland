@@ -148,7 +148,8 @@ Defined in `dotfiles/.config/hypr/conf/binds.lua`.
 
 Screenshots are saved to `~/Pictures/Screenshots`, copied to the clipboard and shown in a
 small preview (drag and drop, click to edit). Recordings go to `~/Videos/Recordings`;
-while recording, Waybar shows a red stop button with the elapsed time.
+while recording, Waybar shows a red stop button with the elapsed time, and when it stops
+the same preview shows the video (drag it into an app, click to play, copy or delete it).
 Workspaces 1–5 stay on the laptop screen and 6–10 on the first external monitor.
 
 On the Waybar launcher button, left click opens rofi and middle click the wallpaper picker.
@@ -164,7 +165,7 @@ picks one at random. Wallpapers come from `~/Pictures/Wallpapers`; this repo shi
 
 After each change Matugen (`dotfiles/.config/matugen`) generates matching colors for
 rofi, Waybar, WezTerm, the Hyprland borders, hyprlock, wlogout, GTK 3, GTK 4, swaync, Qt (qt6ct), KDE apps,
-Firefox, yazi, cava and btop. The generated files are git-ignored; run `wallpaper restore` once
+Firefox, yazi, cava, btop, rmpc and yt-x. The generated files are git-ignored; run `wallpaper restore` once
 after linking (Hyprland also runs it at login).
 
 ## Firefox

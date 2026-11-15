@@ -1,0 +1,35 @@
+# yt-x: browse and watch YouTube in the terminal (rofi "YouTube (yt-x)"), plays with mpv.
+# Sourced as shell code by yt-x; environment variables YT_X_<NAME> override these.
+# Colors are not set here: Matugen writes extensions/themes/default.theme from the
+# wallpaper (fzf colors and the icon / preview colors), like the rest of the desktop.
+
+CONFIG_ENABLE_COLORS="true"
+CONFIG_LAUNCHER="fzf"
+
+# Preview pane with the thumbnail (chafa draws it in WezTerm) and the video details
+CONFIG_ENABLE_PREVIEW="true"
+CONFIG_ENABLE_PREVIEW_IMAGES="true"
+CONFIG_IMAGE_RENDERER="chafa"
+
+CONFIG_PLAYER="mpv"
+CONFIG_DISOWN_PLAYER="false"
+CONFIG_PER_PAGE="30"
+CONFIG_EDITOR="nvim"
+CONFIG_NOTIFICATION_DURATION="5"
+
+# Downloads go next to yt-dlp's (dotfiles/.config/yt-dlp)
+CONFIG_DOWNLOAD_DIR="$HOME/Videos/YouTube"
+CONFIG_DOWNLOADS_ENUMERATE="false"
+
+# Updates come through the AUR package
+CONFIG_CHECK_FOR_UPDATES="false"
+CONFIG_NO_OF_RECENT="10"
+CONFIG_ENABLE_SEARCH_HISTORY="true"
+CONFIG_CACHE_RETENTION_DAYS="3"
+
+# No ASCII logo above the lists
+CONFIG_FZF_HEADER=""
+
+# Own extensions (extensions/ui/preview-refresh.sh: the first preview shows without
+# moving the selection)
+CONFIG_AUTOLOADED_EXTENSIONS="ui/preview-refresh.sh"

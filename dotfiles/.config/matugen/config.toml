@@ -37,6 +37,10 @@ output_path = '~/.config/btop/themes/matugen.theme'
 input_path = '~/.config/matugen/templates/rmpc.ron'
 output_path = '~/.config/rmpc/themes/matugen.ron'
 
+[templates.yt-x]
+input_path = '~/.config/matugen/templates/yt-x.theme'
+output_path = '~/.config/yt-x/extensions/themes/default.theme'
+
 [templates.gtk4]
 input_path = '~/.config/matugen/templates/gtk.css'
 output_path = '~/.config/gtk-4.0/matugen.css'
