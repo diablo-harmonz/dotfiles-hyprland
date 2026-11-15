@@ -15,6 +15,9 @@ CONFIG_ENABLE_PREVIEW_IMAGES="true"
 CONFIG_IMAGE_RENDERER="icat"
 
 CONFIG_PLAYER="mpv"
+# While a video plays, hide this terminal (mpv script dotfiles/.config/mpv/scripts/
+# hide-launcher.lua); it comes back when the video is closed
+CONFIG_MPV_ARGS="--script-opts=hide_launcher-enabled=yes"
 CONFIG_DISOWN_PLAYER="false"
 CONFIG_PER_PAGE="30"
 CONFIG_EDITOR="nvim"
