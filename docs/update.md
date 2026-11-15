@@ -51,6 +51,11 @@ Bấm **Ctrl + C** bất cứ lúc nào trước bước 5 để dừng, máy ch
 | `rmpc`, `matugen` | Có hook kiểm tra | Xem kết quả kiểm tra ở bước 6 |
 
 - Câu hỏi `Show the full list?` → **y** nếu muốn xem toàn bộ danh sách, Enter để bỏ qua.
+- Dòng **Leftovers: …** (nếu có): gói AUR có bản mới nhưng chỉ được cài làm phụ thuộc cho
+  một app cũ, nay **không gói nào cần** và **đã bị gỡ khỏi kho chính thức** (thường là thư
+  viện KDE còn sót từ Manjaro KDE, ví dụ `kirigami2`). Cập nhật chúng nghĩa là yay tải mã
+  nguồn về tự build, tốn thời gian mà không để làm gì. Câu hỏi `Remove them now instead of
+  updating them?` → **y** để gỡ (nhập mật khẩu, rồi **Enter** khi pacman hỏi xác nhận).
 
 ### Bước 3 · Power (nguồn điện)
 

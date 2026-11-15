@@ -3,7 +3,8 @@
 #   sysupdate        run it in a terminal; it asks before anything that changes the system
 # Step by step, with what to do when something goes wrong: docs/update.md (Vietnamese).
 #   1 Arch news            yay -Pw: read manual interventions before updating
-#   2 What will change     checkupdates + AUR; flags kernel, Hyprland, Mesa, rmpc, Matugen
+#   2 What will change     checkupdates + AUR; flags kernel, Hyprland, Mesa, rmpc, Matugen,
+#                          and offers to remove leftover dependencies instead of updating them
 #   3 Power                warns when not plugged in
 #   4 Extra snapshot       offered for big updates (kept, unlike the automatic ones)
 #   5 Update               yay -Syu (timeshift-autosnap takes a snapshot first; the pacman
@@ -94,6 +95,34 @@ done <<<"$all"
 if [ ${#notes[@]} -gt 0 ]; then
     info "Worth knowing:"
     for n in "${notes[@]}"; do printf '     • %s\n' "$n"; done
+fi
+
+# Leftovers: AUR updates for packages that were only installed as dependencies and that
+# nothing needs any more (often old desktop libraries dropped from the official repos).
+# Updating them means building them from source for nothing: offer to remove them.
+orphans=$(pacman -Qdtq 2>/dev/null)
+leftovers=()
+while read -r name _; do
+    [ -n "$name" ] && grep -qx "$name" <<<"$orphans" && leftovers+=("$name")
+done <<<"$aur"
+if [ ${#leftovers[@]} -gt 0 ]; then
+    warn "Leftovers: ${leftovers[*]}"
+    info "  Installed only as dependencies, no package needs them now and they are not in the"
+    info "  official repos any more, so yay would build them from the AUR for nothing."
+    info "  Removing them is safe: sudo pacman -Rns ${leftovers[*]}"
+    if ask "Remove them now instead of updating them?"; then
+        if sudo pacman -Rns "${leftovers[@]}"; then
+            good "Removed."
+            for l in "${leftovers[@]}"; do all=$(grep -v "^$l " <<<"$all"); done
+            all=$(sed '/^$/d' <<<"$all")
+            if [ -z "$all" ]; then
+                good "Nothing else to update."
+                exit 0
+            fi
+        else
+            bad "Not removed; they will be updated with the rest."
+        fi
+    fi
 fi
 if ask "Show the full list?"; then
     printf '%s\n' "$all" | sed 's/^/     /'
