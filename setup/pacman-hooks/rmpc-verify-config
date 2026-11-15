@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# rmpc-verify-config: start rmpc for two seconds in a pseudo-terminal with a user's config
+# (and its theme) and report the error rmpc prints when it cannot read them. rmpc has no
+# "check config" command, and `rmpc debuginfo` does not load the theme.
+#   run by the pacman hook as root: checks every /home/*/.config/rmpc/config.ron as that user
+#   run by a user: checks ~/.config/rmpc/config.ron, or the config given as $1
+# Installed root-owned to /usr/local/lib/dotfiles-hyprland/. Never fails, so it can never
+# block a pacman transaction. Note: rmpc ignores unknown keys, so an option that was only
+# renamed may pass here and simply stop working.
+
+check() {   # $1 = user, $2 = home, $3 = config file
+    local user="$1" home="$2" cfg="$3" uid out errs
+    uid=$(id -u "$user")
+    out=$(mktemp)
+    chmod 666 "$out"
+    local cmd="stty rows 40 cols 120; rmpc --config '$cfg'"
+    if [ "$(id -u)" = 0 ]; then
+        (sleep 2; printf q) | timeout 15 runuser -u "$user" -- env HOME="$home" \
+            XDG_RUNTIME_DIR="/run/user/$uid" TERM=xterm-256color \
+            script -qc "$cmd" "$out" >/dev/null 2>&1
+    else
+        (sleep 2; printf q) | timeout 15 env TERM=xterm-256color script -qc "$cmd" "$out" >/dev/null 2>&1
+    fi
+    # rmpc prints "Error: Failed to read config" / "Caused by:" / the reason, then
+    # "Using the default values", before drawing; drop escapes and pictures first
+    errs=$(python3 - "$out" <<'PY'
+import re, sys
+t = open(sys.argv[1], encoding="utf-8", errors="replace").read()
+t = re.sub(r"\x1b_G.*?\x1b\\", "", t, flags=re.S)
+t = re.sub(r"\x1b\][^\x07]*\x07|\x1b\[[0-9;?<>=]*[A-Za-z]|\x1b[=>]", "", t).replace("\r", "")
+for m in re.finditer(r"Error: Failed to read (config|theme).*?(?=Using the default|\Z)", t, flags=re.S):
+    print(m.group(0).strip())
+PY
+)
+    rm -f "$out"
+    if [ -z "$errs" ]; then
+        echo ":: rmpc config OK for $user ($cfg)"
+    else
+        echo "==> WARNING: rmpc $(rmpc version 2>/dev/null | awk '{print $2}') cannot read $user's config ($cfg), it falls back to defaults:"
+        sed 's/^/    /' <<<"$errs"
+        echo "    Fix dotfiles/.config/rmpc or the Matugen theme template, or roll back with Timeshift."
+    fi
+}
+
+command -v rmpc >/dev/null && command -v script >/dev/null || exit 0
+
+if [ -n "${1:-}" ]; then
+    check "$(id -un)" "$HOME" "$1"
+elif [ "$(id -u)" = 0 ]; then
+    for home in /home/*; do
+        [ -e "$home/.config/rmpc/config.ron" ] && check "$(stat -c %U "$home")" "$home" "$home/.config/rmpc/config.ron"
+    done
+else
+    [ -e "$HOME/.config/rmpc/config.ron" ] && check "$(id -un)" "$HOME" "$HOME/.config/rmpc/config.ron"
+fi
+exit 0

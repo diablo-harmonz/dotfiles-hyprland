@@ -5,6 +5,10 @@
 # Run again after changing the files in setup/pacman-hooks/.
 set -euo pipefail
 SRC="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/pacman-hooks"
-sudo install -D -m 755 -o root -g root "$SRC/hyprland-verify-config" /usr/local/lib/dotfiles-hyprland/hyprland-verify-config
-sudo install -D -m 644 -o root -g root "$SRC/hyprland-verify-config.hook" /etc/pacman.d/hooks/hyprland-verify-config.hook
-echo ":: Installed pacman hook: /etc/pacman.d/hooks/hyprland-verify-config.hook"
+# hyprland-verify-config: Hyprland config after Hyprland upgrades
+# rmpc-verify-config:     rmpc config + theme after rmpc upgrades
+for name in hyprland-verify-config rmpc-verify-config; do
+    sudo install -D -m 755 -o root -g root "$SRC/$name" "/usr/local/lib/dotfiles-hyprland/$name"
+    sudo install -D -m 644 -o root -g root "$SRC/$name.hook" "/etc/pacman.d/hooks/$name.hook"
+    echo ":: Installed pacman hook: /etc/pacman.d/hooks/$name.hook"
+done

@@ -1,0 +1,13 @@
+# Installed to /etc/pacman.d/hooks/ by setup/install-pacman-hooks.sh.
+# After rmpc is installed or upgraded, start it once with every user's config and theme,
+# so a renamed or removed option shows up in the pacman output, not when opening rmpc.
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = rmpc
+
+[Action]
+Description = Checking rmpc configs with the new rmpc version...
+When = PostTransaction
+Exec = /usr/local/lib/dotfiles-hyprland/rmpc-verify-config
