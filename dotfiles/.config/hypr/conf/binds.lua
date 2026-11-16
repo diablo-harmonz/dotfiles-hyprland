@@ -69,6 +69,25 @@ for _, dir in ipairs({ "left", "right", "up", "down" }) do
     hl.bind(mainMod .. " + " .. dir, hl.dsp.focus({ direction = dir }))
 end
 
+-- Move the active window with mainMod + SHIFT + arrow keys (swaps places with the neighbour
+-- when tiled, moves when floating)
+for _, dir in ipairs({ "left", "right", "up", "down" }) do
+    hl.bind(mainMod .. " + SHIFT + " .. dir, hl.dsp.window.move({ direction = dir }))
+end
+
+-- Resize the active window with mainMod + ALT + arrow keys (hold to keep resizing)
+local resizeStep = 40
+local resizeBy = {
+    left  = { x = -resizeStep, y = 0 },
+    right = { x = resizeStep,  y = 0 },
+    up    = { x = 0, y = -resizeStep },
+    down  = { x = 0, y = resizeStep },
+}
+for dir, d in pairs(resizeBy) do
+    hl.bind(mainMod .. " + ALT + " .. dir,
+        hl.dsp.window.resize({ x = d.x, y = d.y, relative = true }), { repeating = true })
+end
+
 -- Switch workspaces with mainMod + [0-9]
 -- Move active window to a workspace with mainMod + SHIFT + [0-9]
 for i = 1, 10 do

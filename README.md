@@ -130,6 +130,8 @@ Defined in `dotfiles/.config/hypr/conf/binds.lua`.
 | SUPER + F | Fullscreen (also Fn+F11) |
 | SUPER + P / SUPER + J | Pseudotile / toggle split (dwindle) |
 | SUPER + arrows | Move focus |
+| SUPER + SHIFT + arrows | Move the window (swap with the neighbour) |
+| SUPER + ALT + arrows | Resize the window (hold to repeat) |
 | SUPER + 1…0 | Go to workspace 1–10 |
 | SUPER + SHIFT + 1…0 | Move window to workspace 1–10 |
 | SUPER + mouse wheel | Next / previous workspace |
