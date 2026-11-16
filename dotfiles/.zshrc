@@ -61,6 +61,7 @@ zmodload zsh/complist && bindkey -M menuselect '^[[Z' reverse-menu-complete
 # Aliases
 alias reload-zsh='exec zsh'
 alias edit-zsh='nvim ~/.zshrc'
+alias back='cd ../'
 alias home='cd ~'
 alias documents='cd ~/Documents'
 alias downloads='cd ~/Downloads'
