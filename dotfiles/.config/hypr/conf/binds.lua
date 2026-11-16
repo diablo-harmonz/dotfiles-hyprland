@@ -69,28 +69,30 @@ for _, dir in ipairs({ "left", "right", "up", "down" }) do
     hl.bind(mainMod .. " + " .. dir, hl.dsp.focus({ direction = dir }))
 end
 
--- Move / resize the active window with the keyboard (hold to repeat), 40 px per step
-local step = 40
-local stepBy = {
-    left  = { x = -step, y = 0 },
-    right = { x = step,  y = 0 },
-    up    = { x = 0, y = -step },
-    down  = { x = 0, y = step },
+-- Move / resize the active window with the keyboard (hold to repeat)
+local moveStep   = 10  -- px per repeat: small, so a held key slides the window smoothly
+local resizeStep = 40
+local dirs = {
+    left  = { x = -1, y = 0 },
+    right = { x = 1,  y = 0 },
+    up    = { x = 0,  y = -1 },
+    down  = { x = 0,  y = 1 },
 }
-for dir, d in pairs(stepBy) do
-    -- mainMod + SHIFT + arrow: a floating window slides by one step, a tiled one swaps
+for dir, d in pairs(dirs) do
+    -- mainMod + SHIFT + arrow: a floating window slides by moveStep, a tiled one swaps
     -- places with its neighbour in that direction
     hl.bind(mainMod .. " + SHIFT + " .. dir, function()
         local win = hl.get_active_window()
         if win and win.floating then
-            hl.dispatch(hl.dsp.window.move({ x = d.x, y = d.y, relative = true }))
+            hl.dispatch(hl.dsp.window.move({ x = d.x * moveStep, y = d.y * moveStep, relative = true }))
         else
             hl.dispatch(hl.dsp.window.move({ direction = dir }))
         end
     end, { repeating = true })
     -- mainMod + ALT + arrow: resize
     hl.bind(mainMod .. " + ALT + " .. dir,
-        hl.dsp.window.resize({ x = d.x, y = d.y, relative = true }), { repeating = true })
+        hl.dsp.window.resize({ x = d.x * resizeStep, y = d.y * resizeStep, relative = true }),
+        { repeating = true })
 end
 
 -- Switch workspaces with mainMod + [0-9]
