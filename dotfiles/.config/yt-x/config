@@ -17,7 +17,9 @@ CONFIG_IMAGE_RENDERER="icat"
 CONFIG_PLAYER="mpv"
 # While a video plays, hide this terminal (mpv script dotfiles/.config/mpv/scripts/
 # hide-launcher.lua); it comes back when the video is closed
-CONFIG_MPV_ARGS="--script-opts=hide_launcher-enabled=yes"
+# --wayland-app-id=mpv-pip: Hyprland rule "yt-x-pip" makes the video a small window pinned
+# to every workspace (picture-in-picture)
+CONFIG_MPV_ARGS="--script-opts=hide_launcher-enabled=yes --wayland-app-id=mpv-pip"
 CONFIG_DISOWN_PLAYER="false"
 CONFIG_PER_PAGE="30"
 CONFIG_EDITOR="nvim"

@@ -40,3 +40,17 @@ hl.window_rule({
     size  = "900 560",
     move  = "(monitor_w*0.885-900) 52",
 })
+
+-- yt-x videos (mpv started with --wayland-app-id=mpv-pip in yt-x/config): small floating
+-- window in the bottom-right corner, pinned to every workspace (picture-in-picture).
+-- SUPER+F for full screen, SUPER+O to unpin.
+hl.window_rule({
+    name  = "yt-x-pip",
+    match = { class = "^(mpv-pip)$" },
+
+    float = true,
+    pin   = true,
+    size  = "(monitor_w*0.3) (monitor_h*0.3)",
+    move  = "(monitor_w*0.69) (monitor_h*0.68)",
+    keep_aspect_ratio = true,
+})

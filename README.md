@@ -99,7 +99,7 @@ to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#
 | Audio, Bluetooth, Wi-Fi | wiremix, bluetui and nmtui in floating kitty windows (`bin/tui-popup`), opened from the Waybar volume, Bluetooth and Wi-Fi icons |
 | Bluetooth on the bar | `bin/bt-status`: devices and battery levels from UPower |
 | Browser | Firefox (FF Ultima theme) |
-| Media | mpv (video, also for yt-x), yt-dlp (downloads to `~/Videos/YouTube`), yt-x (YouTube in the terminal), MPD + rmpc (music in `~/Music`; player view with the record picture, queue and library as icon tabs, a keys tab); media keys and Waybar control mpv and MPD through MPRIS |
+| Media | mpv (video, also for yt-x), yt-dlp (downloads to `~/Videos/YouTube`), yt-x (YouTube in the terminal; videos open as a small window in the bottom-right corner, pinned to every workspace), MPD + rmpc (music in `~/Music`; player view with the record picture, queue and library as icon tabs, a keys tab); media keys and Waybar control mpv and MPD through MPRIS |
 
 The full package list is the `packages` array in `setup/setup-arch.sh`.
 
@@ -126,6 +126,7 @@ Defined in `dotfiles/.config/hypr/conf/binds.lua`.
 | SUPER + Q | Close window |
 | SUPER + M | Exit Hyprland |
 | SUPER + T | Toggle floating |
+| SUPER + O | Pin a floating window to every workspace (picture-in-picture), press again to unpin |
 | SUPER + F | Fullscreen (also Fn+F11) |
 | SUPER + P / SUPER + J | Pseudotile / toggle split (dwindle) |
 | SUPER + arrows | Move focus |
