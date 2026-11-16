@@ -61,6 +61,7 @@ zmodload zsh/complist && bindkey -M menuselect '^[[Z' reverse-menu-complete
 # Aliases
 alias reload-zsh='exec zsh'
 alias edit-zsh='nvim ~/.zshrc'
+alias home='cd ~'
 alias documents='cd ~/Documents'
 alias downloads='cd ~/Downloads'
 # eza: ls with icons (Nerd Font), only when installed
