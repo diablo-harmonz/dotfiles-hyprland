@@ -67,6 +67,10 @@ require("catppuccin").setup({
 })
 vim.cmd.colorscheme("catppuccin")
 
+-- Rust: :RustFmt (bundled with Neovim) still passes rustfmt's removed --write-mode flag
+-- unless told the installed rustfmt is new enough for --emit=files
+vim.g.rustfmt_emit_files = 1
+
 -- Fuzzy finder (fzf-lua): type a few letters, Enter opens the match
 local fzf = require("fzf-lua")
 fzf.setup({
