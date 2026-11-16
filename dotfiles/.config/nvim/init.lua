@@ -51,3 +51,16 @@ vim.api.nvim_create_autocmd("TextYankPost", {
         vim.hl.on_yank({ timeout = 200 })
     end,
 })
+
+-- Plugins: Neovim 0.12's built-in manager downloads them from GitHub
+-- and pins their versions in nvim-pack-lock.json (next to this file)
+vim.pack.add({
+    { src = "https://github.com/catppuccin/nvim", name = "catppuccin" },
+})
+
+-- Colour scheme
+require("catppuccin").setup({
+    flavour = "mocha",              -- Dark variant (latte is the light one)
+    transparent_background = true,  -- Let kitty's see-through background show
+})
+vim.cmd.colorscheme("catppuccin")

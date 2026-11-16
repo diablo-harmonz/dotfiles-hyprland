@@ -221,3 +221,16 @@ yay -Syu                     # 5. cập nhật (không bao giờ cập nhật l�
 sudo DIFFPROG="nvim -d" pacdiff   # 6. gộp .pacnew nếu có
 systemctl reboot             #    nếu kernel đổi
 ```
+
+---
+
+## Plugin Neovim (không nằm trong yay)
+
+Plugin cài bằng `vim.pack` không được `yay -Syu` cập nhật. Làm riêng, cũng vào cuối tuần:
+
+1. Trong Neovim: `:lua vim.pack.update()`. Một trang mới liệt kê các thay đổi của từng plugin.
+2. Đọc qua, rồi `:w` để cập nhật, hoặc `:q` để huỷ.
+3. Thoát và mở lại Neovim, dùng thử.
+4. Ổn thì commit `dotfiles/.config/nvim/nvim-pack-lock.json`. Hỏng thì quay về bản cũ:
+   `git -C ~/Documents/personal/dotfiles-hyprland checkout -- dotfiles/.config/nvim/nvim-pack-lock.json`,
+   rồi trong Neovim `:lua vim.pack.update(nil, { target = "lockfile" })`.

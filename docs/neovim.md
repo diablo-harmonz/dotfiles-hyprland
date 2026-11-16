@@ -37,7 +37,7 @@ help: `:help` rồi `/từ khoá`.
 - Học kèm: `:Tutor` (khoảng 30 phút) cho các phím di chuyển và sửa cơ bản.
 - Kiểm tra: `:set number?` in giá trị một thiết lập; `:map <leader>` liệt kê phím leader.
 
-### Giai đoạn 1 · Màu sắc (plugin đầu tiên)
+### Giai đoạn 1 · Màu sắc (plugin đầu tiên) (xong 2026-11-16: catppuccin mocha, nền trong suốt)
 
 - Học: cài plugin bằng trình quản lý có sẵn của Neovim 0.12, `vim.pack.add({ ... })`;
   cập nhật bằng `:lua vim.pack.update()`.
