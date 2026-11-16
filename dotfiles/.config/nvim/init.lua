@@ -37,3 +37,17 @@ vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Window left" })
 vim.keymap.set("n", "<C-j>", "<C-w>j", { desc = "Window down" })
 vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Window up" })
 vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Window right" })
+
+-- Editing
+vim.opt.clipboard = "unnamedplus"  -- y / p use the system clipboard (paste into Firefox etc.)
+vim.opt.undofile = true            -- Keep undo history after closing the file
+vim.opt.splitright = true          -- :vsplit opens the new window on the right
+vim.opt.splitbelow = true          -- :split opens the new window below
+
+-- Autocmd: when something happens, run a function
+vim.api.nvim_create_autocmd("TextYankPost", {
+    desc = "Flash the text that was just copied",
+    callback = function()
+        vim.hl.on_yank({ timeout = 200 })
+    end,
+})

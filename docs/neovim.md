@@ -27,7 +27,7 @@ help: `:help` rồi `/từ khoá`.
 
 ## Lộ trình
 
-### Giai đoạn 0 · Thiết lập và phím tắt
+### Giai đoạn 0 · Thiết lập và phím tắt (xong 2026-11-16)
 
 - Học: `vim.opt` (thiết lập), `vim.g.mapleader` (phím leader), `vim.keymap.set` (phím tắt),
   autocmd đơn giản.
