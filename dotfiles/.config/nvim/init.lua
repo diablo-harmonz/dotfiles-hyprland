@@ -56,6 +56,8 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 -- and pins their versions in nvim-pack-lock.json (next to this file)
 vim.pack.add({
     { src = "https://github.com/catppuccin/nvim", name = "catppuccin" },
+    "https://github.com/ibhagwan/fzf-lua",            -- Fuzzy finder
+    "https://github.com/nvim-tree/nvim-web-devicons", -- File icons for it
 })
 
 -- Colour scheme
@@ -64,3 +66,19 @@ require("catppuccin").setup({
     transparent_background = true,  -- Let kitty's see-through background show
 })
 vim.cmd.colorscheme("catppuccin")
+
+-- Fuzzy finder (fzf-lua): type a few letters, Enter opens the match
+local fzf = require("fzf-lua")
+fzf.setup({
+    grep = {
+        -- ripgrep skips hidden files and folders by default, and this repo keeps its
+        -- configs under dotfiles/.config: search those too, but never inside .git
+        rg_opts = "--hidden --glob=!.git --column --line-number --no-heading"
+            .. " --color=always --smart-case --max-columns=4096 -e",
+    },
+})
+vim.keymap.set("n", "<leader><leader>", fzf.files, { desc = "Find files" })
+vim.keymap.set("n", "<leader>/", fzf.live_grep, { desc = "Search text in project" })
+vim.keymap.set("n", "<leader>b", fzf.buffers, { desc = "Open buffers" })
+vim.keymap.set("n", "<leader>fr", fzf.oldfiles, { desc = "Recent files" })
+vim.keymap.set("n", "<leader>fh", fzf.helptags, { desc = "Search help" })

@@ -44,7 +44,7 @@ help: `:help` rồi `/từ khoá`.
 - Thêm: một bảng màu (ví dụ catppuccin hoặc tokyonight), nền trong suốt để hợp với kitty.
 - Kiểm tra: mở lại `nvim`, màu đổi; `:colorscheme` hiện tên bảng màu.
 
-### Giai đoạn 2 · Tìm file và tìm chữ
+### Giai đoạn 2 · Tìm file và tìm chữ (xong 2026-11-16: fzf-lua)
 
 - Học: fuzzy finder; fzf-lua (nhanh, dùng fzf đã có sẵn trên máy) hoặc telescope.
 - Thêm: Space Space tìm file, Space / tìm chữ trong cả dự án (ripgrep đã cài), Space b
