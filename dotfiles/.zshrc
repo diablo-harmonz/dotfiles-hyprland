@@ -44,19 +44,8 @@ unsetopt correct
 setopt share_history hist_verify
 unsetopt inc_append_history   # share_history already appends each command
 
-# Tab: accept the grey autosuggestion when there is one, otherwise complete as usual
-_tab_accept_or_complete() {
-  if [[ -n $POSTDISPLAY ]]; then
-    zle autosuggest-accept
-  else
-    zle expand-or-complete
-  fi
-}
-zle -N _tab_accept_or_complete
-bindkey '^I' _tab_accept_or_complete
-# Shift+Tab: go backwards through the completion menu (Manjaro binds it to undo)
-bindkey '^[[Z' reverse-menu-complete
-zmodload zsh/complist && bindkey -M menuselect '^[[Z' reverse-menu-complete
+# Tab completes as usual (Manjaro default); the grey autosuggestion is accepted with the
+# Right arrow (or End), zsh-autosuggestions' default
 
 # Aliases
 alias reload-zsh='exec zsh'
