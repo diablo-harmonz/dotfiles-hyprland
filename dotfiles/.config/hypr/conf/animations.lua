@@ -37,4 +37,6 @@ hl.animation({ leaf = "workspaces",       enabled = true, speed = 7,   bezier = 
 -- hl.animation({ leaf = "workspaces",    enabled = true, speed = 2.5, bezier = "softAcDecel", style = "slide" })
 -- hl.animation({ leaf = "workspaces",    enabled = true, speed = 7,   bezier = "menu_decel", style = "slidefade 15%" })
 -- hl.animation({ leaf = "specialWorkspace", enabled = true, speed = 3, bezier = "md3_decel", style = "slidefadevert 15%" })
-hl.animation({ leaf = "specialWorkspace", enabled = true, speed = 3,   bezier = "md3_decel",  style = "slidevert" })
+-- Special workspace drops in from the top: Hyprland always slides it up from the bottom with
+-- "slidevert" (no direction option); a negative slide distance turns that around
+hl.animation({ leaf = "specialWorkspace", enabled = true, speed = 3,   bezier = "md3_decel",  style = "slidefadevert -100%" })
