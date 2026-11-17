@@ -10,7 +10,9 @@ vim.opt.wrap = true         -- Wrap long lines to fit the window (no sideways sc
 -- Line number column: real line number, then the distance from the cursor (for 5j, d3k...).
 -- v:virtnum > 0 means the wrapped part of a line: leave it blank. The cursor line shows
 -- no distance (it would be 0). %#LineNr# draws the distance in the dimmer colour.
-vim.opt.statuscolumn = "%3{v:virtnum ? '' : v:lnum} %#LineNr#%-2{v:virtnum || !v:relnum ? '' : v:relnum} "
+vim.opt.signcolumn = "yes"  -- Always keep room for marks like LSP errors (no jumping text)
+-- %s draws that sign column first, left of the numbers
+vim.opt.statuscolumn = "%s%3{v:virtnum ? '' : v:lnum} %#LineNr#%-2{v:virtnum || !v:relnum ? '' : v:relnum} "
 
 -- Indentation
 vim.opt.expandtab = true    -- Tab key inserts spaces instead of a tab character.
@@ -60,6 +62,7 @@ vim.pack.add({
     "https://github.com/ibhagwan/fzf-lua",            -- Fuzzy finder
     "https://github.com/nvim-tree/nvim-web-devicons", -- File icons for it
     "https://github.com/nvim-mini/mini.indentscope",  -- Line beside the current block
+    "https://github.com/neovim/nvim-lspconfig",       -- Ready-made language server configs
 })
 
 -- Colour scheme
@@ -108,4 +111,51 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 vim.api.nvim_create_autocmd("TermOpen", {
     callback = function() vim.b.miniindentscope_disable = true end,
+})
+
+-- LSP (stage 4): a language server reads the code like a compiler does and tells Neovim
+-- about errors, types, functions... nvim-lspconfig ships the settings for each server;
+-- here only the command changes: on Arch, rustup keeps rust-analyzer out of PATH.
+vim.lsp.config("rust_analyzer", {
+    cmd = { "rustup", "run", "stable", "rust-analyzer" },
+})
+vim.lsp.enable({ "rust_analyzer" })
+
+-- Errors and warnings: a mark in the sign column and the message at the end of the line
+vim.diagnostic.config({
+    virtual_text = true,
+    severity_sort = true,  -- errors before warnings when a line has both
+})
+
+-- Completion (stage 5): Neovim 0.12's own menu, opened while typing.
+-- Sources in order: the language server (o), then words in open files (., w).
+vim.opt.autocomplete = true
+vim.opt.complete = "o,.,w"
+vim.opt.completeopt = { "menuone", "noselect", "popup", "fuzzy" }
+-- Tab / Ctrl+n next item, Ctrl+p previous, Enter takes the selected item, Ctrl+e closes
+vim.keymap.set("i", "<Tab>", function()
+    return vim.fn.pumvisible() == 1 and "<C-n>" or "<Tab>"
+end, { expr = true, desc = "Next completion item" })
+vim.keymap.set("i", "<CR>", function()
+    local selected = vim.fn.complete_info({ "selected" }).selected
+    return (vim.fn.pumvisible() == 1 and selected ~= -1) and "<C-y>" or "<CR>"
+end, { expr = true, desc = "Accept the selected completion" })
+
+-- When a language server attaches to a file
+vim.api.nvim_create_autocmd("LspAttach", {
+    desc = "LSP completion and keymaps",
+    callback = function(ev)
+        -- Let the server's items do their extras on accept (add a `use`, fill arguments)
+        vim.lsp.completion.enable(true, ev.data.client_id, ev.buf)
+        local map = function(keys, fn, desc)
+            vim.keymap.set("n", keys, fn, { buffer = ev.buf, desc = desc })
+        end
+        map("gd", vim.lsp.buf.definition, "Go to definition")
+        map("<leader>th", function()
+            vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = ev.buf }),
+                { bufnr = ev.buf })
+        end, "Toggle type hints")
+        -- Built in already: K docs · grn rename · gra code action · grr references ·
+        -- [d / ]d previous / next error · Ctrl+o back after gd
+    end,
 })

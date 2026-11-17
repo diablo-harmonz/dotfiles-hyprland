@@ -56,7 +56,7 @@ help: `:help` rồi `/từ khoá`.
   javascript, typescript, tsx, json, bash, markdown).
 - Kiểm tra: `:InspectTree` xem cây cú pháp của file đang mở.
 
-### Giai đoạn 4 · LSP (hiểu code: lỗi, gợi ý, nhảy tới định nghĩa)
+### Giai đoạn 4 · LSP (hiểu code: lỗi, gợi ý, nhảy tới định nghĩa) (xong 2026-11-17: rust-analyzer qua nvim-lspconfig)
 
 - Học: Neovim 0.12 có sẵn client LSP; khai báo bằng `vim.lsp.config(...)` rồi
   `vim.lsp.enable({...})`. Server cài bằng pacman / npm (ví dụ `lua-language-server`,
@@ -65,7 +65,7 @@ help: `:help` rồi `/từ khoá`.
   liệu, `Ctrl+]` nhảy tới định nghĩa, `[d` / `]d` lỗi trước / sau.
 - Kiểm tra: `:checkhealth vim.lsp`.
 
-### Giai đoạn 5 · Gợi ý khi gõ (completion)
+### Giai đoạn 5 · Gợi ý khi gõ (completion) (xong 2026-11-17: autocomplete có sẵn của Neovim 0.12)
 
 - Học: completion có sẵn của LSP (`vim.lsp.completion`) hoặc plugin blink.cmp.
 - Thêm: Tab / Enter chọn gợi ý, snippet.

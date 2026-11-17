@@ -12,6 +12,10 @@
       "rev": "cd434e2273750160e81511192f8801d838a506c8",
       "src": "https://github.com/nvim-mini/mini.indentscope"
     },
+    "nvim-lspconfig": {
+      "rev": "6a3ddecf60e19f164390308f502e67f3199f58e8",
+      "src": "https://github.com/neovim/nvim-lspconfig"
+    },
     "nvim-web-devicons": {
       "rev": "0dc0cfb0c6858041174a53c7aa4adaf65e994b3c",
       "src": "https://github.com/nvim-tree/nvim-web-devicons"
