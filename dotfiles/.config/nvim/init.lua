@@ -180,13 +180,25 @@ vim.keymap.set("n", "<leader>o", "<cmd>NvimTreeFindFile<CR>", { desc = "Show thi
 -- Status line and tabs (lualine): mode, git branch, file, errors at the bottom;
 -- open files (buffers) as tabs at the top. Shift+h / Shift+l switch, Space x closes.
 vim.opt.showmode = false  -- lualine shows the mode already (no second -- INSERT --)
+vim.opt.winbar = " "      -- An empty bar at the top of each window: a gap below the tabs
 require("lualine").setup({
     options = {
         theme = "auto",  -- follow the colour scheme (catppuccin-mocha)
         globalstatus = true,   -- one status line for the whole screen, not one per split
     },
     tabline = {
-        lualine_a = { "buffers" },  -- left: every open file
+        lualine_a = {                -- left: every open file
+            {
+                "buffers",
+                buffers_color = {
+                    active = "lualine_a_normal",    -- Tab you are on: bright, like the mode box
+                    inactive = "lualine_b_normal",  -- Other tabs: grey box instead of no background
+                },
+                symbols = { alternate_file = "" },  -- No # before the previously viewed file
+                -- Readable names when the tree or the finder has the cursor (not NvimTree_1)
+                filetype_names = { NvimTree = "Files", fzf = "Search" },
+            },
+        },
         lualine_z = { "tabs" },     -- right: Vim tab pages, when there is more than one
     },
 })
