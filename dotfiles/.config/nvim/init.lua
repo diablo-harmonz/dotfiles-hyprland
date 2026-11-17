@@ -1,3 +1,7 @@
+-- File tree (nvim-tree) replaces the builts-in netrw: turn netrw off before anything loads
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
 -- Own Neovim config, written by hand one stage at a time (roadmap: docs/neovim.md).
 -- Empty on purpose: Neovim starts exactly as shipped. VS Code is the fallback meanwhile.
 --
@@ -31,7 +35,6 @@ vim.g.mapleader = " "
 -- Keymaps: vim.keymap.set(mode, keys, action, { desc = "what it does" })
 vim.keymap.set("n", "<leader>w", "<cmd>write<CR>", { desc = "Save file" })
 vim.keymap.set("n", "<leader>q", "<cmd>quit<CR>", { desc = "Close window" })
-vim.keymap.set("n", "<leader>e", "<cmd>Explore<CR>", { desc = "File browser" })
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
 vim.keymap.set("i", "jk", "<Esc>", { desc = "Leave Insert mode" })  -- Esc is far away
 
@@ -63,7 +66,11 @@ vim.pack.add({
     "https://github.com/nvim-tree/nvim-web-devicons", -- File icons for it
     "https://github.com/nvim-mini/mini.indentscope",  -- Line beside the current block
     "https://github.com/neovim/nvim-lspconfig",       -- Ready-made language server configs
+    "https://github.com/nvim-tree/nvim-tree.lua",      -- File tree on the left
+    "https://github.com/nvim-lualine/lualine.nvim",    -- Status line and buffer tabs
+    "https://github.com/b0o/incline.nvim",             -- File name in each window's corner
 })
+
 
 -- Colour scheme
 require("catppuccin").setup({
@@ -106,7 +113,7 @@ indentscope.setup({
 })
 -- No line in places that are not code: help pages, the fuzzy finder, terminals
 vim.api.nvim_create_autocmd("FileType", {
-    pattern = { "help", "fzf", "netrw" },
+    pattern = { "help", "fzf", "netrw", "NvimTree" },
     callback = function() vim.b.miniindentscope_disable = true end,
 })
 vim.api.nvim_create_autocmd("TermOpen", {
@@ -159,3 +166,34 @@ vim.api.nvim_create_autocmd("LspAttach", {
         -- [d / ]d previous / next error · Ctrl+o back after gd
     end,
 })
+
+-- File tree (stage 8): like the VS Code explorer. Space e opens/closes it,
+-- Space o shows the current file in it. Inside: g? lists the keys.
+require("nvim-tree").setup({
+    view = { width = 30 },              -- columns wide
+    renderer = { group_empty = true },  -- show a/b/c on one line when folders hold one folder
+    git = { ignore = true },            -- hide what .gitignore ignores (target/, node_modules/)
+})
+vim.keymap.set("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file tree" })
+vim.keymap.set("n", "<leader>o", "<cmd>NvimTreeFindFile<CR>", { desc = "Show this file in the tree" })
+
+-- Status line and tabs (lualine): mode, git branch, file, errors at the bottom;
+-- open files (buffers) as tabs at the top. Shift+h / Shift+l switch, Space x closes.
+vim.opt.showmode = false  -- lualine shows the mode already (no second -- INSERT --)
+require("lualine").setup({
+    options = {
+        theme = "auto",  -- follow the colour scheme (catppuccin-mocha)
+        globalstatus = true,   -- one status line for the whole screen, not one per split
+    },
+    tabline = {
+        lualine_a = { "buffers" },  -- left: every open file
+        lualine_z = { "tabs" },     -- right: Vim tab pages, when there is more than one
+    },
+})
+vim.keymap.set("n", "<S-l>", "<cmd>bnext<CR>", { desc = "Next buffer" })
+vim.keymap.set("n", "<S-h>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
+vim.keymap.set("n", "<leader>x", "<cmd>bdelete<CR>", { desc = "Close buffer" })
+
+-- File name in the top-right corner of each window (incline); hidden when the cursor
+-- is on that line, so it never covers code
+require("incline").setup({ hide = { cursorline = true } })

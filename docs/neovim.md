@@ -80,11 +80,11 @@ help: `:help` rồi `/từ khoá`.
 - Thêm: gitsigns (dòng thay đổi bên lề, xem / hoàn tác từng đoạn), mở lazygit trong
   Neovim (Space g g).
 
-### Giai đoạn 8 · Cây thư mục
+### Giai đoạn 8 · Cây thư mục (xong 2026-11-17: nvim-tree)
 
 - Thay netrw bằng oil.nvim (sửa thư mục như sửa file) hoặc neo-tree (cây bên trái).
 
-### Giai đoạn 9 · Thanh trạng thái và menu phím
+### Giai đoạn 9 · Thanh trạng thái và menu phím (thanh trạng thái + tab xong 2026-11-17: lualine, incline; còn which-key)
 
 - Thêm: thanh trạng thái (mini.statusline hoặc lualine), which-key (bấm Space hiện menu
   các phím đã đặt).
