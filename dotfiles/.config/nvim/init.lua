@@ -31,6 +31,7 @@ vim.keymap.set("n", "<leader>w", "<cmd>write<CR>", { desc = "Save file" })
 vim.keymap.set("n", "<leader>q", "<cmd>quit<CR>", { desc = "Close window" })
 vim.keymap.set("n", "<leader>e", "<cmd>Explore<CR>", { desc = "File browser" })
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
+vim.keymap.set("i", "jk", "<Esc>", { desc = "Leave Insert mode" })  -- Esc is far away
 
 -- Move between split windows with Ctrl + h/j/k/l
 vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Window left" })
