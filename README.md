@@ -89,6 +89,7 @@ to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#
 | Notifications, OSD | swaync: compact translucent cards, control center with a media player card; OSD popups for volume and brightness |
 | Files | Nautilus (GUI), yazi (terminal) |
 | Editor | Neovim with an own config built stage by stage (`dotfiles/.config/nvim`, roadmap `docs/neovim.md`); VS Code as the fallback |
+| Claude Code | Status line: folder, git branch, model, context bar, 5-hour / 7-day plan usage (`dotfiles/.claude/statusline.sh`; `setup/link-dotfiles.sh` adds the `statusLine` entry to `~/.claude/settings.json`) |
 | Wallpaper, colors | awww, Matugen |
 | Lock, idle, night light | hyprlock, hypridle, hyprsunset |
 | Power menu | wlogout via `bin/power-menu`: Lock, Shutdown, Suspend, Reboot, Logout, BIOS over the blurred desktop |

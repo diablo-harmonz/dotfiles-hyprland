@@ -6,6 +6,9 @@
 #   bin/<script>              -> ~/.local/bin/<script>
 #   dotfiles/icons/<icon>.svg -> ~/.local/share/icons/hicolor/scalable/status/<icon>.svg
 #   dotfiles/applications/*.desktop -> ~/.local/share/applications/
+#   dotfiles/.claude/statusline.sh -> ~/.claude/statusline.sh (Claude Code status line;
+#                                the statusLine entry is added to ~/.claude/settings.json
+#                                when it has none, the rest of that file is left alone)
 #   ../wallpapers             -> ~/Pictures/Wallpapers (private repo cloned next to
 #                                this one; skipped when it is not there)
 # Existing files/dirs that are not already the right symlink are moved to
@@ -51,6 +54,24 @@ done
 for src in "$REPO"/bin/*; do
     _link "$src" "$HOME/.local/bin/$(basename -- "$src")"
 done
+
+# Claude Code status line. settings.json stays out of this public repo (it holds
+# personal settings): only the statusLine entry is added, and only when missing.
+_link "$REPO/dotfiles/.claude/statusline.sh" "$HOME/.claude/statusline.sh"
+CLAUDE_SETTINGS=$HOME/.claude/settings.json
+if command -v jq >/dev/null; then
+    [ -s "$CLAUDE_SETTINGS" ] || echo '{}' > "$CLAUDE_SETTINGS"
+    if jq -e '.statusLine' "$CLAUDE_SETTINGS" >/dev/null; then
+        echo ":: ok       statusLine in $CLAUDE_SETTINGS"
+    else
+        tmp=$(mktemp)
+        jq '. + {statusLine: {type: "command", command: "~/.claude/statusline.sh", padding: 0}}' \
+            "$CLAUDE_SETTINGS" > "$tmp" && mv -- "$tmp" "$CLAUDE_SETTINGS"
+        echo ":: added    statusLine in $CLAUDE_SETTINGS"
+    fi
+else
+    echo ":: skipped  Claude Code statusLine (install jq, then run this again)"
+fi
 
 # Wallpapers live in their own private repo next to this one (third-party art
 # must not go into this public repo)
