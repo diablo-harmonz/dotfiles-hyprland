@@ -135,6 +135,8 @@ Defined in `dotfiles/.config/hypr/conf/binds.lua`.
 | SUPER + ALT + arrows | Resize the window (hold to repeat) |
 | SUPER + 1…0 | Go to workspace 1–10 |
 | SUPER + SHIFT + 1…0 | Move window to workspace 1–10 |
+| SUPER + CTRL + ← / → | Previous / next workspace in number order (this monitor, empty ones too) |
+| SUPER + CTRL + SHIFT + ← / → | Take the window to the previous / next workspace and follow it |
 | SUPER + mouse wheel | Next / previous workspace |
 | SUPER + left / right drag | Move / resize window |
 | CTRL + SHIFT + Down | Show or hide the scratchpad workspace |

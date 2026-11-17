@@ -106,6 +106,14 @@ end
 -- Special workspace (scratchpad): slides in over the current workspace, again to hide it
 hl.bind("CTRL + SHIFT + down", hl.dsp.workspace.toggle_special("scratch"))
 
+-- Previous / next workspace in number order on this monitor (empty ones too):
+-- mainMod + CTRL + left / right
+hl.bind(mainMod .. " + CTRL + left",  hl.dsp.focus({ workspace = "r-1" }))
+hl.bind(mainMod .. " + CTRL + right", hl.dsp.focus({ workspace = "r+1" }))
+-- Take the active window along: mainMod + CTRL + SHIFT + left / right
+hl.bind(mainMod .. " + CTRL + SHIFT + left",  hl.dsp.window.move({ workspace = "r-1" }))
+hl.bind(mainMod .. " + CTRL + SHIFT + right", hl.dsp.window.move({ workspace = "r+1" }))
+
 -- Scroll through existing workspaces with mainMod + scroll
 hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
 hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
