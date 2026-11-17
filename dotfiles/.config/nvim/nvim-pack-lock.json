@@ -8,6 +8,10 @@
       "rev": "82ddfe6efc56480c052fd213e0cbb2f024dfd754",
       "src": "https://github.com/ibhagwan/fzf-lua"
     },
+    "mini.indentscope": {
+      "rev": "cd434e2273750160e81511192f8801d838a506c8",
+      "src": "https://github.com/nvim-mini/mini.indentscope"
+    },
     "nvim-web-devicons": {
       "rev": "0dc0cfb0c6858041174a53c7aa4adaf65e994b3c",
       "src": "https://github.com/nvim-tree/nvim-web-devicons"

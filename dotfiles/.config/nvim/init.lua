@@ -59,6 +59,7 @@ vim.pack.add({
     { src = "https://github.com/catppuccin/nvim", name = "catppuccin" },
     "https://github.com/ibhagwan/fzf-lua",            -- Fuzzy finder
     "https://github.com/nvim-tree/nvim-web-devicons", -- File icons for it
+    "https://github.com/nvim-mini/mini.indentscope",  -- Line beside the current block
 })
 
 -- Colour scheme
@@ -87,3 +88,24 @@ vim.keymap.set("n", "<leader>/", fzf.live_grep, { desc = "Search text in project
 vim.keymap.set("n", "<leader>b", fzf.buffers, { desc = "Open buffers" })
 vim.keymap.set("n", "<leader>fr", fzf.oldfiles, { desc = "Recent files" })
 vim.keymap.set("n", "<leader>fh", fzf.helptags, { desc = "Search help" })
+
+-- Current block (mini.indentscope): a line runs down the left of the block the cursor is
+-- in. It also adds two text objects: ii = inside the block, ai = the block with its
+-- first and last line (yii copies a function body, dai deletes a whole if).
+local indentscope = require("mini.indentscope")
+indentscope.setup({
+    symbol = "│",
+    draw = {
+        delay = 50,                                       -- ms before the line appears
+        animation = indentscope.gen_animation.none(),     -- draw it at once, no sliding
+    },
+    options = { try_as_border = true },  -- on a line like `fn run() {`, show the block below
+})
+-- No line in places that are not code: help pages, the fuzzy finder, terminals
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = { "help", "fzf", "netrw" },
+    callback = function() vim.b.miniindentscope_disable = true end,
+})
+vim.api.nvim_create_autocmd("TermOpen", {
+    callback = function() vim.b.miniindentscope_disable = true end,
+})
