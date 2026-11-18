@@ -168,6 +168,9 @@ window and, next to it, CPU and RAM use.
 `SUPER+W` opens a wallpaper picker (`bin/wallpaper`, rofi with thumbnails), `SUPER+SHIFT+W`
 picks one at random. Wallpapers come from `~/Pictures/Wallpapers`; this repo ships none
 (they are third-party art, kept in a private repo).
+The fastfetch logo works the same way: put a picture named `logo.*` in `fastfetch/` of
+that repo (linked to `~/Pictures/fastfetch`) and fastfetch shows it in kitty instead of the
+distro logo; without one it keeps the small distro logo.
 
 After each change Matugen (`dotfiles/.config/matugen`) generates matching colors for
 rofi, Waybar, kitty, the Control Center, the Hyprland borders, hyprlock, wlogout, GTK 3, GTK 4, swaync, Qt (qt6ct), KDE apps,

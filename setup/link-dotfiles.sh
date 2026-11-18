@@ -11,6 +11,7 @@
 #                                when it has none, the rest of that file is left alone)
 #   ../wallpapers             -> ~/Pictures/Wallpapers (private repo cloned next to
 #                                this one; skipped when it is not there)
+#   ../wallpapers/fastfetch   -> ~/Pictures/fastfetch (own fastfetch logo, see .zshrc)
 # Existing files/dirs that are not already the right symlink are moved to
 # <name>.bak-<timestamp>. Safe to run again.
 
@@ -78,6 +79,9 @@ fi
 WALLPAPERS=$(dirname -- "$REPO")/wallpapers
 if [ -d "$WALLPAPERS" ]; then
     _link "$WALLPAPERS" "$HOME/Pictures/Wallpapers"
+    # The fastfetch logo picture is kept in the same private repo (a subfolder, so the
+    # wallpaper picker, which only lists the top folder, does not show it)
+    [ -d "$WALLPAPERS/fastfetch" ] && _link "$WALLPAPERS/fastfetch" "$HOME/Pictures/fastfetch"
 else
     echo ":: skipped  ~/Pictures/Wallpapers (clone the wallpapers repo to $WALLPAPERS first)"
 fi

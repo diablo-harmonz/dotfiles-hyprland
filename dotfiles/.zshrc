@@ -123,6 +123,19 @@ command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
 # Neovim for vim/vi (own config built step by step: dotfiles/.config/nvim, docs/neovim.md)
 alias vim=nvim vi=nvim
 
+# Fastfetch logo: an own picture instead of the distro logo when one is in
+# ~/Pictures/fastfetch/ (logo.png, logo.jpg, ...). That folder links to fastfetch/ in the
+# private wallpapers repo (setup/link-dotfiles.sh), never into this public repo. kitty shows
+# it as a real image; without a picture, or outside kitty, the small distro logo stays.
+fastfetch() {
+  local img=( ~/Pictures/fastfetch/logo.*(N.) )
+  if [[ -n $img && $TERM == xterm-kitty ]]; then
+    command fastfetch --logo-type kitty --logo "$img[1]" --logo-width 18 "$@"
+  else
+    command fastfetch "$@"
+  fi
+}
+
 # Fastfetch: only in the welcome terminal opened at login (hypr/conf/startup-layout.lua);
 # unset so shells started from it do not run it again. Type `fastfetch` any time.
 if [[ -n $WELCOME_FASTFETCH ]]; then
