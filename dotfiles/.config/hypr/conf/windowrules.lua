@@ -19,6 +19,25 @@ hl.layer_rule({ match = { namespace = "swaync-control-center" },      blur = tru
 hl.layer_rule({ match = { namespace = "logout_dialog" },              blur = true })   -- wlogout (bin/power-menu)
 hl.layer_rule({ match = { namespace = "control-center" }, blur = true, ignore_alpha = 0.3 })   -- bin/control-center (the full-screen backdrop is transparent)
 
+-- Translucent apps: add a line to make an app see-through (blur shows the wallpaper behind).
+-- class   = the window class: focus the app, then run `hyprctl activewindow -j | jq -r .class`
+--           in a terminal within a few seconds, or see them all with `hyprctl clients`
+--           (navi, Ctrl+G: "window class")
+-- active  = opacity while focused, inactive = while another window is focused (1 = solid)
+-- This fades the whole window, text included. Terminals like kitty fade only their
+-- background with their own setting (background_opacity), so they are not listed here.
+-- Reload with SUPER+CTRL+R; the change also applies to windows that are already open.
+local translucent = {
+    { class = "org.telegram.desktop", active = 0.85, inactive = 0.75 },
+}
+for _, app in ipairs(translucent) do
+    hl.window_rule({
+        name    = "translucent-" .. app.class,
+        match   = { class = "^(" .. app.class:gsub("%.", "\\.") .. ")$" },
+        opacity = string.format("%.2f %.2f", app.active, app.inactive),
+    })
+end
+
 -- cava audio visualizer (bin/cava-toggle, SUPER+A): tall floating panel
 hl.window_rule({
     name  = "cava-visualizer",

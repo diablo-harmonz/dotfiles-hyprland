@@ -134,6 +134,14 @@ systemctl restart "fcitx5-lotus-server@$USER"
 # Open the Control Center
 control-center
 
+% hyprland, window class, transparency
+
+# Window class of an app (for the translucent list in hypr/conf/windowrules.lua): focus the app within 3 seconds
+sleep 3 && hyprctl activewindow -j | jq -r .class
+
+# Window classes of all open windows
+hyprctl clients -j | jq -r '.[] | "\(.class)  \(.title)"'
+
 % system, info
 
 # Live system view (CPU, RAM, temperatures, battery)
