@@ -192,6 +192,16 @@ git -C ~/Documents/personal/dotfiles-hyprland status --short
 # Relink the dotfiles into $HOME (safe to run again)
 ~/Documents/personal/dotfiles-hyprland/setup/link-dotfiles.sh
 
+# Git setup status: identities, SSH keys, github-personal / github-work aliases (changes nothing)
+~/Documents/personal/dotfiles-hyprland/setup/setup-git.sh check
+
+# Guided Git setup (asks 1 account or 2 first, then before every change)
+~/Documents/personal/dotfiles-hyprland/setup/setup-git.sh
+
+# Guided Git setup for one given account, no first question
+~/Documents/personal/dotfiles-hyprland/setup/setup-git.sh <profile>
+$ profile: printf 'personal\nwork\nall\n'
+
 # Check SSH and identity for the personal GitHub account in this repo
 personal-verify
 

@@ -52,10 +52,15 @@ try it in a VM first.
    - switches the login shell to zsh
    - runs `setup/install-system-files.sh` and `setup/install-pacman-hooks.sh`
    - takes the first Timeshift snapshot
-3. Clone the private wallpapers repo next to this one:
+3. `setup/setup-git.sh`: guided Git setup. It first asks for one account (personal only) or
+   two (personal + work), one identity per folder (`~/Documents/personal`,
+   `~/Documents/work`): defaults, `~/.gitconfig-<profile>` with `includeIf`, an SSH key and a
+   `github-<profile>` alias per account, then it shows the public key to paste on GitHub and
+   tests the connection. It asks before every change; `setup/setup-git.sh check` only reports.
+4. Clone the private wallpapers repo next to this one (needs the personal key from step 3):
    `git clone git@github-personal:diablo-harmonz/wallpapers.git ~/Documents/personal/wallpapers`
-4. `setup/link-dotfiles.sh` (see below), then `wallpaper restore` to generate the colors.
-5. Log out and in again on TTY1.
+5. `setup/link-dotfiles.sh` (see below), then `wallpaper restore` to generate the colors.
+6. Log out and in again on TTY1.
 
 ## Symlink install
 
