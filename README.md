@@ -20,6 +20,7 @@ Only Arch is supported. `setup/setup-fedora.sh`, `setup/setup-opensuse.sh` and t
 | `bin/` | Scripts linked into `~/.local/bin` (see [Scripts](#scripts)) |
 | `setup/` | Arch install scripts, system files and the pacman hook |
 | `docs/plan.md` | Setup plan and notes for this machine (Vietnamese) |
+| `docs/sleep.md` | Lid close and suspend: unplug the mouse receiver, finding what wakes the laptop (Vietnamese) |
 
 ## Installing Arch (boot inside the encrypted root)
 
