@@ -6,6 +6,28 @@ hl.monitor({
     scale    = 1,
 })
 
+-- Lid closed with an external monitor ("docked", see bin/display-toggle lid-close): keep the
+-- laptop screen off in the rules themselves. Hyprland reloads this config on its own when a
+-- sourced file changes (Matugen rewrites colors.lua on every wallpaper change); without this
+-- the reload turned the laptop screen back on and display-toggle turned it off again two
+-- seconds later, so the workspaces jumped to the laptop screen and back.
+local function lid_is_closed()
+    local f = io.open("/proc/acpi/button/lid/LID/state", "r")
+    if not f then return false end
+    local state = f:read("*a") or ""
+    f:close()
+    return state:find("closed") ~= nil
+end
+local function external_connected()
+    for _, m in ipairs(hl.get_monitors()) do
+        if m.name ~= "eDP-1" then return true end
+    end
+    return false
+end
+if lid_is_closed() and external_connected() then
+    hl.monitor({ output = "eDP-1", disabled = true, mirror = "" })
+end
+
 -- bin/display-toggle (Fn+F7) turns the external monitor off and on itself and marks that
 -- with this file; its own monitor events must not trigger the handlers below.
 local busy_file = (os.getenv("XDG_RUNTIME_DIR") or "/tmp") .. "/display-toggle.busy"

@@ -10,7 +10,8 @@ output_path = '~/.config/rofi/colors.rasi'
 [templates.waybar]
 input_path = '~/.config/matugen/templates/waybar.css'
 output_path = '~/.config/waybar/colors.css'
-post_hook = 'pkill -SIGUSR2 -x waybar || true'
+# No SIGUSR2 reload: Waybar 0.15 often crashed on it (hyprland/workspaces, 2026-11-18).
+# "reload_style_on_change" in waybar/config already reloads the CSS and its @import files.
 
 [templates.kitty]
 input_path = '~/.config/matugen/templates/kitty.conf'

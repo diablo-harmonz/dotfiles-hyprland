@@ -53,6 +53,9 @@ set_wallpaper() {   # $1 = image, $2 = transition type
     ensure_daemon
     awww img "$img" --transition-type "${2:-grow}" --transition-duration 1.2 --transition-fps 60
     ln -sfn "$img" "$CURRENT"
+    # Recolor after the transition: Matugen and the apps reloading their colors (kitty,
+    # swaync, Waybar, Hyprland...) load the CPU and made the transition stutter
+    sleep 1.3
     colors "$img"
 }
 
