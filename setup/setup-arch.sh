@@ -311,8 +311,54 @@ sudo timeshift --create --comments "Fresh Arch + Hyprland setup" --tags O
 
 
 # ----------------------------------------------------------
-# Completed
+# Next steps: Git, wallpapers, dotfiles (each one asks first; all can also be run later)
 # ----------------------------------------------------------
 
+SETUP_DIR=$(dirname "$(realpath "$0")")
+REPO_DIR=$(dirname "$SETUP_DIR")
+WALLPAPERS_DIR=$(dirname "$REPO_DIR")/wallpapers
+ask_next() { local a; read -r -p ":: $1 [Y/n] " a; [[ ! "$a" =~ ^[Nn]$ ]]; }
+
 echo ":: Installation complete."
-echo ":: Ready to install the dotfiles with the Dotfiles Installer."
+echo
+
+# Git: one or two GitHub accounts, SSH keys, aliases (setup-git.sh asks 1 or 2 itself)
+if ask_next "Set up Git and the GitHub SSH keys now (setup/setup-git.sh)?"; then
+    "$SETUP_DIR/setup-git.sh"
+else
+    echo ":: Later: $SETUP_DIR/setup-git.sh"
+fi
+
+# Wallpapers: private repo, cloned next to this one (setup/link-dotfiles.sh looks for it
+# there). The GitHub account is asked, not written here, so a new username still works.
+if [ -d "$WALLPAPERS_DIR/.git" ]; then
+    echo ":: Wallpapers repo already at $WALLPAPERS_DIR"
+elif ask_next "Clone your private wallpapers repo to $WALLPAPERS_DIR?"; then
+    # Two-account setup: clone with the personal alias; one account: plain github.com
+    if grep -qE '^Host[[:space:]]+github-personal([[:space:]]|$)' ~/.ssh/config 2>/dev/null; then
+        host=github-personal
+    else
+        host=github.com
+    fi
+    read -r -p ":: GitHub username that owns it: " gh_user
+    read -r -p ":: Repository name [wallpapers]: " gh_repo
+    gh_repo=${gh_repo:-wallpapers}
+    if [ -n "$gh_user" ]; then
+        git clone "git@$host:$gh_user/$gh_repo.git" "$WALLPAPERS_DIR" ||
+            echo ":: Clone failed; later: git clone git@$host:$gh_user/$gh_repo.git $WALLPAPERS_DIR"
+    else
+        echo ":: No username: skipped"
+    fi
+else
+    echo ":: Later: git clone git@github.com:USER/wallpapers.git $WALLPAPERS_DIR"
+fi
+
+# Dotfiles: link the repo into $HOME
+if ask_next "Link the dotfiles into \$HOME now (setup/link-dotfiles.sh)?"; then
+    "$SETUP_DIR/link-dotfiles.sh"
+else
+    echo ":: Later: $SETUP_DIR/link-dotfiles.sh"
+fi
+
+echo
+echo ":: Done. Log out and log in on TTY1: Hyprland starts and shows the wallpaper and colors."

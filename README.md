@@ -52,13 +52,21 @@ try it in a VM first.
    - switches the login shell to zsh
    - runs `setup/install-system-files.sh` and `setup/install-pacman-hooks.sh`
    - takes the first Timeshift snapshot
-3. `setup/setup-git.sh`: guided Git setup. It first asks for one account (personal only) or
-   two (personal + work), one identity per folder (`~/Documents/personal`,
-   `~/Documents/work`): defaults, `~/.gitconfig-<profile>` with `includeIf`, an SSH key and a
-   `github-<profile>` alias per account, then it shows the public key to paste on GitHub and
-   tests the connection. It asks before every change; `setup/setup-git.sh check` only reports.
-4. Clone the private wallpapers repo next to this one (needs the personal key from step 3):
-   `git clone git@github-personal:diablo-harmonz/wallpapers.git ~/Documents/personal/wallpapers`
+   - then offers steps 3 to 5 one by one (Enter = yes, n = later), so a fresh install is
+     one command; each script can also be run on its own later
+3. `setup/setup-git.sh`: guided Git setup. It first asks for one GitHub account or two:
+   - one: plain Git, the identity in `~/.gitconfig`, the key `~/.ssh/id_ed25519`; clone
+     anywhere with `git clone git@github.com:USER/REPO.git`
+   - two (personal + work): one identity per folder (`~/Documents/personal`,
+     `~/Documents/work`, `~/.gitconfig-<profile>` with `includeIf`), a key and a
+     `github-<profile>` alias per account; clone with `git@github-<profile>:USER/REPO.git`
+
+   Then it shows the public key to paste on GitHub and tests the connection. Names, emails
+   and usernames are typed in, nothing is stored in the script. It asks before every
+   change; `setup/setup-git.sh check` only reports.
+4. Clone your private wallpapers repo next to this one (setup-arch.sh asks for the GitHub
+   username): `git clone git@github.com:USER/wallpapers.git ~/Documents/personal/wallpapers`
+   (with two accounts: `git@github-personal:USER/...`)
 5. `setup/link-dotfiles.sh` (see below), then `wallpaper restore` to generate the colors.
 6. Log out and in again on TTY1.
 
