@@ -36,6 +36,34 @@ sudo udevadm control --reload
 
 ---
 
+## Gập nắp dùng màn hình ngoài: đánh thức bằng chuột hoặc bàn phím
+
+Gập nắp khi cắm màn hình ngoài thì máy không ngủ ngay (logind coi là "docked", xem
+bin/display-toggle). Để lâu không dùng thì máy vẫn **ngủ thật** (khoá sau 10 phút, tắt màn
+hình sau 11 phút, rồi ngủ), như vậy là đúng ý: rời bàn thì máy ngủ. Lúc này nắp đang gập nên
+phải đánh thức bằng thiết bị ngoài:
+
+| Thiết bị | Đánh thức máy đang ngủ | Ghi chú |
+|---|---|---|
+| Chuột Logitech G903 (đầu thu USB) | **Được** (đã thử 2026-11-18) | Đầu thu phải đang cắm, chuột phải đang bật; click hoặc di chuột |
+| Bàn phím USB có dây | **Được** theo lý thuyết, chưa thử (Linux tự bật quyền đánh thức cho bàn phím USB) | Cắm thẳng vào cổng của laptop; qua hub, dock hay cổng USB của màn hình thì hub đó cũng phải cho phép đánh thức (xem bên dưới) |
+| Bàn phím, touchpad Bluetooth (ProtoArc XK01) | **Không được** | Chip Bluetooth MediaTek (USB `0e8d:e025`, sau hub nội `3-5`) không hỗ trợ đánh thức từ xa: không có `power/wakeup` trong sysfs. Chỉ dùng được sau khi máy đã dậy |
+| Nút nguồn laptop | **Được** | Bấm nhẹ, không giữ |
+
+Máy dậy thì màn hình ngoài sáng lại, hiện hyprlock; bàn phím Bluetooth kết nối lại sau vài
+giây, gõ mật khẩu bình thường.
+
+Thử nhanh: gập nắp, chạy `systemctl suspend` trên màn hình ngoài, đợi 10 giây rồi click chuột
+(hoặc bấm một phím của bàn phím có dây).
+
+Bàn phím có dây không đánh thức được (cắm qua hub): xem thiết bị và quyền đánh thức bằng lệnh ở
+bước 4 của mục dưới (bỏ điều kiện `= enabled` để thấy cả thiết bị đang tắt), tìm hub mà bàn phím
+cắm vào rồi bật thử `echo enabled | sudo tee /sys/bus/usb/devices/<hub>/power/wakeup`; được thì
+giữ lâu dài bằng một udev rule theo `idVendor` / `idProduct` của hub, giống mẫu ở trên.
+
+Như chuột: bỏ máy vào túi thì rút bàn phím có dây (và đầu thu chuột) ra, không thì bị đè cũng
+làm máy tự thức dậy.
+
 ## Tìm thiết bị đánh thức máy
 
 Các bước đã dùng ngày 2026-11-17, dùng lại được khi máy lại tự thức.
