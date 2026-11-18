@@ -38,6 +38,10 @@ if [[ -e /usr/share/nvm/init-nvm.sh ]]; then
 fi
 unsetopt correct
 
+# Command colors in the prompt follow the wallpaper (Matugen writes this file; see
+# dotfiles/.config/matugen/templates/zsh-highlight.zsh)
+[[ ! -r ~/.config/zsh/highlight-colors.zsh ]] || source ~/.config/zsh/highlight-colors.zsh
+
 # History (on top of Manjaro's: 10000 entries in ~/.zhistory, no duplicates, lines
 # starting with a space are not saved): share it live between open terminals, and
 # show a `!!`-style expansion before running it
