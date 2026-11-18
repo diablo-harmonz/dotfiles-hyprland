@@ -3,7 +3,7 @@
 
 # Kế hoạch setup ThinkPad T14 Gen 6
 
-Cập nhật lần cuối: Nov 12, 2026 · @diablo harmonz
+Cập nhật lần cuối: Nov 18, 2026 · @diablo harmonz
 
 ## Khi màn hình đen sau khi khóa hoặc mở máy
 
@@ -42,6 +42,12 @@ Manjaro KDE đã cài xong và chạy ổn; Hyprland đang chạy thử trên Ma
 - [x] grub-btrfs: GRUB có mục Manjaro Linux snapshots, menu GRUB hiện 5 giây
 - [x] BIOS và firmware SSD đã là bản mới nhất (fwupd); firmware Wi-Fi/Bluetooth MediaTek có sẵn
 - [x] memtest86+ đã chạy 2 vòng (48 phút) ngày 11-08 và 4 vòng (2 giờ 26 phút) ngày 11-10, Errors = 0 cả hai lần
+- [x] 2026-11-17/18, gập máy và ngủ: máy tự thức dậy do đầu thu chuột G903 (GPIO 58 → USB XHC0); rút đầu thu (hoặc tắt chuột) trước khi gập thì ngủ yên, hao ~0,4 %/giờ (docs/sleep.md). Ngủ đông khi gập lâu: đã lên kế hoạch cho Arch (mục bên dưới)
+- [x] 2026-11-18, gập nắp khi cắm màn hình ngoài: màn hình laptop tắt, màn hình ngoài thành màn hình duy nhất, giữ workspace đang xem, có hình nền; mở nắp về bố cục mở rộng (bin/display-toggle lid-close / lid-open, conf/monitor.lua giữ laptop tắt cả khi Hyprland tự nạp lại config)
+- [x] 2026-11-18, cửa sổ nổi: SUPER + SHIFT + mũi tên trượt mượt, tăng tốc dần; SUPER + hai mũi tên chéo focus cửa sổ nổi ở góc đó (conf/float-move.lua)
+- [x] 2026-11-18, Lotus: `w` đứng một mình ra ư (W2U=Everywhere); sửa config Lotus xong phải nạp lại riêng: `busctl --user call org.fcitx.Fcitx5 /controller org.fcitx.Fcitx.Controller1 ReloadAddonConfig s lotus` (fcitx5-remote -r không nạp lại Lotus)
+- [x] 2026-11-18, đổi hình nền: hiệu ứng mượt (tạo màu sau hiệu ứng), Waybar không còn crash (bỏ SIGUSR2), danh sách ứng dụng trong suốt (Telegram), màu lệnh zsh theo hình nền. Theme Telegram theo Matugen đã thử rồi bỏ (cần bấm Apply mỗi lần, máy hơi giật)
+- [x] 2026-11-18, sysupdate giữa tuần (đợt nhỏ: Firefox 160, Lotus 6.1.1, VS Code 1.146), dọn 16 gói mồ côi (~76 MB)
 
 ## Chuẩn bị bộ cài
 
@@ -49,7 +55,7 @@ Bộ cài phải sẵn sàng để cài lại trong một buổi khi cài lại;
 
 - [ ] Xuất danh sách gói: pacman -Qqen > ~/pkglist-repo.txt và pacman -Qqem > ~/pkglist-aur.txt (làm lại ngay trước khi cài lại, khi hệ thống đã ổn định)
 - [x] Kho GitHub Hyprland starter: đã fork thành dotfiles-hyprland, chạy trên Manjaro với Hyprland 0.56.2. Đã sửa lỗi cú pháp (gestures, pseudotile, togglesplit) và chuyển hẳn cấu hình sang định dạng Lua (hyprland.lua + conf/*.lua), nên Hyprland 0.57 bỏ .conf không còn ảnh hưởng. Đã kiểm tra nguồn: bản gốc khớp upstream mylinuxforwork/hyprland-starter; đã gỡ lệnh curl | bash, file AppImage và sửa bước cài yay trong setup-arch.sh
-- [x] Dotfiles Hyprland trong repo dotfiles-hyprland (đã push, 2026-11-12): kitty, zsh (bản sao manjaro-zsh-config trong repo nên dùng được trên Arch), bộ gõ fcitx5 + Lotus (gõ không gạch chân, Ctrl + Space), hình nền awww + trình chọn SUPER + W, màu theo hình nền bằng Matugen (rofi, Waybar, swaync, WezTerm, GTK, Qt, KDE), Waybar kiểu Hyprlust, rofi SUPER + Space, Nautilus, swaync, nm-applet, blueman, pavucontrol, hypridle (khoá 10 phút), caffeine SUPER + Shift + C, hyprsunset, clipboard SUPER + V (10 mục, 5 phút), preview ảnh chụp kiểu macOS, polkit agent, gnome-keyring, phím chụp và quay màn hình, hàng phím Fn, Fn+F7 màn hình ngoài, thông báo chế độ nguồn. Mọi chữ trong code, config và thông báo viết bằng tiếng Anh
+- [x] Dotfiles Hyprland trong repo dotfiles-hyprland (đã push, 2026-11-12): kitty, zsh (bản sao manjaro-zsh-config trong repo nên dùng được trên Arch), bộ gõ fcitx5 + Lotus (gõ không gạch chân, Ctrl + Space), hình nền awww + trình chọn SUPER + W, màu theo hình nền bằng Matugen (rofi, Waybar, swaync, kitty, GTK, Qt, KDE, màu lệnh trong zsh), Waybar kiểu Hyprlust, rofi SUPER + Space, Nautilus, swaync, nm-applet, blueman, pavucontrol, hypridle (khoá 10 phút), caffeine SUPER + Shift + C, hyprsunset, clipboard SUPER + V (10 mục, 5 phút), preview ảnh chụp kiểu macOS, polkit agent, gnome-keyring, phím chụp và quay màn hình, hàng phím Fn, Fn+F7 màn hình ngoài, thông báo chế độ nguồn. Mọi chữ trong code, config và thông báo viết bằng tiếng Anh
 - [ ] Dotfiles còn lại: trình soạn thảo. (Bộ gõ fcitx5 + Lotus đã có cấu hình trong repo)
 - [ ] Phần mềm công việc: Node, IDE/trình soạn thảo, Android Studio, công cụ khác (bổ sung dần)
 - [x] Hình nền: repo git riêng tư diablo-harmonz/wallpapers ở ~/Documents/personal/wallpapers, ~/Pictures/Wallpapers là symlink trỏ vào đó (link-dotfiles.sh tự tạo) (không đưa vào repo dotfiles công khai vì là tranh của tác giả khác); thêm hình mới thì git add, commit, push trong ~/Documents/personal/wallpapers

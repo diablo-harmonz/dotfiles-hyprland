@@ -94,7 +94,7 @@ to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#
 | Wallpaper, colors | awww, Matugen |
 | Lock, idle, night light | hyprlock, hypridle, hyprsunset |
 | Power menu | wlogout via `bin/power-menu`: Lock, Shutdown, Suspend, Reboot, Logout, BIOS over the blurred desktop |
-| Input method | fcitx5 with Lotus (Vietnamese), Bamboo as fallback |
+| Input method | fcitx5 with Lotus (Vietnamese, Telex; a lone `w` types ư everywhere, `ww` types w), Bamboo as fallback |
 | Clipboard | cliphist |
 | Screenshots, recording | grim, slurp, satty, wf-recorder |
 | Polkit, secrets | hyprpolkitagent, gnome-keyring |
@@ -171,8 +171,15 @@ picks one at random. Wallpapers come from `~/Pictures/Wallpapers`; this repo shi
 
 After each change Matugen (`dotfiles/.config/matugen`) generates matching colors for
 rofi, Waybar, kitty, the Control Center, the Hyprland borders, hyprlock, wlogout, GTK 3, GTK 4, swaync, Qt (qt6ct), KDE apps,
-Firefox, yazi, cava, btop, rmpc, yt-x and navi. The generated files are git-ignored; run `wallpaper restore` once
-after linking (Hyprland also runs it at login).
+Firefox, yazi, cava, btop, rmpc, yt-x, navi and the zsh command colors (syntax highlighting). The generated files are git-ignored; run `wallpaper restore` once
+after linking (Hyprland also runs it at login). The colors are made after the 1.2 s wallpaper
+transition so it stays smooth. Waybar picks up its new colors by itself
+(`reload_style_on_change`); it is never sent SIGUSR2, which crashed Waybar 0.15.
+
+Translucent apps: list them in `translucent` at the top of
+`dotfiles/.config/hypr/conf/windowrules.lua` (class, opacity focused / unfocused; Telegram
+is there). It fades the whole window, text included; kitty fades only its background with
+its own `background_opacity`. To find an app's class: navi (Ctrl+G), "window class".
 
 ## Firefox
 

@@ -106,7 +106,9 @@ Bấm **Ctrl + C** bất cứ lúc nào trước bước 5 để dừng, máy ch
 Script hỏi `Start the update?` → **y**. Từ đây là `yay -Syu` chạy thật:
 
 1. Nhập **mật khẩu** khi được hỏi.
-2. yay liệt kê gói và hỏi `Proceed with installation? [Y/n]` → **Enter** (= Yes).
+2. yay liệt kê gói và hỏi `Packages to exclude` (dòng `==>` có con trỏ nhấp nháy: máy
+   **đang chờ**, chưa cài gì) → **Enter**, không loại gói nào (loại gói = cập nhật nửa vời,
+   dễ hỏng máy). Rồi `Proceed with installation? [Y/n]` → **Enter** (= Yes).
 3. Với gói **AUR** (ví dụ yt-x, fcitx5-lotus), yay có thể hỏi về *diffs* / *PKGBUILD*:
    - `Diffs to show?` → gõ **A** (all) để xem thay đổi, đọc lướt xem nguồn tải có lạ không,
      bấm **q** để thoát phần xem. Muốn bỏ qua thì gõ **N**.
@@ -134,7 +136,27 @@ Script đọc lại toàn bộ log và chỉ ra:
 | `✔ No reboot needed` | Không cần làm gì | |
 
 Cuối cùng thử nhanh: Waybar, Control Center, đổi hình nền một lần (SUPER + W, để tạo lại
-màu), mở rmpc.
+màu), mở rmpc. Thêm tuỳ gói vừa cập nhật:
+
+- **fcitx5-lotus**: bộ gõ đang chạy vẫn là bản cũ trong bộ nhớ cho tới khi khởi động lại.
+  Đăng xuất / đăng nhập, hoặc ngay: `sudo systemctl restart fcitx5-lotus-server@$USER && fcitx5 -rd`.
+  Rồi gõ thử `w` → ư, `ww` → w (W2U=Everywhere trong `dotfiles/.config/fcitx5/conf/lotus.conf`).
+- **firefox** lên bản chính mới (ví dụ 159 → 160): mở lại, xem thanh tab dọc và thanh địa chỉ
+  (FF Ultima là CSS, có thể lệch; lỗi giao diện, để cuối tuần sửa).
+
+### Dọn gói mồ côi (tuỳ chọn)
+
+Gói mồ côi = cài làm phụ thuộc nhưng nay không gói nào cần (`pacman -Qdtq` liệt kê).
+Script chỉ hỏi gỡ những gói mồ côi có bản AUR mới (dòng **Leftovers** ở bước 2); số còn lại
+gỡ tay sau khi cập nhật:
+
+```
+sudo pacman -Rns $(pacman -Qdtq)
+```
+
+Đọc danh sách pacman in ra rồi **y**. Snapshot autosnap trước lần cập nhật vẫn chứa các gói
+này, lỡ gỡ nhầm thì khôi phục được. Lần dọn đầu (2026-11-18) gỡ 16 gói (~76 MB): thư viện KDE và Qt5
+cũ, ffmpeg4.4, flashrom, meson, …
 
 ---
 
