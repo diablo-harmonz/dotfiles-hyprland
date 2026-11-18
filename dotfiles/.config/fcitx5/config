@@ -47,13 +47,14 @@
 # [Hotkey/TogglePreedit]
 # 0=Control+Alt+P
 
-# [Behavior]
+[Behavior]
 # Activate input method by default
 # ActiveByDefault=False
 # Reset state on Focus In
 # resetStateWhenFocusIn=No
-# Share Input State
-# ShareInputState=No
+# Share Input State: All = one Vietnamese / English state for every window, so Lotus stays
+# on (or off) after switching windows (default No: each window remembers its own)
+ShareInputState=All
 # Show preedit in application
 # PreeditEnabledByDefault=True
 # Show Input Method Information when switch input method
