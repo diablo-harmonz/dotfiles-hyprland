@@ -31,9 +31,11 @@ hl.bind(mainMod .. " + V",              exec("~/.local/bin/clipboard"))         
 hl.bind(mainMod .. " + SHIFT + C",      exec("~/.local/bin/caffeine toggle"))                              -- Keep awake on/off (no idle lock or suspend)
 hl.bind(mainMod .. " + A",              exec("~/.local/bin/cava-toggle"))                                  -- Audio visualizer on/off
 
--- Lid: only acts while caffeine is on (otherwise logind suspends and hypridle locks first)
-hl.bind("switch:on:Lid Switch",  exec("~/.local/bin/caffeine lid-close"), { locked = true })
-hl.bind("switch:off:Lid Switch", exec("~/.local/bin/caffeine lid-open"),  { locked = true })
+-- Lid. With an external monitor plugged in, display-toggle makes it the only screen while
+-- the lid is closed (logind does not suspend then). caffeine only acts while it is on
+-- (otherwise logind suspends and hypridle locks first).
+hl.bind("switch:on:Lid Switch",  exec("~/.local/bin/display-toggle lid-close; ~/.local/bin/caffeine lid-close"), { locked = true })
+hl.bind("switch:off:Lid Switch", exec("~/.local/bin/display-toggle lid-open; ~/.local/bin/caffeine lid-open"),   { locked = true })
 
 -- Hardware keys
 hl.bind("XF86AudioRaiseVolume",  exec("~/.local/bin/osd volume up"), { repeating = true })      -- with popup (bin/osd)

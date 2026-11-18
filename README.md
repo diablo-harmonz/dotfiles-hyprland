@@ -239,7 +239,7 @@ installs from `setup/system/`:
 | `clipboard` | Clipboard history picker |
 | `web-search` | Quick search / address bar |
 | `caffeine` | Keep the laptop awake, also handles the lid while on |
-| `display-toggle` | External monitor cycle (Fn+F7) |
+| `display-toggle` | External monitor cycle (Fn+F7); closing the lid with a monitor plugged in leaves only the external screen, opening it restores the extended layout |
 | `dpms` | Turn the screens on or off only when needed |
 | `lock-recover` | Fix a black or dead lock screen, the session stays locked |
 | `osd` | Volume, mic and brightness with a popup |

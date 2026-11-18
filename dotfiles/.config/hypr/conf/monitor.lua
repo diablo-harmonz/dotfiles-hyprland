@@ -47,3 +47,9 @@ hl.on("monitor.added", function()
     if display_toggle_busy() then return end
     hl.exec_cmd("sleep 1; ~/.local/bin/display-toggle replug")
 end)
+
+-- Started or config reloaded with the lid closed and an external monitor plugged in:
+-- turn the laptop screen off again (bin/display-toggle lid-check; does nothing otherwise)
+local function lid_check() hl.exec_cmd("sleep 2; ~/.local/bin/display-toggle lid-check") end
+hl.on("hyprland.start", lid_check)
+hl.on("config.reloaded", lid_check)

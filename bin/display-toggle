@@ -8,6 +8,11 @@
 #                           (e.g. hide the screen from a projector for a moment)
 #   display-toggle replug   called by conf/monitor.lua when a monitor connects: if it only
 #                           dropped out for a moment, restore the mode that was active
+#   display-toggle lid-close / lid-open   lid switch (conf/binds.lua): with an external
+#                           monitor plugged in, closing the lid turns the laptop screen off
+#                           and leaves the external one as the only screen; opening it
+#                           goes back to the extended layout
+#   display-toggle lid-check   the same check at start / config reload (conf/monitor.lua)
 # Does nothing when no external monitor is plugged in. SUPER+CTRL+R (hyprctl reload)
 # also restores the normal layout.
 #
@@ -70,6 +75,9 @@ workspaces_to() {   # $1 = output
 monitors=$(hyprctl monitors all -j)
 external=$(jq -r --arg p "$PANEL" '[.[] | select(.name != $p)][0].name // empty' <<<"$monitors")
 
+lid_closed() { grep -qs closed /proc/acpi/button/lid/*/state; }
+panel_disabled() { jq -e --arg p "$PANEL" 'any(.[]; .name == $p and .disabled)' <<<"$monitors" >/dev/null; }
+
 # --- replug: decide between "came back after a drop-out" and "newly plugged in" ---------
 if [ "$mode" = "replug" ]; then
     last=$(cat "$STATE" 2>/dev/null || true)
@@ -78,11 +86,37 @@ if [ "$mode" = "replug" ]; then
     if [ -n "$external" ] && [ $(( $(date +%s) - gone )) -le "$REPLUG_WINDOW" ] &&
        { [ "$last" = "mirror" ] || [ "$last" = "off" ]; }; then
         mode="restore-$last"
+    elif [ -n "$external" ] && lid_closed; then
+        mode=lid-check   # (re)connected while the lid is closed: dock again
     else
         rm -f "$STATE"   # newly plugged in: the Fn+F7 cycle starts at mirror
         exit 0
     fi
 fi
+
+# --- lid: closing the laptop with an external monitor plugged in ("docked") ---------------
+# logind does not suspend then (HandleLidSwitchDocked=ignore), so the laptop screen would
+# stay on behind the lid with workspaces 1-5 on it. Instead the external monitor becomes
+# the only screen (Hyprland moves every workspace to it); opening the lid brings the
+# normal extended layout back. lid-check: the same at start / config reload.
+case "$mode" in
+    lid-close|lid-check)
+        if [ -z "$external" ] || ! lid_closed || panel_disabled; then exit 0; fi
+        mode=docked
+        ;;
+    lid-open)
+        # Only undo our own docking; without an external monitor monitor.lua already
+        # turned the laptop screen back on when the monitor was unplugged
+        if [ -z "$external" ] || [ "$(cat "$STATE" 2>/dev/null)" != docked ]; then exit 0; fi
+        mode=undock
+        ;;
+    toggle)
+        if lid_closed && panel_disabled; then
+            notify "Lid closed" "$external is the only screen. Open the lid to use Fn+F7"
+            exit 0
+        fi
+        ;;
+esac
 
 if [ -z "$external" ]; then
     notify "No external monitor" "Connect an external monitor first"
@@ -150,6 +184,40 @@ case "$mode" in
         sleep 1
         workspaces_to "$external"
         notify "Extended display" "Laptop and $external are separate screens. Fn+F7: turn $external off"
+        ;;
+    docked)
+        damage_tracking 2
+        # External screen on its own (not mirrored) first, so there is always a screen
+        normal "$external"
+        sleep 1
+        # The workspace the laptop screen showed stays in view on the external one
+        panel_ws=$(jq -r --arg p "$PANEL" '.[] | select(.name == $p) | .activeWorkspace.id // empty' <<<"$monitors")
+        output_off "$PANEL"
+        if [ -n "$panel_ws" ] && [ "$panel_ws" -gt 0 ] 2>/dev/null; then
+            sleep 0.5
+            hyprctl dispatch "hl.dsp.focus({ workspace = $panel_ws })" >/dev/null
+        fi
+        # awww leaves a screen black when the outputs change this way; show the wallpaper again
+        "$HOME/.local/bin/wallpaper" restore >/dev/null 2>&1 || true
+        notify "Laptop lid closed" "$external is now the only screen"
+        ;;
+    undock)
+        # As "extend", plus workspaces 1-5 back to the laptop screen
+        damage_tracking 2
+        normal "$PANEL"
+        output_off "$external"
+        sleep 1
+        normal "$external"
+        sleep 1
+        keep=$(hyprctl activeworkspace -j 2>/dev/null | jq -r '.id' 2>/dev/null || true)
+        for i in 5 4 3 2 1; do
+            hyprctl dispatch "hl.dsp.workspace.move({ workspace = $i, monitor = \"$PANEL\" })" >/dev/null
+        done
+        workspaces_to "$external"
+        [ -n "$keep" ] && hyprctl dispatch "hl.dsp.focus({ workspace = $keep })" >/dev/null
+        "$HOME/.local/bin/wallpaper" restore >/dev/null 2>&1 || true
+        notify "Laptop lid open" "Laptop and $external are separate screens again"
+        mode=extend
         ;;
     off|restore-off)
         damage_tracking 2
