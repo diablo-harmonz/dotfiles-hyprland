@@ -26,6 +26,8 @@ end
 hl.animation({ leaf = "windows",          enabled = true, speed = 3,   bezier = "md3_decel",  style = "popin 60%" })
 hl.animation({ leaf = "windowsIn",        enabled = true, speed = 3,   bezier = "md3_decel",  style = "popin 60%" })
 hl.animation({ leaf = "windowsOut",       enabled = true, speed = 3,   bezier = "md3_accel",  style = "popin 60%" })
+-- Keep in sync with MOVE_ANIM in float-move.lua (it turns this off while a window glides)
+hl.animation({ leaf = "windowsMove",      enabled = true, speed = 3,   bezier = "md3_decel" })
 hl.animation({ leaf = "border",           enabled = true, speed = 10,  bezier = "default" })
 hl.animation({ leaf = "fade",             enabled = true, speed = 3,   bezier = "md3_decel" })
 -- hl.animation({ leaf = "layers",        enabled = true, speed = 2,   bezier = "md3_decel",  style = "slide" })

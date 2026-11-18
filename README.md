@@ -131,8 +131,8 @@ Defined in `dotfiles/.config/hypr/conf/binds.lua`.
 | SUPER + O | Pin a floating window to every workspace (picture-in-picture), press again to unpin |
 | SUPER + F | Fullscreen (also Fn+F11) |
 | SUPER + P / SUPER + J | Pseudotile / toggle split (dwindle) |
-| SUPER + arrows | Move focus |
-| SUPER + SHIFT + arrows | Move the window: floating slides 10 px (hold to repeat), tiled swaps with the neighbour |
+| SUPER + arrows | Move focus; two arrows together (e.g. up + right) focus the floating window in that screen corner |
+| SUPER + SHIFT + arrows | Move the window: floating glides while held, speeding up (two arrows: diagonal), tiled swaps with the neighbour |
 | SUPER + ALT + arrows | Resize the window (hold to repeat) |
 | SUPER + 1…0 | Go to workspace 1–10 |
 | SUPER + SHIFT + 1…0 | Move window to workspace 1–10 |

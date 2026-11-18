@@ -64,13 +64,14 @@ hl.bind(mainMod .. " + CTRL + 3",   exec("~/.local/bin/screenshot full"))   -- W
 hl.bind(mainMod .. " + CTRL + 4",   exec("~/.local/bin/capture-menu shot")) -- Screenshot toolbar
 hl.bind(mainMod .. " + CTRL + 5",   exec("~/.local/bin/capture-menu rec"))  -- Recording toolbar (also stops)
 
--- Move focus with mainMod + arrow keys
+-- Move focus with mainMod + arrow keys; two arrows together (e.g. up + right) focus the
+-- floating window in that screen corner (conf/float-move.lua)
+local floatMove  = require("conf.float-move")
 for _, dir in ipairs({ "left", "right", "up", "down" }) do
-    hl.bind(mainMod .. " + " .. dir, hl.dsp.focus({ direction = dir }))
+    hl.bind(mainMod .. " + " .. dir, function() floatMove.focus(dir) end)
 end
 
 -- Move / resize the active window with the keyboard (hold to repeat)
-local moveStep   = 10  -- px per repeat: small, so a held key slides the window smoothly
 local resizeStep = 40
 local dirs = {
     left  = { x = -1, y = 0 },
@@ -79,16 +80,17 @@ local dirs = {
     down  = { x = 0,  y = 1 },
 }
 for dir, d in pairs(dirs) do
-    -- mainMod + SHIFT + arrow: a floating window slides by moveStep, a tiled one swaps
-    -- places with its neighbour in that direction
+    -- mainMod + SHIFT + arrow: a floating window glides while the arrow is held
+    -- (conf/float-move.lua), a tiled one swaps places with its neighbour
     hl.bind(mainMod .. " + SHIFT + " .. dir, function()
-        local win = hl.get_active_window()
-        if win and win.floating then
-            hl.dispatch(hl.dsp.window.move({ x = d.x * moveStep, y = d.y * moveStep, relative = true }))
-        else
+        if not floatMove.press(dir) then
             hl.dispatch(hl.dsp.window.move({ direction = dir }))
         end
     end, { repeating = true })
+    -- Stop gliding when the arrow comes up, whatever modifiers are still held
+    -- (non_consuming: apps still get the key release)
+    hl.bind(dir, function() floatMove.release(dir) end,
+        { release = true, ignore_mods = true, non_consuming = true })
     -- mainMod + ALT + arrow: resize
     hl.bind(mainMod .. " + ALT + " .. dir,
         hl.dsp.window.resize({ x = d.x * resizeStep, y = d.y * resizeStep, relative = true }),
