@@ -44,6 +44,30 @@ vim.keymap.set("n", "<C-j>", "<C-w>j", { desc = "Window down" })
 vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Window up" })
 vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Window right" })
 
+-- Vietnamese input (fcitx5 + Lotus) only while typing text: outside Insert mode it is
+-- switched off, so commands like ci" dd ww reach Neovim untouched (Lotus swallowed the "
+-- of ci"). Entering Insert mode turns it back on if it was on before. When Neovim loses
+-- focus or quits, the earlier state is given back to the other windows (fcitx5 shares one
+-- state between all windows). fcitx5-remote: 2 = Vietnamese on, 1 = off, -o on, -c off.
+if vim.fn.executable("fcitx5-remote") == 1 then
+  local im_was_on = false
+  local function im_off()
+    im_was_on = vim.trim(vim.fn.system({ "fcitx5-remote" })) == "2"
+    if im_was_on then vim.system({ "fcitx5-remote", "-c" }) end
+  end
+  local function im_restore()
+    if im_was_on then vim.system({ "fcitx5-remote", "-o" }) end
+  end
+  local function not_inserting() return not vim.fn.mode():match("^[iR]") end
+  local group = vim.api.nvim_create_augroup("im-switch", {})
+  vim.api.nvim_create_autocmd("InsertLeave", { group = group, callback = im_off })
+  vim.api.nvim_create_autocmd("InsertEnter", { group = group, callback = im_restore })
+  vim.api.nvim_create_autocmd({ "VimEnter", "FocusGained" }, { group = group,
+    callback = function() if not_inserting() then im_off() end end })
+  vim.api.nvim_create_autocmd({ "FocusLost", "VimLeavePre" }, { group = group,
+    callback = function() if not_inserting() then im_restore() end end })
+end
+
 -- Editing
 vim.opt.clipboard = "unnamedplus"  -- y / p use the system clipboard (paste into Firefox etc.)
 vim.opt.undofile = true            -- Keep undo history after closing the file
