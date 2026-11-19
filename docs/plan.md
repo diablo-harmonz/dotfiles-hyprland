@@ -9,7 +9,7 @@ Cập nhật lần cuối: Nov 18, 2026 · @diablo harmonz
 
 1. Bấm **SUPER + CTRL + L**: bật lại màn hình và màn khóa (chạy được cả khi đang khóa). Nhập mật khẩu như bình thường.
 2. Nếu vẫn đen: **Ctrl + Alt + F3**, đăng nhập. Máy tự hỏi "Restore its lock screen now?", bấm **y**. Rồi **Ctrl + Alt + F1** và nhập mật khẩu.
-3. Không mở thêm Hyprland ở TTY khác. Nếu vẫn không được: chụp `journalctl --user -t hypridle --since "-1h" | tail -30` rồi mới khởi động lại máy.
+3. Không mở thêm Hyprland ở TTY khác (phiên ở TTY1 vẫn chạy nên phiên mới không lên được, đã gặp 2026-11-19). Nếu vẫn không được: chụp `journalctl --user -t hypridle --since "-1h" | tail -30` rồi mới khởi động lại máy.
 
 ## Phím tắt Firefox (thanh công cụ và cột tab đang tự ẩn)
 

@@ -50,6 +50,15 @@ phải đánh thức bằng thiết bị ngoài:
 | Bàn phím, touchpad Bluetooth (ProtoArc XK01) | **Không được** | Chip Bluetooth MediaTek (USB `0e8d:e025`, sau hub nội `3-5`) không hỗ trợ đánh thức từ xa: không có `power/wakeup` trong sysfs. Chỉ dùng được sau khi máy đã dậy |
 | Nút nguồn laptop | **Được** | Bấm nhẹ, không giữ |
 
+Từ 2026-11-19: khi gập nắp dùng màn hình ngoài, bin/display-toggle giữ một khoá
+`handle-lid-switch` (xem bằng `systemd-inhibit --list`) để logind không tự cho máy ngủ vì nắp
+đang gập. Trước đó logind đã cho máy ngủ bất ngờ (14:00) rồi lại ngủ tiếp 28 giây sau khi
+bấm phím đánh thức, màn hình đen, phải vào TTY. Nghi do màn hình ngoài ở chế độ chờ sâu
+thoáng mất tín hiệu nên logind tưởng không còn màn hình ngoài (DPMS off thì không: đã thử,
+`Docked` vẫn `true`). Khoá tự hết khi mở nắp hoặc rút màn hình ngoài. Việc ngủ khi rời bàn
+giờ do hypridle làm: 30 phút không dùng thì ngủ, cả khi đang cắm sạc, miễn là đang gập nắp
+dùng màn hình ngoài.
+
 Máy dậy thì màn hình ngoài sáng lại, hiện hyprlock; bàn phím Bluetooth kết nối lại sau vài
 giây, gõ mật khẩu bình thường.
 

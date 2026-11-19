@@ -37,6 +37,7 @@ PANEL="eDP-1"
 RUN="${XDG_RUNTIME_DIR:-/tmp}"
 STATE="$RUN/display-toggle.state"          # last mode chosen with this script
 BUSY="$RUN/display-toggle.busy"            # our own off/on must not trigger monitor.lua
+INHIBIT="$RUN/display-toggle.inhibit"      # pid of the lid inhibitor while docked
 UNPLUGGED="$RUN/display-toggle.unplugged"  # time of the last real disconnect (monitor.lua)
 REPLUG_WINDOW=15
 mode="${1:-toggle}"
@@ -78,6 +79,21 @@ external=$(jq -r --arg p "$PANEL" '[.[] | select(.name != $p)][0].name // empty'
 lid_closed() { grep -qs closed /proc/acpi/button/lid/*/state; }
 panel_disabled() { jq -e --arg p "$PANEL" 'any(.[]; .name == $p and .disabled)' <<<"$monitors" >/dev/null; }
 
+# While docked, logind must not act on the closed lid. It suspended the docked laptop on
+# its own (2026-11-19, 14:00 and again 28 s after waking it with the keyboard), most likely
+# when the external monitor dropped out for a moment in deep standby, and the screens then
+# stayed black. A handle-lid-switch inhibitor (like caffeine's) stops that; it ends by
+# itself once the lid is open or no external monitor is left. Idle suspend while docked
+# comes from hypridle instead (hypridle.conf), so the laptop still sleeps when left alone.
+lid_inhibit() {
+    if [ -f "$INHIBIT" ] && kill -0 "$(cat "$INHIBIT")" 2>/dev/null; then return; fi
+    setsid -f systemd-inhibit --what=handle-lid-switch --who=display-toggle \
+        --why="Lid closed with an external monitor (docked)" --mode=block \
+        sh -c 'echo $$ > "$1"; while grep -qs closed /proc/acpi/button/lid/*/state &&
+                 hyprctl monitors all -j 2>/dev/null | jq -e '"'"'any(.[]; .name | startswith("eDP") | not)'"'"' >/dev/null
+               do sleep 5; done; rm -f "$1"' sh "$INHIBIT" >/dev/null 2>&1
+}
+
 # --- replug: decide between "came back after a drop-out" and "newly plugged in" ---------
 if [ "$mode" = "replug" ]; then
     last=$(cat "$STATE" 2>/dev/null || true)
@@ -101,6 +117,8 @@ fi
 # normal extended layout back. lid-check: the same at start / config reload.
 case "$mode" in
     lid-close|lid-check)
+        # Already docked (e.g. config reload): only make sure the lid inhibitor runs
+        if [ -n "$external" ] && lid_closed && panel_disabled; then lid_inhibit; exit 0; fi
         if [ -z "$external" ] || ! lid_closed || panel_disabled; then exit 0; fi
         mode=docked
         ;;
@@ -199,6 +217,7 @@ case "$mode" in
         fi
         # awww leaves a screen black when the outputs change this way; show the wallpaper again
         "$HOME/.local/bin/wallpaper" restore >/dev/null 2>&1 || true
+        lid_inhibit
         notify "Laptop lid closed" "$external is now the only screen"
         ;;
     undock)
