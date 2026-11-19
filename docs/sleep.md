@@ -46,7 +46,7 @@ phải đánh thức bằng thiết bị ngoài:
 | Thiết bị | Đánh thức máy đang ngủ | Ghi chú |
 |---|---|---|
 | Chuột Logitech G903 (đầu thu USB) | **Được** (đã thử 2026-11-18) | Đầu thu phải đang cắm, chuột phải đang bật; click hoặc di chuột |
-| Bàn phím USB có dây | **Được** theo lý thuyết, chưa thử (Linux tự bật quyền đánh thức cho bàn phím USB) | Cắm thẳng vào cổng của laptop; qua hub, dock hay cổng USB của màn hình thì hub đó cũng phải cho phép đánh thức (xem bên dưới) |
+| Bàn phím USB có dây | **Được** (đã thử 2026-11-19 với GMMK Pro `320f:5044`, cắm thẳng vào laptop: bấm Space là dậy; Linux tự bật quyền đánh thức cho bàn phím USB) | Cắm thẳng vào cổng của laptop; qua hub, dock hay cổng USB của màn hình thì hub đó cũng phải cho phép đánh thức (xem bên dưới) |
 | Bàn phím, touchpad Bluetooth (ProtoArc XK01) | **Không được** | Chip Bluetooth MediaTek (USB `0e8d:e025`, sau hub nội `3-5`) không hỗ trợ đánh thức từ xa: không có `power/wakeup` trong sysfs. Chỉ dùng được sau khi máy đã dậy |
 | Nút nguồn laptop | **Được** | Bấm nhẹ, không giữ |
 
