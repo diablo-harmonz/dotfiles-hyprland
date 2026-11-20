@@ -57,6 +57,7 @@ packages=(
     "wireplumber"
     "pipewire"
     "pipewire-pulse"
+    "pipewire-audio"     # pw-play: the bin/timer alarm sound
     "xdg-desktop-portal-gtk"
     "gnome-keyring"
     "seahorse"
@@ -120,6 +121,9 @@ packages=(
     "fcitx5-configtool"
     "fcitx5-lotus"
     "fcitx5-bamboo"
+    # Chat
+    "telegram-desktop"   # translucent in Hyprland (windowrules.lua)
+    "discord"
 )
 
 # ----------------------------------------------------------

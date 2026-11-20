@@ -176,7 +176,7 @@ Thứ tự đã làm trên Manjaro ngày 2026-11-08: Git, Node, Python, Docker, 
 
 ### 6. Ứng dụng làm việc (VS Code, Telegram, lazygit)
 
-- Telegram: sudo pacman -S telegram-desktop
+- Telegram và Discord: setup-arch.sh cài sẵn (telegram-desktop, discord). Discord là app Electron: gõ tiếng Việt bằng Lotus trong Discord chưa thử, kiểm tra sau khi cài; nếu không gõ được thì cần chạy Discord ở chế độ Wayland có bộ gõ (--enable-wayland-ime)
 - VS Code: yay -S visual-studio-code-bin (bản của Microsoft, dùng được kho tiện ích Microsoft); khi yay hỏi cleanBuild trả lời N, chọn A để đọc PKGBUILD trước khi cài (nguồn tải phải là domain của VS Code). Sau lần mở đầu, thêm "password-store": "gnome-libsecret" vào ~/.vscode/argv.json (Hyprland không được VS Code tự nhận ra keyring)
 - Cờ cho Wayland và bộ gõ: printf -- '--ozone-platform-hint=auto\n--enable-wayland-ime\n' > ~/.config/code-flags.conf (gõ tiếng Việt bằng Lotus trong VS Code đã chạy tốt trên Manjaro + Hyprland)
 - Test frontend: Firefox (có sẵn) và Chromium (sudo pacman -S chromium)
