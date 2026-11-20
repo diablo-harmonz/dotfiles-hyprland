@@ -26,6 +26,12 @@ hl.bind(mainMod .. " + L",              exec("loginctl lock-session"))          
 -- Black lock screen (screen stayed off after resume): works while locked, turns the screens
 -- on and restarts hyprlock; the session stays locked
 hl.bind(mainMod .. " + CTRL + L",       exec("~/.local/bin/lock-recover --if-locked"), { locked = true })
+-- Way out of an app that holds the keyboard (virt-manager / remote desktop in fullscreen send
+-- every SUPER key to the guest): dont_inhibit makes this one key reach Hyprland anyway. It
+-- leaves fullscreen and goes back to the previous workspace; the app keeps running.
+hl.bind(mainMod .. " + CTRL + Escape",
+    exec("hyprctl activewindow -j | jq -e '.fullscreen != 0' >/dev/null && hyprctl dispatch 'hl.dsp.window.fullscreen()'; hyprctl dispatch 'hl.dsp.focus({ workspace = \"previous\" })'"),
+    { dont_inhibit = true })
 hl.bind(mainMod .. " + S",              exec("~/.local/bin/web-search"))                                   -- Quick web search / address -> Firefox
 hl.bind(mainMod .. " + V",              exec("~/.local/bin/clipboard"))                                    -- Clipboard history: pick to paste (Shift+Enter: delete entry)
 hl.bind(mainMod .. " + equal",          exec("~/.local/bin/calc"))                                         -- Calculator (rofi-calc): Enter copies the result

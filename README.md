@@ -138,6 +138,7 @@ Defined in `dotfiles/.config/hypr/conf/binds.lua`.
 | SUPER + SHIFT + C | Caffeine: no idle lock or suspend |
 | SUPER + L | Lock the screen |
 | SUPER + CTRL + L | Black lock screen: turn the screens on and restart hyprlock (works while locked) |
+| SUPER + CTRL + Escape | Way out of a virtual machine or remote desktop that holds the keyboard: leaves fullscreen, back to the previous workspace (always reaches Hyprland) |
 | SUPER + CTRL + R | Reload the Hyprland config, restores all screens |
 | SUPER + SHIFT + B | Reload Waybar |
 | SUPER + Q | Close window |
