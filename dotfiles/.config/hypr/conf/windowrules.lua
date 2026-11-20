@@ -29,6 +29,7 @@ hl.layer_rule({ match = { namespace = "control-center" }, blur = true, ignore_al
 -- Reload with SUPER+CTRL+R; the change also applies to windows that are already open.
 local translucent = {
     { class = "org.telegram.desktop", active = 0.85, inactive = 0.75 },
+    { class = "firefox",              active = 0.87, inactive = 0.77 },
 }
 for _, app in ipairs(translucent) do
     hl.window_rule({
