@@ -163,7 +163,9 @@ Thứ tự đã làm trên Manjaro ngày 2026-11-08: Git, Node, Python, Docker, 
 - sudo pacman -S uv, rồi uv python install 3.14
 - Dự án: uv venv --python 3.14, kích hoạt bằng source .venv/bin/activate, cài gói bằng uv pip install, hoặc chạy bằng uv run; không pip install thẳng vào hệ thống (Arch chặn)
 
-### 4. Docker (Engine 29.8.2, Compose 5.6.0)
+### 4. Docker (Engine 29.10.0, Compose 5.8.0, Buildx 0.39.0 trên Arch, 2026-11-21)
+
+- Trên Arch: setup-arch.sh đã làm sẵn các bước dưới đây (subvolume trước khi daemon chạy lần đầu, cài gói, bật service, thêm vào nhóm docker); chỉ còn đăng xuất hẳn rồi đăng nhập lại (trên Arch đăng nhập TTY là đủ, không cần khởi động lại) và thử docker run --rm hello-world
 
 - Trên Arch mới nên tạo subvolume trước khi kéo image: sudo btrfs subvolume create /var/lib/docker; subvolume lồng không nằm trong snapshot của @, nên image không làm phình Timeshift
 - Cài: sudo pacman -S docker docker-compose docker-buildx, sudo systemctl enable --now docker.service, sudo usermod -aG docker $USER

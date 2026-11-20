@@ -126,6 +126,9 @@ packages=(
     # Development: Node through nvm (.zshrc loads it), Python per project through uv
     "nvm"
     "uv"
+    "docker"
+    "docker-compose"
+    "docker-buildx"
     # Chat
     "telegram-desktop"   # translucent in Hyprland (windowrules.lua)
     "discord"
@@ -291,6 +294,18 @@ xdg-settings set default-web-browser firefox.desktop
 
 # Services: network, Bluetooth, power modes (Fn+F8), weekly SSD trim
 sudo systemctl enable --now NetworkManager.service bluetooth.service power-profiles-daemon.service fstrim.timer
+
+# Docker: images and containers in their own btrfs subvolume, created before the daemon
+# first starts (it creates /var/lib/docker itself otherwise). A nested subvolume is not
+# part of the @ snapshots, so Timeshift does not grow with every pulled image.
+if [ ! -e /var/lib/docker ] && [ "$(stat -f -c %T /var/lib)" = btrfs ]; then
+    sudo btrfs subvolume create /var/lib/docker
+elif [ -e /var/lib/docker ] && [ "$(sudo stat -c %i /var/lib/docker)" != 256 ]; then
+    echo ":: /var/lib/docker is a plain folder, not a subvolume (see docs/plan.md, Docker)"
+fi
+sudo systemctl enable --now docker.service
+# The docker group is root-equivalent; it applies after logging out of every session
+id -nG "$USER" | grep -qw docker || sudo usermod -aG docker "$USER"
 
 # Default folders (Pictures, Videos... used by the screenshot and recording scripts)
 xdg-user-dirs-update
