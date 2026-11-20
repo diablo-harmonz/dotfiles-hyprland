@@ -123,6 +123,9 @@ packages=(
     "fcitx5-configtool"
     "fcitx5-lotus"
     "fcitx5-bamboo"
+    # Development: Node through nvm (.zshrc loads it), Python per project through uv
+    "nvm"
+    "uv"
     # Chat
     "telegram-desktop"   # translucent in Hyprland (windowrules.lua)
     "discord"
@@ -368,6 +371,29 @@ if ask_next "Link the dotfiles into \$HOME now (setup/link-dotfiles.sh)?"; then
     "$SETUP_DIR/link-dotfiles.sh"
 else
     echo ":: Later: $SETUP_DIR/link-dotfiles.sh"
+fi
+
+# Node and Python for development: Node LTS through nvm (set as the default, so every new
+# shell has node and npm) and a uv-managed Python for project venvs. The system python
+# stays for Arch's own packages; never pip install into it.
+PYTHON_VERSION=3.14
+if ask_next "Install Node LTS (nvm) and Python $PYTHON_VERSION (uv) for development?"; then
+    if [ -e /usr/share/nvm/init-nvm.sh ]; then
+        # shellcheck source=/dev/null
+        source /usr/share/nvm/init-nvm.sh
+        nvm install --lts && nvm alias default node ||
+            echo ":: Node install failed; later: nvm install --lts && nvm alias default node"
+    else
+        echo ":: nvm is missing (sudo pacman -S nvm); later: nvm install --lts && nvm alias default node"
+    fi
+    if command -v uv >/dev/null; then
+        uv python install "$PYTHON_VERSION" ||
+            echo ":: Python install failed; later: uv python install $PYTHON_VERSION"
+    else
+        echo ":: uv is missing (sudo pacman -S uv); later: uv python install $PYTHON_VERSION"
+    fi
+else
+    echo ":: Later: nvm install --lts && nvm alias default node; uv python install $PYTHON_VERSION"
 fi
 
 # Claude Code: Anthropic's native installer (puts the launcher in ~/.local/bin/claude and

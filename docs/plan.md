@@ -151,13 +151,14 @@ Thứ tự đã làm trên Manjaro ngày 2026-11-08: Git, Node, Python, Docker, 
 - Danh tính theo thư mục: git config -f ~/.gitconfig-work user.name "TÊN", git config -f ~/.gitconfig-work user.email "EMAIL", git config --global includeIf."gitdir:~/Documents/work/".path "~/.gitconfig-work" (dấu / ở cuối bắt buộc; repo công việc phải nằm trong thư mục này)
 - Clone bằng bí danh: git clone git@github-work:TỔ-CHỨC/REPO.git ~/Documents/work/REPO
 
-### 2. Node (nvm 0.40.7, Node 26.13.0, npm 11.20.0)
+### 2. Node (nvm 0.40.8, Node 26.13.1, npm 11.20.0 trên Arch, 2026-11-21)
 
+- Trên Arch: setup-arch.sh đã cài sẵn gói nvm và uv, rồi hỏi "Install Node LTS (nvm) and Python 3.14 (uv)?" để tự chạy các lệnh dưới đây; chỉ làm tay khi đã bỏ qua bước đó
 - sudo pacman -S nvm (hoặc yay -S nvm). Không cần sửa ~/.zshrc nữa: .zshrc trong repo dotfiles-hyprland đã nạp /usr/share/nvm/init-nvm.sh (chỉ khi file có) và đã có unsetopt correct. Cài xong nvm thì mở terminal mới
-- nvm install --lts, sau đó nvm alias default 26 (nếu không đặt, bí danh mặc định không trỏ tới phiên bản nào); npm đi kèm Node, không cài riêng
+- nvm install --lts, sau đó nvm alias default node (nếu không đặt, bí danh mặc định không trỏ tới phiên bản nào; node = bản mới nhất đã cài, khỏi nhớ số); npm đi kèm Node, không cài riêng
 - Dự án cần bản khác: dùng .nvmrc hoặc trường engines, chạy nvm install rồi nvm use
 
-### 3. Python (uv, Python 3.14.8)
+### 3. Python (uv 0.13.9, Python 3.14.10 trên Arch, 2026-11-21)
 
 - sudo pacman -S uv, rồi uv python install 3.14
 - Dự án: uv venv --python 3.14, kích hoạt bằng source .venv/bin/activate, cài gói bằng uv pip install, hoặc chạy bằng uv run; không pip install thẳng vào hệ thống (Arch chặn)
