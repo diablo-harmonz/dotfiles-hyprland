@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# waybar-launch: (re)start Waybar with one bar per screen, each 77% of that screen's width,
+# so the centred bar fits any screen (laptop panel, 2560 px monitor, a 1080p projector,
+# a virtual machine) instead of fixed pixel widths that spill off narrower screens.
+#   waybar-launch          now (login, SUPER+SHIFT+B)
+#   waybar-launch DELAY    after DELAY seconds (Hyprland monitor.added / monitor.removed:
+#                          waits for the screen change to settle; calls that arrive while
+#                          one is waiting are dropped)
+# The bar itself is ~/.config/waybar/config (one bar, a template); the per-screen config
+# is written to $XDG_RUNTIME_DIR/waybar/config.json. Waybar's log goes to the journal:
+#   journalctl --user -t waybar
+set -uo pipefail
+
+RATIO=0.77
+TEMPLATE="$HOME/.config/waybar/config"
+STYLE="$HOME/.config/waybar/style.css"
+DIR="${XDG_RUNTIME_DIR:-/tmp}/waybar"
+OUT="$DIR/config.json"
+
+mkdir -p "$DIR"
+exec 9>"$DIR/launch.lock"
+flock -n 9 || exit 0
+sleep "${1:-0}"
+
+# The template without its whole-line // comments (jq reads plain JSON)
+bar=$(sed -E 's#^[[:space:]]*//.*$##' "$TEMPLATE")
+monitors=$(hyprctl monitors -j 2>/dev/null)
+
+if jq -e 'type == "array" and length > 0' <<<"$monitors" >/dev/null 2>&1; then
+    # Width in logical pixels: a scaled or rotated screen is narrower than its mode
+    jq -n --argjson bar "$bar" --argjson mons "$monitors" --argjson r "$RATIO" '
+        [ $mons[]
+          | (if (.transform % 2) == 1 then .height else .width end) as $w
+          | $bar + { output: .name, width: (($w / .scale) * $r | round) } ]' \
+        > "$OUT.tmp" && mv -f "$OUT.tmp" "$OUT"
+else
+    # Hyprland not answering: one full-width bar on every screen rather than none
+    printf '%s\n' "$bar" > "$OUT"
+fi
+
+# Stop the running bar (never SIGUSR2: Waybar 0.15 crashes on it)
+pkill -x waybar
+for _ in 1 2 3 4 5 6 7 8 9 10; do pgrep -x waybar >/dev/null || break; sleep 0.1; done
+pkill -9 -x waybar 2>/dev/null || true
+
+# 9>&- : the new Waybar must not keep the lock, or the next launch would be skipped
+setsid -f systemd-cat -t waybar waybar -c "$OUT" -s "$STYLE" >/dev/null 2>&1 9>&-

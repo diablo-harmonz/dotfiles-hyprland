@@ -1,7 +1,7 @@
 -- Execute your favorite apps at launch
 hl.on("hyprland.start", function()
-    -- Bar; its log goes to the journal (journalctl --user -t waybar)
-    hl.exec_cmd("systemd-cat -t waybar waybar")
+    -- Bar, one per screen sized to it (bin/waybar-launch); log: journalctl --user -t waybar
+    hl.exec_cmd("~/.local/bin/waybar-launch")
     -- Wallpaper (awww) and its colors
     hl.exec_cmd("~/.local/bin/wallpaper restore")
     -- Notifications (swaync)
@@ -26,3 +26,8 @@ hl.on("hyprland.start", function()
     -- Floating widgets on workspace 1: welcome terminal, ... (startup-layout.lua)
     require("conf.startup-layout").start()
 end)
+
+-- A screen plugged in or removed: rebuild the bars so each new screen gets one sized to it
+-- (waybar-launch waits 2 s for the change to settle and drops the repeated events)
+hl.on("monitor.added",   function() hl.exec_cmd("~/.local/bin/waybar-launch 2") end)
+hl.on("monitor.removed", function() hl.exec_cmd("~/.local/bin/waybar-launch 2") end)

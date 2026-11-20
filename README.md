@@ -276,6 +276,7 @@ installs from `setup/system/`:
 | `media-clear` | Stop every player (swaync panel: MEDIA … CLEAR): mpv quits, Firefox and mpd stop, orphaned mpv is ended |
 | `media-status` | Waybar play/pause button for the active player (playerctld): left click play/pause, right click pause every player, middle click next player |
 | `bt-status` | Waybar Bluetooth module: icon on the bar, connected devices and their batteries in the tooltip |
+| `waybar-launch` | Starts Waybar with one bar per screen, each 77 % of that screen's width (login, SUPER+SHIFT+B, screen plugged in or removed) |
 | `sysinfo-bar`, `sysmetrics`, `syslive` | CPU/RAM on Waybar, metrics, live status view |
 | `sysreport` | One-shot machine health report |
 | `cava-toggle` | Floating audio visualizer |
