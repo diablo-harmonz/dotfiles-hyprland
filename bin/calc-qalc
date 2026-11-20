@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# calc-qalc: qalc for bin/calc (rofi-calc -qalc-binary), also fine in a terminal:
+#   calc-qalc "1.5 * 2"
+# rofi-calc passes the typed expression as the last argument.
+# - "of" becomes "*", so "15% of 2300000" works (qalc alone reads it as 15 rem f2300000)
+# - Vietnamese-style output: dot between thousands, comma for decimals (25.731,74 ₫).
+#   With LC_NUMERIC=vi_VN qalc would also read a typed dot as a thousands separator
+#   (1.5 * 2 = 30); "ignore dot off" makes both 1.5 and 1,5 a decimal number instead.
+#   Function arguments are then separated by ";" (max(1; 2)).
+opts=(-s "decimal comma 1" -s "ignore dot off" -s "digit grouping locale")
+(( $# )) || exec qalc "${opts[@]}"
+expr=${!#}
+expr=$(sed -E 's/(^|[^[:alpha:]])[Oo][Ff]([^[:alpha:]]|$)/\1*\2/g' <<<"$expr")
+exec qalc "${opts[@]}" "${@:1:$#-1}" "$expr"

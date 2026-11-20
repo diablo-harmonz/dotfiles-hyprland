@@ -96,7 +96,7 @@ to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#
 | Role | Program |
 |---|---|
 | Compositor | Hyprland (Lua config in `~/.config/hypr/hyprland.lua` + `conf/*.lua`) |
-| Bar | Waybar, minimal like macOS: launcher, app name, CPU / RAM, workspaces (Roman numerals), tray, Wi-Fi, battery, the Control Center icon, clock (click: notifications), power button |
+| Bar | Waybar, minimal like macOS: launcher, app name, CPU / RAM, workspaces (Roman numerals), tray, Wi-Fi, battery, the Control Center icon, notification bell (right click: Do Not Disturb), clock (click: notifications), timer countdown while one runs, power button |
 | Launcher, menus | rofi 2.0 (Wayland) |
 | Terminal | kitty (its image protocol keeps transparency for pictures in terminal apps) |
 | Shell | zsh with powerlevel10k, autosuggestions, syntax highlighting, history substring search |
@@ -131,6 +131,8 @@ Defined in `dotfiles/.config/hypr/conf/binds.lua`.
 | SUPER + SHIFT + E | yazi in kitty |
 | SUPER + S | Quick web search or address, opens in Firefox |
 | SUPER + V | Clipboard history (Shift+Enter deletes an entry) |
+| SUPER + = | Calculator (rofi-calc, also units and currencies): Enter copies the result |
+| SUPER + SHIFT + T | Timer or alarm: `10m tea`, `1h30m`, `07:30 wake up`; countdown on Waybar, pick one to cancel |
 | SUPER + W / SUPER + SHIFT + W | Pick a wallpaper / random wallpaper |
 | SUPER + A | Audio visualizer (cava) on/off |
 | SUPER + SHIFT + C | Caffeine: no idle lock or suspend |
@@ -262,6 +264,8 @@ installs from `setup/system/`:
 | `clipboard` | Clipboard history picker |
 | `web-search` | Quick search / address bar |
 | `caffeine` | Keep the laptop awake, also handles the lid while on |
+| `calc` | Calculator under the bar (rofi-calc): units, currencies, percentages; Enter copies the result |
+| `timer` | Countdown timers and alarms as systemd user timers (ring after sleep too), Waybar countdown, snooze from the notification |
 | `display-toggle` | External monitor cycle (Fn+F7); closing the lid with a monitor plugged in leaves only the external screen, opening it restores the extended layout |
 | `dpms` | Turn the screens on or off only when needed |
 | `lock-recover` | Fix a black or dead lock screen, the session stays locked |

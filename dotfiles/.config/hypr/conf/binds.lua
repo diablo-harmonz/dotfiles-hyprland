@@ -28,6 +28,8 @@ hl.bind(mainMod .. " + L",              exec("loginctl lock-session"))          
 hl.bind(mainMod .. " + CTRL + L",       exec("~/.local/bin/lock-recover --if-locked"), { locked = true })
 hl.bind(mainMod .. " + S",              exec("~/.local/bin/web-search"))                                   -- Quick web search / address -> Firefox
 hl.bind(mainMod .. " + V",              exec("~/.local/bin/clipboard"))                                    -- Clipboard history: pick to paste (Shift+Enter: delete entry)
+hl.bind(mainMod .. " + equal",          exec("~/.local/bin/calc"))                                         -- Calculator (rofi-calc): Enter copies the result
+hl.bind(mainMod .. " + SHIFT + T",      exec("~/.local/bin/timer"))                                        -- Timers and alarms (countdown on Waybar)
 hl.bind(mainMod .. " + SHIFT + C",      exec("~/.local/bin/caffeine toggle"))                              -- Keep awake on/off (no idle lock or suspend)
 hl.bind(mainMod .. " + A",              exec("~/.local/bin/cava-toggle"))                                  -- Audio visualizer on/off
 

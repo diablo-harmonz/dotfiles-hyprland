@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# calc: calculator under waybar (rofi-calc + libqalculate, SUPER+=). The result shows as
+# you type; Enter copies it to the clipboard. Understands units, currencies (daily
+# rates), percentages and dates: 2+2, 15% of 2300000, 100 usd to vnd, 5 ft to cm.
+# Pressing the key again closes it.
+#   -terse       only the result ("25.731,74 ₫"), not "100 USD = approx. 2573174 VND"
+#   -qalc-binary calc-qalc: lets "15% of 2300000" work (qalc has no "of")
+#   -no-unicode  rofi-calc then does not pass +u8 to qalc, which (inverted) turns
+#                symbols like ≈ and ₫ into words like "approx." and "VND"
+#   calc copy RESULT  used by rofi-calc on Enter: rofi-calc hands over the result with
+#                     non-ASCII bytes as octal escapes ("\342\202\253" for ₫); decode them
+#                     back to UTF-8 and copy, so the currency sign comes out right.
+if [ "${1:-}" = copy ]; then
+    printf '%b' "$(sed -E 's/\\([0-7]{3})/\\0\1/g' <<<"${2:-}")" | wl-copy
+    exit 0
+fi
+
+pkill -x rofi && exit 0
+exec rofi -show calc -modi calc -no-show-match -no-sort -terse -no-unicode \
+    -hint-welcome "" -qalc-binary "$HOME/.local/bin/calc-qalc" \
+    -calc-command "$HOME/.local/bin/calc copy '{result}'" \
+    -config "$HOME/.config/rofi/config-calc.rasi"

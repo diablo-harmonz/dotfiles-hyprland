@@ -2,8 +2,9 @@
 // Colors come from colors.css (Matugen, see bin/wallpaper). Workspaces show one
 // numeral per slot on each screen (laptop 1-5, external 6-10). Minimal right side like
 // macOS: tray, Wi-Fi, battery, the Control Center icon (everything else lives in that
-// panel, bin/control-center), the clock (click: notifications, right click: date) and
-// the power button.
+// panel, bin/control-center), the notification bell (swaync, right click: Do Not
+// Disturb), the clock (click: notifications, right click: date) and the power button.
+// Timer countdown and the recording button appear on the left of these when active.
 // Two bars with the same modules: a fixed width keeps each bar centred (~77% of the
 // screen): 1480 px on the 1920 px laptop panel, 1970 px on 2560 px external screens.
 [
@@ -27,8 +28,10 @@
         ],
         "modules-right": [
             "custom/recording",
+            "custom/timer",
             "group/status",
             "custom/control",
+            "custom/notification",
             "clock",
             "custom/power"
         ],
@@ -98,6 +101,17 @@
             "signal": 10,
             "on-click": "~/.local/bin/screenrec"
         },
+        // Countdown of the soonest bin/timer timer or alarm (hidden when none runs):
+        // click opens the timer menu, right click cancels the soonest. timer refreshes
+        // it at once with signal 11.
+        "custom/timer": {
+            "exec": "~/.local/bin/timer status",
+            "return-type": "json",
+            "interval": 1,
+            "signal": 11,
+            "on-click": "~/.local/bin/timer",
+            "on-click-right": "~/.local/bin/timer cancel"
+        },
         "group/status": {
             "orientation": "inherit",
             "modules": [
@@ -121,6 +135,27 @@
         // Control Center (bin/control-center): Bluetooth, Do Not Disturb, Caffeine, now
         // playing, brightness, volume, charge limit, power mode, capture, wallpaper,
         // CPU / RAM, notifications, power menu
+        // Notification center (swaync): bell with a dot when there are notifications,
+        // crossed bell in Do Not Disturb. Click: open/close, right click: DND on/off.
+        "custom/notification": {
+            "exec": "swaync-client -swb",
+            "return-type": "json",
+            "escape": true,
+            "format": "{icon}",
+            "format-icons": {
+                "none": "󰂚",
+                "notification": "󱅫",
+                "dnd-none": "󰂛",
+                "dnd-notification": "󰂛",
+                "inhibited-none": "󰂚",
+                "inhibited-notification": "󱅫",
+                "dnd-inhibited-none": "󰂛",
+                "dnd-inhibited-notification": "󰂛"
+            },
+            "tooltip": true,
+            "on-click": "swaync-client -t -sw",
+            "on-click-right": "swaync-client -d -sw"
+        },
         "custom/control": {
             "format": "󱕂",
             "tooltip-format": "Control Center",
@@ -204,8 +239,10 @@
         ],
         "modules-right": [
             "custom/recording",
+            "custom/timer",
             "group/status",
             "custom/control",
+            "custom/notification",
             "clock",
             "custom/power"
         ],
@@ -275,6 +312,17 @@
             "signal": 10,
             "on-click": "~/.local/bin/screenrec"
         },
+        // Countdown of the soonest bin/timer timer or alarm (hidden when none runs):
+        // click opens the timer menu, right click cancels the soonest. timer refreshes
+        // it at once with signal 11.
+        "custom/timer": {
+            "exec": "~/.local/bin/timer status",
+            "return-type": "json",
+            "interval": 1,
+            "signal": 11,
+            "on-click": "~/.local/bin/timer",
+            "on-click-right": "~/.local/bin/timer cancel"
+        },
         "group/status": {
             "orientation": "inherit",
             "modules": [
@@ -298,6 +346,27 @@
         // Control Center (bin/control-center): Bluetooth, Do Not Disturb, Caffeine, now
         // playing, brightness, volume, charge limit, power mode, capture, wallpaper,
         // CPU / RAM, notifications, power menu
+        // Notification center (swaync): bell with a dot when there are notifications,
+        // crossed bell in Do Not Disturb. Click: open/close, right click: DND on/off.
+        "custom/notification": {
+            "exec": "swaync-client -swb",
+            "return-type": "json",
+            "escape": true,
+            "format": "{icon}",
+            "format-icons": {
+                "none": "󰂚",
+                "notification": "󱅫",
+                "dnd-none": "󰂛",
+                "dnd-notification": "󰂛",
+                "inhibited-none": "󰂚",
+                "inhibited-notification": "󱅫",
+                "dnd-inhibited-none": "󰂛",
+                "dnd-inhibited-notification": "󰂛"
+            },
+            "tooltip": true,
+            "on-click": "swaync-client -t -sw",
+            "on-click-right": "swaync-client -d -sw"
+        },
         "custom/control": {
             "format": "󱕂",
             "tooltip-format": "Control Center",

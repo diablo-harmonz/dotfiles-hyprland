@@ -208,6 +208,20 @@ personal-verify
 # Check SSH and identity for the work GitHub account in this repo
 work-verify
 
+% timer, alarm, calculator
+
+# Start a timer: 10m, 1h30m, 90s, 25 (minutes) or 07:30 for an alarm (menu: SUPER+SHIFT+T)
+timer add <spec> <label>
+
+# List running timers and alarms
+timer list
+
+# Cancel the soonest timer (or give its id from timer list)
+timer cancel
+
+# Calculate in the terminal like SUPER+= (units, currencies, 15% of 2300000, 1.5 or 1,5)
+calc-qalc "<expression>"
+
 % help
 
 # Short examples for any common command (tealdeer)

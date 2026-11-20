@@ -1,0 +1,175 @@
+#!/usr/bin/env bash
+# timer: countdown timers and alarms with a live countdown on Waybar.
+#   timer                 rofi menu (SUPER+SHIFT+T, click on the Waybar countdown):
+#                         type "10m tea", "1h30m", "90s", "25" (minutes) or "07:30 wake up"
+#                         (alarm at the next 07:30); pick a running timer to cancel it
+#   timer add SPEC [LABEL]  start one from the command line, same SPEC as the menu
+#   timer list            running timers, soonest first
+#   timer cancel [ID]     cancel one (default: the soonest)
+#   timer status          JSON for the Waybar custom/timer module (empty = hidden)
+#   timer ring ID         run by the systemd timer when it is due (notification + sound)
+# Each timer is a transient systemd user timer on the wall clock, so it still rings
+# with every window closed and rings right after resume if it fell due during sleep.
+# State: one file per timer in $XDG_RUNTIME_DIR/timers ("<end epoch> <label>").
+set -uo pipefail
+
+DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/timers"
+WAYBAR_SIGNAL=11   # matches "signal" of custom/timer in waybar/config
+SOUND=/usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga
+SNOOZE=300
+SELF="$HOME/.local/bin/timer"
+
+mkdir -p "$DIR"
+
+refresh_waybar() { pkill -RTMIN+"$WAYBAR_SIGNAL" -x waybar || true; }
+
+# Seconds as 9:58 or 1:02:03
+fmt() {
+    local s=$(( $1 < 0 ? 0 : $1 ))
+    if (( s >= 3600 )); then
+        printf '%d:%02d:%02d' $((s / 3600)) $((s % 3600 / 60)) $((s % 60))
+    else
+        printf '%d:%02d' $((s / 60)) $((s % 60))
+    fi
+}
+
+# Running timers as "end id label" lines, soonest first
+entries() {
+    local f end label
+    for f in "$DIR"/*; do
+        [ -f "$f" ] || continue
+        read -r end label <"$f"
+        printf '%s %s %s\n' "$end" "${f##*/}" "$label"
+    done | sort -n
+}
+
+# SPEC -> end epoch on stdout; fails on anything it does not understand
+parse_end() {
+    local spec=$1 now h m s total
+    now=$(date +%s)
+    if [[ $spec =~ ^([01]?[0-9]|2[0-3]):([0-5][0-9])$ ]]; then
+        local t
+        t=$(date -d "$(printf '%02d:%s' "$((10#${BASH_REMATCH[1]}))" "${BASH_REMATCH[2]}")" +%s) || return 1
+        (( t <= now )) && t=$(date -d "tomorrow $(date -d @"$t" +%H:%M)" +%s)
+        echo "$t"
+    elif [[ $spec =~ ^[0-9]+$ ]]; then
+        echo $(( now + 10#$spec * 60 ))
+    elif [[ $spec =~ ^(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?$ && -n $spec ]]; then
+        h=${BASH_REMATCH[2]:-0}; m=${BASH_REMATCH[4]:-0}; s=${BASH_REMATCH[6]:-0}
+        total=$(( 10#$h * 3600 + 10#$m * 60 + 10#$s ))
+        (( total > 0 )) || return 1
+        echo $(( now + total ))
+    else
+        return 1
+    fi
+}
+
+add() {
+    local spec=${1:-} label=${2:-} end id kind
+    end=$(parse_end "$spec") || {
+        notify-send -a timer -i dialog-error "Timer" "Not understood: \"$spec\". Try 10m, 1h30m, 90s, 25 or 07:30."
+        return 2
+    }
+    [[ $spec == *:* ]] && kind=Alarm || kind=Timer
+    label=${label:-$kind}
+    id="t$(date +%s%N)"
+    printf '%s %s\n' "$end" "$label" >"$DIR/$id"
+    if ! systemd-run --user --quiet --collect --unit="timer-$id" \
+            --description="timer: $label" \
+            --on-calendar="$(date -d @"$end" '+%Y-%m-%d %H:%M:%S')" \
+            --timer-property=AccuracySec=1s \
+            "$SELF" ring "$id"; then
+        rm -f "$DIR/$id"
+        notify-send -a timer -i dialog-error "Timer" "Could not start the systemd timer."
+        return 1
+    fi
+    notify-send -a timer -i alarm-symbolic "$kind set: $label" \
+        "Rings at $(date -d @"$end" +%H:%M:%S) (in $(fmt $(( end - $(date +%s) ))))"
+    refresh_waybar
+}
+
+cancel() {
+    local id=${1:-}
+    [ -n "$id" ] || id=$(entries | awk 'NR == 1 { print $2 }')
+    [ -n "$id" ] && [ -f "$DIR/$id" ] || return 0
+    systemctl --user stop "timer-$id.timer" 2>/dev/null
+    rm -f "$DIR/$id"
+    refresh_waybar
+}
+
+ring() {
+    local id=$1 end label action
+    [ -f "$DIR/$id" ] || exit 0          # cancelled in the meantime
+    read -r end label <"$DIR/$id"
+    rm -f "$DIR/$id"
+    refresh_waybar
+    # Sound three times in the background; it stops when the notification is answered
+    ( for _ in 1 2 3; do pw-play "$SOUND" 2>/dev/null || break; sleep 0.4; done ) &
+    local sound=$!
+    action=$(notify-send -a timer -u critical -i alarm-symbolic \
+        -A snooze="Snooze 5 min" -A stop="Stop" \
+        "Time's up: $label" "Set for $(date -d @"$end" +%H:%M:%S)")
+    kill "$sound" 2>/dev/null
+    pkill -P "$sound" pw-play 2>/dev/null
+    [ "$action" = snooze ] && add "${SNOOZE}s" "$label"
+    return 0
+}
+
+status() {
+    local now first end id label n=0 tip=""
+    now=$(date +%s)
+    while read -r end id label; do
+        [ -n "$end" ] || continue
+        (( n++ == 0 )) && first="$end $label"
+        tip+="${tip:+\\n}$(fmt $(( end - now )))  $label  (at $(date -d @"$end" +%H:%M))"
+    done < <(entries)
+    if (( n == 0 )); then echo; return; fi
+    read -r end label <<<"$first"
+    local text
+    text="󰔛 $(fmt $(( end - now )))"
+    (( n > 1 )) && text+=" +$((n - 1))"
+    label=${label//\\/\\\\}; label=${label//\"/\\\"}
+    tip=${tip//\"/\\\"}
+    printf '{"text":"%s","class":"%s","tooltip":"%s\\n\\nClick: timers  Right click: cancel the soonest"}\n' \
+        "$text" "$( (( end - now <= 60 )) && echo soon || echo running)" "$tip"
+}
+
+menu() {
+    pkill -x rofi && exit 0
+    local now end id label line choice
+    local -A cancel_ids=()
+    local lines=()
+    now=$(date +%s)
+    while read -r end id label; do
+        [ -n "$end" ] || continue
+        line="✕ Cancel  $label  ($(fmt $(( end - now ))) left, at $(date -d @"$end" +%H:%M))"
+        cancel_ids[$line]=$id
+        lines+=("$line")
+    done < <(entries)
+    lines+=("5m" "10m" "25m Focus" "1h")
+    choice=$(printf '%s\n' "${lines[@]}" | rofi -dmenu -i -p "󰔛" \
+        -mesg "Type 10m tea, 1h30m, 90s, 25 (minutes) or 07:30 wake up" \
+        -config "$HOME/.config/rofi/config-timer.rasi") || exit 0
+    choice=$(printf '%s' "$choice" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
+    [ -n "$choice" ] || exit 0
+    if [ -n "${cancel_ids[$choice]:-}" ]; then
+        cancel "${cancel_ids[$choice]}"
+        notify-send -a timer -i alarm-symbolic "Timer cancelled" "${choice#✕ Cancel  }"
+        return
+    fi
+    local spec=${choice%% *} rest=""
+    [[ $choice == *" "* ]] && rest=${choice#* }
+    add "$spec" "$rest"
+}
+
+case "${1:-menu}" in
+    menu)   menu ;;
+    add)    shift; spec=${1:-}; shift || true; add "$spec" "$*" ;;
+    list)   now=$(date +%s); entries | while read -r end id label; do
+                printf '%s  %s  at %s  [%s]\n' "$(fmt $(( end - now )))" "$label" "$(date -d @"$end" +%H:%M:%S)" "$id"
+            done ;;
+    cancel) cancel "${2:-}" ;;
+    status) status ;;
+    ring)   ring "${2:?id}" ;;
+    *)      echo "usage: timer [menu|add SPEC [LABEL]|list|cancel [ID]|status]" >&2; exit 2 ;;
+esac

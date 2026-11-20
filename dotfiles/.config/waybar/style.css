@@ -50,6 +50,7 @@ tooltip label {
 #workspaces,
 #status,
 #custom-control,
+#custom-notification,
 #clock,
 #custom-power {
     background: alpha(@surface_highest, 0.55);
@@ -81,6 +82,22 @@ window#waybar > box {
 
 #custom-control:hover {
     color: @primary;
+}
+
+/* Notification bell: accent color when something is waiting, muted in DND */
+#custom-notification {
+    padding: 0 13px;
+    font-size: 15px;
+}
+
+#custom-notification.notification,
+#custom-notification:hover {
+    color: @primary;
+}
+
+#custom-notification.dnd-none,
+#custom-notification.dnd-notification {
+    color: @on_surface_variant;
 }
 
 /* Power button closes the row */
@@ -226,6 +243,16 @@ window#waybar.empty #window {
 
 #custom-recording:hover {
     background: #c62f35;
+}
+
+/* Timer countdown (bin/timer): accent color, the error color in the last minute */
+#custom-timer {
+    color: @primary;
+    padding: 0 10px;
+}
+
+#custom-timer.soon {
+    color: @error;
 }
 
 #custom-caffeine.on {

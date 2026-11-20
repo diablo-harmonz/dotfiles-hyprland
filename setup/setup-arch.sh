@@ -17,6 +17,8 @@ packages=(
     "hyprpolkitagent"
     "qt6ct"
     "cliphist"
+    "rofi-calc"                 # calculator in rofi (SUPER+=), pulls libqalculate (qalc)
+    "sound-theme-freedesktop"   # alarm sound for bin/timer
     "python-gobject"
     "gtk4-layer-shell"
     "network-manager-applet"   # nm-connection-editor (VPN, advanced settings); no tray icon
