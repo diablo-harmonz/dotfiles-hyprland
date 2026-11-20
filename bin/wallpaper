@@ -4,6 +4,7 @@
 #   wallpaper random    random wallpaper (SUPER+SHIFT+W)
 #   wallpaper set FILE  set FILE with a transition, then regenerate the colors
 #   wallpaper restore   at login: start awww, show the saved wallpaper, make sure colors exist
+#                       (no wallpaper at all: colors from FALLBACK_COLOR)
 # The wallpaper is shown by awww; Matugen turns it into colors for rofi, waybar,
 # kitty, GTK 4 and the Hyprland borders (see ~/.config/matugen/config.toml).
 # ~/.cache/wallpaper/current links to the chosen file (used by rofi and hyprlock).
@@ -14,6 +15,7 @@ CACHE="$HOME/.cache/wallpaper"
 CURRENT="$CACHE/current"
 THUMBS="$CACHE/thumbs"
 MODE=dark
+FALLBACK_COLOR="#3b7dbd"   # colors when there is no wallpaper at all (fresh install)
 
 mkdir -p "$THUMBS"
 
@@ -86,6 +88,12 @@ case "${1:-select}" in
         # No saved wallpaper (fresh install): take the first one found, if any
         [ -f "$img" ] || img=$(list | head -n 1)
         if [ -z "$img" ]; then
+            # Fresh install without the wallpapers repo (e.g. no SSH key on GitHub yet):
+            # still generate the color files from a fixed color, or Waybar and rofi start
+            # without their colors.css / colors.rasi
+            for f in "$HOME/.config/rofi/colors.rasi" "$HOME/.config/waybar/colors.css"; do
+                [ -f "$f" ] || { matugen color hex "$FALLBACK_COLOR" --mode "$MODE" >/dev/null 2>&1; break; }
+            done
             notify-send -a wallpaper "Wallpaper" "No wallpapers yet: add images to ~/Pictures/Wallpapers, then press SUPER+W."
             exit 0
         fi
