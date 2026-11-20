@@ -54,6 +54,9 @@ try it in a VM first.
    - takes the first Timeshift snapshot
    - then offers steps 3 to 5 one by one (Enter = yes, n = later), so a fresh install is
      one command; each script can also be run on its own later
+   - last, offers Claude Code (the official installer, downloaded to a file and shown on
+     request before it runs) and restoring its memory from a private `claude-memory` repo
+     (`personal-memory/` and `settings.json`, cloned next to this repo)
 3. `setup/setup-git.sh`: guided Git setup. It first asks for one GitHub account or two:
    - one: plain Git, the identity in `~/.gitconfig`, the key `~/.ssh/id_ed25519`; clone
      anywhere with `git clone git@github.com:USER/REPO.git`

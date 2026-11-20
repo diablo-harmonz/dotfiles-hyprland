@@ -324,7 +324,8 @@ sudo timeshift --create --comments "Fresh Arch + Hyprland setup" --tags O
 
 SETUP_DIR=$(dirname "$(realpath "$0")")
 REPO_DIR=$(dirname "$SETUP_DIR")
-WALLPAPERS_DIR=$(dirname "$REPO_DIR")/wallpapers
+PERSONAL_DIR=$(dirname "$REPO_DIR")   # ~/Documents/personal: this repo, wallpapers, claude-memory
+WALLPAPERS_DIR=$PERSONAL_DIR/wallpapers
 ask_next() { local a; read -r -p ":: $1 [Y/n] " a; [[ ! "$a" =~ ^[Nn]$ ]]; }
 
 echo ":: Installation complete."
@@ -366,6 +367,56 @@ if ask_next "Link the dotfiles into \$HOME now (setup/link-dotfiles.sh)?"; then
     "$SETUP_DIR/link-dotfiles.sh"
 else
     echo ":: Later: $SETUP_DIR/link-dotfiles.sh"
+fi
+
+# Claude Code: Anthropic's native installer (puts the launcher in ~/.local/bin/claude and
+# keeps it updated). Downloaded to a file first and shown on request, never piped to bash.
+if command -v claude >/dev/null || [ -x "$HOME/.local/bin/claude" ]; then
+    echo ":: Claude Code already installed"
+elif ask_next "Install Claude Code (official installer from claude.ai)?"; then
+    installer=$(mktemp)
+    if curl -fsSL -o "$installer" https://claude.ai/install.sh; then
+        ask_next "Read the installer before running it?" && less "$installer"
+        if ask_next "Run it now?"; then
+            bash "$installer" || echo ":: Claude Code install failed; later: see docs/plan.md, Claude Code"
+        fi
+    else
+        echo ":: Could not download the installer; later: see docs/plan.md, Claude Code"
+    fi
+    rm -f "$installer"
+else
+    echo ":: Later: see docs/plan.md, Claude Code"
+fi
+
+# Claude Code memory: a private repo with the memory of the ~/Documents/personal project and
+# settings.json (layout: personal-memory/, settings.json). Needs the GitHub SSH key from the
+# Git step. Claude Code keeps a project's memory under ~/.claude/projects/<path with / as ->.
+MEMORY_REPO_DIR=$PERSONAL_DIR/claude-memory
+MEMORY_DEST=$HOME/.claude/projects/$(printf '%s' "$PERSONAL_DIR" | tr '/' '-')/memory
+if [ -d "$MEMORY_DEST" ]; then
+    echo ":: Claude Code memory already at $MEMORY_DEST"
+elif ask_next "Restore Claude Code memory from your private claude-memory repo?"; then
+    # Default SSH host: the work alias when there are two accounts, else plain github.com
+    hosts=$(awk '/^Host[[:space:]]+github-/ { print $2 }' ~/.ssh/config 2>/dev/null | tr '\n' ' ')
+    default_host=github.com
+    grep -qE '^Host[[:space:]]+github-work([[:space:]]|$)' ~/.ssh/config 2>/dev/null && default_host=github-work
+    read -r -p ":: SSH host (${hosts:-github.com}) [$default_host]: " mem_host
+    read -r -p ":: GitHub username that owns it: " mem_user
+    read -r -p ":: Repository name [claude-memory]: " mem_repo
+    mem_host=${mem_host:-$default_host}
+    mem_repo=${mem_repo:-claude-memory}
+    if [ -z "$mem_user" ]; then
+        echo ":: No username: skipped"
+    elif [ -d "$MEMORY_REPO_DIR/.git" ] || git clone "git@$mem_host:$mem_user/$mem_repo.git" "$MEMORY_REPO_DIR"; then
+        mkdir -p "$(dirname "$MEMORY_DEST")"
+        cp -r "$MEMORY_REPO_DIR/personal-memory" "$MEMORY_DEST"
+        [ -f "$MEMORY_REPO_DIR/settings.json" ] && cp -f "$MEMORY_REPO_DIR/settings.json" "$HOME/.claude/settings.json"
+        echo ":: Restored $(ls "$MEMORY_DEST" | wc -l) memory files to $MEMORY_DEST"
+    else
+        echo ":: Clone failed (is the SSH key on GitHub?); later: run this script again"
+    fi
+else
+    echo ":: Later: run this script again, or see the claude-memory repo's README"
 fi
 
 echo
