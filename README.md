@@ -114,7 +114,7 @@ to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#
 | Audio, Bluetooth, Wi-Fi | wiremix, bluetui and nmtui in floating kitty windows (`bin/tui-popup`), opened from the Waybar volume, Bluetooth and Wi-Fi icons |
 | Bluetooth on the bar | `bin/bt-status`: devices and battery levels from UPower |
 | Browser | Firefox (FF Ultima theme) |
-| Media | mpv (video, also for yt-x), yt-dlp (downloads to `~/Videos/YouTube`), yt-x (YouTube in the terminal; videos open as a small window in the bottom-right corner, pinned to every workspace), MPD + rmpc (music in `~/Music`; player view with the record picture, queue and library as icon tabs, a keys tab); media keys and Waybar control mpv and MPD through MPRIS |
+| Media | mpv (video, also for yt-x; resumes where you left off, but a video played to the end starts over), yt-dlp (downloads to `~/Videos/YouTube`), yt-x (YouTube in the terminal; videos open as a small window in the bottom-right corner, pinned to every workspace), MPD + rmpc (music in `~/Music`; player view with the record picture, queue and library as icon tabs, a keys tab); media keys and Waybar control mpv and MPD through MPRIS |
 
 The full package list is the `packages` array in `setup/setup-arch.sh`.
 
@@ -272,6 +272,7 @@ installs from `setup/system/`:
 | `osd` | Volume, mic and brightness with a popup |
 | `battery-mode` | Charge limit 75–80 % or 100 % |
 | `powermode-notify` | Notification when the power profile changes (Fn+F8) |
+| `media-clear` | Stop every player (swaync panel: MEDIA … CLEAR): mpv quits, Firefox and mpd stop, orphaned mpv is ended |
 | `media-status` | Waybar play/pause button for the active player (playerctld): left click play/pause, right click pause every player, middle click next player |
 | `bt-status` | Waybar Bluetooth module: icon on the bar, connected devices and their batteries in the tooltip |
 | `sysinfo-bar`, `sysmetrics`, `syslive` | CPU/RAM on Waybar, metrics, live status view |

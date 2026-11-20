@@ -710,6 +710,51 @@ notificationwindow .notification-row .notification-background {
   color: {{colors.outline.default.hex}};
   font-size: 12px;
 }
+/* Its picture: swaync asks for preferences-system-notifications-symbolic, which
+   Papirus draws as two sliders. A plain bell instead, drawn at about 40 px inside the
+   96 px slot and faded like the text. */
+.control-center .control-center-list-placeholder image {
+  -gtk-icon-source: -gtk-icontheme("notification-inactive-symbolic");
+  -gtk-icon-transform: scale(0.42);
+  color: {{colors.outline.default.hex}};
+  opacity: 0.8;
+}
+
+/* MEDIA ... CLEAR row under the player cards (menubar#media in config.json): the
+   left "button" is only a label, the right one runs bin/media-clear. Same look as
+   the NOTIFICATIONS ... CLEAR row. */
+.widget-menubar {
+  margin: 10px 14px 4px 14px;
+}
+.widget-menubar > .menu-button-bar > .start,
+.widget-menubar > .menu-button-bar > .end {
+  margin: 0;
+}
+.widget-menubar > .menu-button-bar button {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  border: none;
+  box-shadow: none;
+}
+.widget-menubar > .menu-button-bar > .start button,
+.widget-menubar > .menu-button-bar > .start button:hover {
+  padding: 0;
+  letter-spacing: 2px;
+  background: transparent;
+  color: {{colors.on_surface_variant.default.hex}};
+}
+.widget-menubar > .menu-button-bar > .end button {
+  letter-spacing: 1px;
+  padding: 3px 12px;
+  border-radius: 99px;
+  background: alpha({{colors.surface_container_highest.default.hex}}, 0.8);
+  color: {{colors.on_surface.default.hex}};
+}
+.widget-menubar > .menu-button-bar > .end button:hover {
+  background: {{colors.primary.default.hex}};
+  color: {{colors.on_primary.default.hex}};
+}
 
 /* Small upper-case headers with a pill button, like a settings panel */
 .widget-title {

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# media-clear: stop every player, so nothing keeps playing or waiting in the background
+# (swaync panel: MEDIA ... CLEAR, under the player cards).
+#   - every MPRIS player gets "stop": mpv (yt-x, films) quits, Firefox stops the tab's
+#     media, mpd stops (the mpd service itself keeps running, it is a systemd unit)
+#   - mpv left without its terminal (parent gone, adopted by systemd) is ended, in case
+#     it ignored the stop
+# Prints what it stopped (no notification: it would only add to the list just cleared).
+set -uo pipefail
+
+stopped=()
+while read -r player; do
+    # playerctld only mirrors the active player (already in the list): skip it
+    [ -n "$player" ] && [ "$player" != playerctld ] || continue
+    name=$(playerctl -p "$player" metadata --format '{{xesam:title}}' 2>/dev/null)
+    if playerctl -p "$player" stop 2>/dev/null; then
+        stopped+=("${player%%.*}${name:+: $name}")
+    fi
+done < <(playerctl -l 2>/dev/null)
+
+# Orphaned mpv: give the stop a moment, then end the ones whose parent is systemd
+sleep 0.5
+for pid in $(pgrep -x mpv); do
+    ppid=$(ps -o ppid= -p "$pid" | tr -d ' ')
+    [ -n "$ppid" ] || continue
+    if [ "$(ps -o comm= -p "$ppid")" = systemd ]; then
+        kill "$pid" 2>/dev/null && stopped+=("mpv (orphan, pid $pid)")
+    fi
+done
+
+(( ${#stopped[@]} )) && printf '%s\n' "${stopped[@]}"
+exit 0

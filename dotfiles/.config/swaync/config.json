@@ -42,6 +42,7 @@
   },
   "widgets": [
     "mpris",
+    "menubar#media",
     "title",
     "dnd",
     "notifications"
@@ -59,10 +60,32 @@
       "text": "DO NOT DISTURB"
     },
     "mpris": {
-      "blacklist": [],
+      "blacklist": [
+        "playerctld"
+      ],
       "autohide": true,
       "show-album-art": "always",
       "loop-carousel": true
+    },
+    "menubar#media": {
+      "buttons#label": {
+        "position": "left",
+        "actions": [
+          {
+            "label": "MEDIA",
+            "command": "true"
+          }
+        ]
+      },
+      "buttons#clear": {
+        "position": "right",
+        "actions": [
+          {
+            "label": "CLEAR",
+            "command": "$HOME/.local/bin/media-clear"
+          }
+        ]
+      }
     }
   },
   "notification-icon-size": 48
