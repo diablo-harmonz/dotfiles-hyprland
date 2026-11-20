@@ -100,6 +100,7 @@ packages=(
     "timeshift"
     "timeshift-autosnap"
     "pacman-contrib"     # checkupdates, pacdiff (bin/sysupdate)
+    "reflector"          # sysupdate ranks the mirrors again when the first one is slow
     "grub-btrfs"
     "inotify-tools"
     "cronie"

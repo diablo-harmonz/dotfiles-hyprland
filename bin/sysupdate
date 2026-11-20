@@ -3,13 +3,20 @@
 #   sysupdate        run it in a terminal; it asks before anything that changes the system
 # Step by step, with what to do when something goes wrong: docs/update.md (Vietnamese).
 #   1 Arch news            yay -Pw: read manual interventions before updating
-#   2 What will change     checkupdates + AUR; flags kernel, Hyprland, Mesa, rmpc, Matugen,
+#   2 What will change     mirror speed check (a slow first mirror is replaced by the
+#                          fastest ones: pacman-mirrors on Manjaro, reflector on Arch),
+#                          checkupdates + AUR; flags kernel, Hyprland, Mesa, rmpc, Matugen,
 #                          and offers to remove leftover dependencies instead of updating them
+# Network steps show a spinner with the seconds waited (and MB downloaded), so a slow
+# download does not look like a hang.
 #   3 Power                warns when not plugged in
 #   4 Extra snapshot       offered for big updates (kept, unlike the automatic ones)
 #   5 Update               yay -Syu (timeshift-autosnap takes a snapshot first; the pacman
-#                          hooks check the Hyprland, rmpc and Matugen configs afterwards)
-#   6 Summary              hook warnings, .pacnew files, reboot / log out needed
+#                          hooks check the Hyprland, rmpc and Matugen configs afterwards);
+#                          the upgrade and clean-build menus are pre-answered with None and
+#                          the remaining questions are explained before yay starts
+#   6 Summary              hook warnings, .pacnew files, reboot / log out needed, a clear
+#                          "Done" line, then asks whether to reboot now
 # The whole update is recorded in ~/.local/state/sysupdate/<date>.log.
 set -uo pipefail
 
@@ -30,6 +37,62 @@ ask()   {   # $1 = question; default No
     [[ "$a" =~ ^[Yy]$ ]]
 }
 
+# Run a command in the background, keep its stdout in a variable named $1 (_ = discard;
+# the command cannot read the keyboard, so run sudo -v before a sudo command), and show a
+# spinner with the elapsed seconds meanwhile (plus MB downloaded when $PART_DIR is set:
+# checkupdates downloads the package lists there as *.part files).
+#   spin VAR "message" command args...
+spin() {
+    local __var=$1 msg=$2 tmp pid i=0 start=$SECONDS extra mb
+    shift 2
+    tmp=$(mktemp)
+    "$@" >"$tmp" 2>/dev/null &
+    pid=$!
+    if [ -t 1 ]; then
+        local frames='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
+        while kill -0 "$pid" 2>/dev/null; do
+            extra=""
+            if [ -n "${PART_DIR:-}" ]; then
+                mb=$(du -cb "$PART_DIR"/*.part 2>/dev/null | awk 'END { if ($1 > 0) printf "%.1f", $1 / 1048576 }')
+                [ -n "$mb" ] && extra=", $mb MB downloaded"
+            fi
+            (( SECONDS - start >= 30 )) && extra+=", slow: see docs/update.md, Mirrors"
+            printf '\r\e[K   %s%s%s %s %s(%ss%s)%s' "$C" "${frames:i++%10:1}" "$N" "$msg" \
+                "$D" "$((SECONDS - start))" "$extra" "$N"
+            sleep 0.15
+        done
+        printf '\r\e[K'
+    fi
+    wait "$pid"
+    local rc=$?
+    printf -v "$__var" '%s' "$(cat "$tmp")"
+    rm -f "$tmp"
+    return $rc
+}
+
+# Download speed (bytes/s) of the first mirror in the mirrorlist, from 2 MB of the extra
+# package list (8 s at most per try); 0 when it does not answer. The first request is
+# often slow (DNS, TLS, a cold mirror cache), so a slow result gets one more try and
+# the better one counts.
+mirror_url() {
+    sed -n 's/^[[:space:]]*Server[[:space:]]*=[[:space:]]*//p' /etc/pacman.d/mirrorlist | head -1
+}
+mirror_speed() {
+    local url
+    url=$(mirror_url | sed 's/\$repo/extra/; s/\$arch/x86_64/')
+    [ -n "$url" ] || { echo 0; return; }
+    local best=0 try v
+    for try in 1 2; do
+        v=$(curl -s -o /dev/null -r 0-2097151 --max-time 8 -w '%{speed_download}' \
+            "$url/extra.db" 2>/dev/null | cut -d. -f1)
+        (( ${v:-0} > best )) && best=${v:-0}
+        (( best >= MIN_SPEED )) && break
+    done
+    echo "$best"
+}
+
+MIN_SPEED=200000   # bytes/s; below this the mirrors are ranked again (step 2)
+
 LOGDIR="$HOME/.local/state/sysupdate"
 mkdir -p "$LOGDIR"
 LOG="$LOGDIR/$(date +%F_%H-%M).log"
@@ -37,7 +100,7 @@ KERNEL_RE='^linux[0-9]*(-lts|-zen|-hardened)?$'
 
 printf '%sSystem update%s %s(guide: docs/update.md in the dotfiles repo)%s\n' "$B" "$N" "$D" "$N"
 
-for tool in yay checkupdates timeshift; do
+for tool in yay checkupdates timeshift curl; do
     if ! command -v "$tool" >/dev/null; then
         bad "$tool is missing."
         [ "$tool" = checkupdates ] && info "Install it with: sudo pacman -S pacman-contrib"
@@ -47,7 +110,7 @@ done
 
 # --- 1 news ----------------------------------------------------------------------------
 step 1 "Arch news"
-news=$(yay -Pw 2>/dev/null)
+spin news "Reading the Arch news..." yay -Pw
 if [ -n "$news" ]; then
     printf '%s\n' "$news" | sed 's/^/   /'
     warn "Read the news above. If one asks for a manual step, do it before updating."
@@ -58,9 +121,37 @@ fi
 
 # --- 2 what will change ----------------------------------------------------------------
 step 2 "What will change"
-info "Checking for updates (this does not change the system)..."
-repo=$(checkupdates 2>/dev/null)
-aur=$(yay -Qua 2>/dev/null)
+# A slow first mirror makes every download crawl (once ~12 KB/s: the check below sat
+# for minutes looking frozen). Below 200 KB/s, rank the mirrors again.
+spin speed "Testing the download speed of the mirror..." mirror_speed
+speed=${speed:-0}
+host=$(mirror_url | awk -F/ '{ print $3 }')
+if (( speed >= MIN_SPEED )); then
+    good "Mirror $host: $((speed / 1024)) KB/s."
+else
+    if (( speed == 0 )); then warn "Mirror $host does not answer."
+    else warn "Mirror $host is slow: $((speed / 1024)) KB/s."; fi
+    if command -v pacman-mirrors >/dev/null; then
+        info "Picking the 5 fastest mirrors (Manjaro: pacman-mirrors --fasttrack 5)."
+        sudo -v && spin _ "Ranking mirrors..." sudo -n pacman-mirrors --fasttrack 5
+    elif command -v reflector >/dev/null; then
+        info "Picking the 5 fastest mirrors (reflector, about a minute)."
+        sudo -v && spin _ "Ranking mirrors..." sudo -n reflector --protocol https --latest 20 \
+            --sort rate --number 5 --save /etc/pacman.d/mirrorlist
+    else
+        info "No mirror ranking tool (Arch: sudo pacman -S reflector). Continuing with this mirror."
+    fi
+    spin speed "Testing the new first mirror..." mirror_speed
+    speed=${speed:-0}
+    host=$(mirror_url | awk -F/ '{ print $3 }')
+    if (( speed >= MIN_SPEED )); then good "Now using $host: $((speed / 1024)) KB/s."
+    else warn "Still slow ($host, $((speed / 1024)) KB/s). The check below may take a while."; fi
+fi
+
+PART_DIR="${CHECKUPDATES_DB:-${TMPDIR:-/tmp}/checkup-db-${UID}}/sync"
+spin repo "Checking official packages (this does not change the system)..." checkupdates
+unset PART_DIR
+spin aur "Checking AUR packages..." yay -Qua
 all=$(printf '%s\n%s\n' "$repo" "$aur" | sed '/^$/d')
 if [ -z "$all" ]; then
     good "Everything is up to date. Nothing to do."
@@ -155,13 +246,19 @@ fi
 
 # --- 5 update --------------------------------------------------------------------------
 step 5 "Update"
-info "Now running: yay -Syu"
-info "• It asks for your password, then confirmation ('Proceed with installation? [Y/n]': press Enter)."
-info "• For AUR packages it may ask to show diffs or the PKGBUILD: answer and read the changes."
-info "• Everything is also written to: $LOG"
+YAY=(yay -Syu --answerupgrade None --answerclean None)
+info "Now running: yay -Syu (the \"exclude packages\" and \"clean build\" menus are answered"
+info "with None for you: exclude nothing, keep the build cache)."
+info "From here on, ${B}a line that ends and waits is a question${N}. What to press:"
+info "  [sudo] password for …              type your password, Enter (nothing shows while typing)"
+info "  Diffs to show? (AUR packages only)  Enter = skip; or the number to read what changed"
+info "  Proceed with installation? [Y/n]    Enter = yes"
+info "  Anything else …? [Y/n] / [y/N]      Enter takes the capital letter; unsure: n, then ask"
+info "Lines that keep scrolling (downloading, building, installing) need nothing: wait."
+info "Everything is also written to: $LOG"
 ask "Start the update?" || { info "Stopped. Nothing was changed."; exit 0; }
 # script records the session while keeping yay fully interactive
-script -q -e -c "yay -Syu" "$LOG"
+script -q -e -c "${YAY[*]}" "$LOG"
 status=$?
 
 # --- 6 summary -------------------------------------------------------------------------
@@ -192,8 +289,10 @@ if [ -n "$pacnew" ]; then
     info "Merge them with: sudo pacdiff   (see docs/update.md, step 8)"
 fi
 
+reboot_needed=false
 if [ ! -d "/usr/lib/modules/$(uname -r)" ] || { $reboot_expected && [ $status -eq 0 ]; }; then
-    warn "The kernel was updated: reboot when convenient (systemctl reboot)."
+    warn "The kernel was updated: a reboot is needed to use it."
+    reboot_needed=true
 elif grep -qE 'upgrading hyprland|installing hyprland' <<<"$plain"; then
     warn "Hyprland was updated: log out and in (SUPER+M) to start the new version."
 else
@@ -202,3 +301,30 @@ fi
 
 info "Quick check: Waybar, Control Center, change the wallpaper once (SUPER+W), open rmpc."
 info "Log of this update: $LOG"
+
+if [ $status -eq 0 ]; then
+    printf '\n%s━━ Done. sysupdate has finished; nothing is running any more.%s\n' "$B$G" "$N"
+else
+    printf '\n%s━━ Finished with an error (see above). Nothing is running any more.%s\n' "$B$R" "$N"
+fi
+
+# Last question: reboot now? Default yes when the kernel changed, no otherwise.
+# No keyboard (stdin not a terminal, or read fails): never reboot.
+want_reboot=false
+if [ -t 0 ]; then
+    if $reboot_needed; then
+        if read -r -p "   Reboot now? Save your work in other windows first. [Y/n] " a; then
+            [[ -z "$a" || "$a" =~ ^[Yy]$ ]] && want_reboot=true
+        fi
+    else
+        if read -r -p "   Reboot now anyway? [y/N] " a; then
+            [[ "$a" =~ ^[Yy]$ ]] && want_reboot=true
+        fi
+    fi
+fi
+if $want_reboot; then
+    info "Rebooting in 5 seconds (Ctrl+C to cancel)..."
+    sleep 5 && systemctl reboot
+else
+    info "No reboot. Later: systemctl reboot"
+fi
