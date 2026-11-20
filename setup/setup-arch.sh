@@ -26,6 +26,7 @@ packages=(
     "bluez-utils"
     "nautilus"
     "nautilus-open-any-terminal"
+    "sushi"                       # Nautilus Quick Look: select a file, press Space
     "xdg-desktop-portal-hyprland"
     "qt5-wayland"
     "qt6-wayland"
@@ -288,6 +289,18 @@ gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark
 gsettings set org.gnome.desktop.interface cursor-theme breeze_cursors
 gsettings set org.gnome.desktop.interface cursor-size 24
 gsettings set org.gnome.desktop.interface font-name "Noto Sans 10"
+# macOS-style window buttons in GTK 4 apps: close and maximize on the left (Hyprland has
+# no minimize), drawn as coloured dots by window-controls.css (Matugen template)
+grep -qs "window-controls.css" ~/.config/gtk-4.0/gtk.css || echo "@import 'window-controls.css';" >> ~/.config/gtk-4.0/gtk.css
+gsettings set org.gnome.desktop.wm.preferences button-layout "close,maximize:"
+
+# Nautilus like the Finder list view: list by default, small rows, folders first, name /
+# size / modified columns, folders expand in place (tree view)
+gsettings set org.gnome.nautilus.preferences default-folder-viewer list-view
+gsettings set org.gnome.nautilus.list-view default-zoom-level small
+gsettings set org.gnome.nautilus.list-view default-visible-columns "['name', 'size', 'date_modified']"
+gsettings set org.gnome.nautilus.list-view use-tree-view true
+gsettings set org.gtk.gtk4.Settings.FileChooser sort-directories-first true
 
 # Firefox is the default browser (links from other apps)
 xdg-settings set default-web-browser firefox.desktop

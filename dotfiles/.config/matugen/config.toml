@@ -55,6 +55,10 @@ output_path = '~/.config/navi/config.yaml'
 input_path = '~/.config/matugen/templates/gtk.css'
 output_path = '~/.config/gtk-4.0/matugen.css'
 
+[templates.gtk4-window-controls]
+input_path = '~/.config/matugen/templates/gtk4-window-controls.css'
+output_path = '~/.config/gtk-4.0/window-controls.css'
+
 [templates.gtk3]
 input_path = '~/.config/matugen/templates/gtk.css'
 output_path = '~/.config/gtk-3.0/matugen.css'
