@@ -292,6 +292,10 @@ gsettings set org.gnome.desktop.interface font-name "Noto Sans 10"
 # Firefox is the default browser (links from other apps)
 xdg-settings set default-web-browser firefox.desktop
 
+# Nautilus opens folders from other apps (Firefox "Show in Folder", notifications); without
+# a default the first match wins, which is kitty-open.desktop
+xdg-mime default org.gnome.Nautilus.desktop inode/directory
+
 # Services: network, Bluetooth, power modes (Fn+F8), weekly SSD trim
 sudo systemctl enable --now NetworkManager.service bluetooth.service power-profiles-daemon.service fstrim.timer
 
