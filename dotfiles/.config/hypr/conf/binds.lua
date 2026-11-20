@@ -57,7 +57,10 @@ hl.bind("XF86Refresh",           exec("wtype -k F5"))
 hl.bind("XF86SelectiveScreenshot", exec("~/.local/bin/screenshot area"))  -- Fn+F10: select a region -> file + clipboard
 hl.bind("XF86Favorites",         exec("rofi -show drun"))                    -- Fn+F12 (star): app launcher
 hl.bind("XF86Display",           exec("~/.local/bin/display-toggle"))        -- Fn+F7: cycle external monitor mirror -> extended -> off
-hl.bind("code:248",              hl.dsp.window.fullscreen())                   -- Fn+F11 (no keysym, keycode 248): fullscreen the active window
+-- F11 hotkey (phone icon): fullscreen the active window. Newer kernels send it as
+-- KEY_LINK_PHONE (XF86LinkPhone); older ones had no keysym for it (keycode 248)
+hl.bind("XF86LinkPhone",         hl.dsp.window.fullscreen())
+hl.bind("code:248",              hl.dsp.window.fullscreen())
 hl.bind("XF86AudioPlay",         exec("playerctl play-pause"))
 hl.bind("XF86AudioNext",         exec("playerctl next"))
 hl.bind("XF86AudioPrev",         exec("playerctl previous"))
