@@ -64,7 +64,7 @@ Bộ cài phải sẵn sàng để cài lại trong một buổi khi cài lại;
 
 ## Thử bộ cài trong máy ảo (trước khi cài thật)
 
-Chưa làm. Mục đích: chạy trọn quy trình cài Arch bằng repo trên một máy ảo UEFI có LUKS, nhất là setup/arch-boot-in-root.sh (đụng tới khoá LUKS và GRUB, không thử được trên Manjaro), trước khi cài lên máy thật. Mất khoảng 1 đến 2 giờ.
+Đã làm 2026-11-20 (máy ảo arch-test, virt-manager, UEFI OVMF không Secure Boot, ISO 2026.11.01 đã kiểm tra chữ ký): archinstall, arch-boot-in-root.sh (7 dòng ok), khởi động với một lần mật khẩu LUKS, setup-arch.sh, Hyprland + Waybar, rollback có đổi kernel đều đạt. Sửa trong repo nhờ đợt thử: Waybar rộng theo từng màn hình (bin/waybar-launch), hình nền Arch khi chưa có repo hình nền, archinstall phải tắt UKI và Removable, pipewire-audio. Git (setup-git.sh check) để sau. Hướng dẫn cài thật cho điện thoại: artifact "Cài Arch ThinkPad". Mục đích ban đầu: chạy trọn quy trình cài Arch bằng repo trên một máy ảo UEFI có LUKS, nhất là setup/arch-boot-in-root.sh (đụng tới khoá LUKS và GRUB, không thử được trên Manjaro), trước khi cài lên máy thật. Mất khoảng 1 đến 2 giờ.
 
 ### 1. Dựng máy ảo trên Manjaro
 
@@ -90,7 +90,7 @@ Chưa làm. Mục đích: chạy trọn quy trình cài Arch bằng repo trên m
 - [x] (2026-11-20, máy ảo) Keyring và polkit: seahorse thấy keyring Login đã mở khoá sau khi đăng nhập TTY (không hỏi thêm mật khẩu); pkexec true hiện hộp thoại mật khẩu
 - [x] (2026-11-20, máy ảo) Giao diện: Waybar đủ mục (đồng hồ, workspace, khay, hai ngăn trượt); SUPER + W đổi hình nền và màu Waybar, rofi, kitty, Nautilus (GTK), Qt đổi theo; bấm icon âm lượng mở wiremix, icon Bluetooth mở bluetui; con trỏ Breeze; font và icon không lỗi
 - [x] (2026-11-20, máy ảo) Tiện ích: gõ tiếng Việt bằng Lotus trong kitty và trình duyệt, không gạch chân (fcitx5-lotus-server đang chạy); SUPER + V dán chữ và ảnh; Shift + Print hiện preview, kéo thả được; SUPER + L khoá, hypridle khoá sau 10 phút; caffeine bật tắt được; thông báo swaync hiện
-- [ ] Git (cuối setup-arch.sh): chọn 1 tài khoản, nhập tên và email thử, tạo khoá, xem ~/.gitconfig có user.name / user.email và ~/.ssh/id_ed25519 có; chạy lại setup/setup-git.sh check thấy toàn ✔; bước clone hình nền hỏi tên GitHub (chỉ thử phần hỏi, không cần dán khoá thật lên GitHub). Nhánh này chỉ thử trong máy ảo, không thử trên máy đang dùng (máy thật đang ở kiểu 2 tài khoản)
+- [ ] (để sau, không chặn việc cài thật) Git (cuối setup-arch.sh): chọn 1 tài khoản, nhập tên và email thử, tạo khoá, xem ~/.gitconfig có user.name / user.email và ~/.ssh/id_ed25519 có; chạy lại setup/setup-git.sh check thấy toàn ✔; bước clone hình nền hỏi tên GitHub (chỉ thử phần hỏi, không cần dán khoá thật lên GitHub). Nhánh này chỉ thử trong máy ảo, không thử trên máy đang dùng (máy thật đang ở kiểu 2 tài khoản)
 - [ ] Ghi lại mọi lỗi hoặc gói thiếu, sửa trong repo, rồi cài lại máy ảo một lần nữa từ đầu cho tới khi chạy trơn
 
 Không thử được trong máy ảo, chỉ kiểm tra trên máy thật: ngưỡng sạc pin 75/80, hàng phím Fn, Fn+F7 màn hình ngoài, Bluetooth và Wi-Fi thật, gập máy với caffeine, thời lượng pin, ngủ đông (mục Ngủ rồi tự ngủ đông khi gập máy lâu).
