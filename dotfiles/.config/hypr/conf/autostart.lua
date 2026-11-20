@@ -21,6 +21,8 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("hyprsunset")
     -- Notify on power mode changes (Fn+F8 switches it in firmware, no key event)
     hl.exec_cmd("~/.local/bin/powermode-notify")
+    -- Mic-mute LED (F4) matches the mic's mute state (bin/osd); wait for PipeWire
+    hl.exec_cmd("sleep 3; ~/.local/bin/osd mic sync")
     -- Vietnamese input method
     hl.exec_cmd("fcitx5 -d")
     -- Floating widgets on workspace 1: welcome terminal, ... (startup-layout.lua)

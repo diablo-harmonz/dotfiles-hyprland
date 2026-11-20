@@ -58,6 +58,7 @@ packages=(
     "pipewire"
     "pipewire-pulse"
     "pipewire-audio"     # pw-play: the bin/timer alarm sound
+    "alsa-utils"         # amixer: bin/osd keeps the mic-mute LED in sync
     "xdg-desktop-portal-gtk"
     "gnome-keyring"
     "seahorse"

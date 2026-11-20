@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # osd: change volume / mic / brightness and show a popup with a progress bar (swaync).
-#   osd volume up|down|mute     osd mic mute     osd brightness up|down
+#   osd volume up|down|mute     osd mic mute|sync     osd brightness up|down
 # The popup is a low-priority, transient notification: each new one replaces the last
 # (x-canonical-private-synchronous), it closes by itself and stays out of the history.
 # swaync styles low-priority notifications as a compact OSD card (matugen swaync.css);
@@ -17,6 +17,19 @@ popup() {   # $1 = tag, $2 = icon, $3 = text, $4 = value 0-100 (optional)
     notify-send "${args[@]}" "$3"
 }
 
+# The mic-mute LED (F4) uses the kernel trigger audio-micmute, which follows the ALSA
+# "Capture" switch of the Realtek codec (headset jack), not the built-in digital mic that
+# PipeWire uses. Copy the default source's mute state onto every card that has "Capture",
+# so the LED is lit exactly when the mic is muted. "osd mic sync" does it without toggling
+# (run at login).
+sync_mic_led() {
+    local state=cap card
+    [[ $(wpctl get-volume @DEFAULT_AUDIO_SOURCE@) == *MUTED* ]] && state=nocap
+    for card in /proc/asound/card[0-9]*; do
+        amixer -q -c "${card##*card}" sset Capture "$state" 2>/dev/null
+    done
+}
+
 # "Volume: 0.75 [MUTED]" -> percent and mute flag
 read_volume() {   # $1 = wpctl target
     local out
@@ -30,10 +43,11 @@ case "${1:-} ${2:-}" in
                     wpctl set-volume -l "$MAX" @DEFAULT_AUDIO_SINK@ "$STEP%+" ;;
     "volume down")  wpctl set-volume @DEFAULT_AUDIO_SINK@ "$STEP%-" ;;
     "volume mute")  wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
-    "mic mute")     wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle ;;
+    "mic mute")     wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle; sync_mic_led ;;
+    "mic sync")     sync_mic_led; exit 0 ;;
     "brightness up")   brightnessctl -q set "$BSTEP%+" ;;
     "brightness down") brightnessctl -q -n2 set "$BSTEP%-" ;;   # -n2: never fully dark
-    *) echo "usage: osd volume up|down|mute | mic mute | brightness up|down" >&2; exit 2 ;;
+    *) echo "usage: osd volume up|down|mute | mic mute|sync | brightness up|down" >&2; exit 2 ;;
 esac
 
 case "$1" in
