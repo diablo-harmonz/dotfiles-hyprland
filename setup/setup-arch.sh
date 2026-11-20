@@ -115,6 +115,7 @@ packages=(
     "zsh-theme-powerlevel10k"
     "noto-fonts-emoji"
     "wlogout"
+    "archlinux-wallpaper"   # first wallpapers until the private wallpapers repo is cloned (bin/wallpaper)
     "fcitx5"
     "fcitx5-gtk"
     "fcitx5-qt"

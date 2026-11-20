@@ -4,7 +4,7 @@
 #   wallpaper random    random wallpaper (SUPER+SHIFT+W)
 #   wallpaper set FILE  set FILE with a transition, then regenerate the colors
 #   wallpaper restore   at login: start awww, show the saved wallpaper, make sure colors exist
-#                       (no wallpaper at all: colors from FALLBACK_COLOR)
+#                       (none of your own yet: Arch's wallpapers; none at all: FALLBACK_COLOR)
 # The wallpaper is shown by awww; Matugen turns it into colors for rofi, waybar,
 # kitty, GTK 4 and the Hyprland borders (see ~/.config/matugen/config.toml).
 # ~/.cache/wallpaper/current links to the chosen file (used by rofi and hyprlock).
@@ -15,16 +15,26 @@ CACHE="$HOME/.cache/wallpaper"
 CURRENT="$CACHE/current"
 THUMBS="$CACHE/thumbs"
 MODE=dark
-FALLBACK_COLOR="#3b7dbd"   # colors when there is no wallpaper at all (fresh install)
+FALLBACK_COLOR="#3b7dbd"   # colors when there is no wallpaper at all, not even Arch's
 
 mkdir -p "$THUMBS"
 
-list() {
+# Arch's own wallpapers (package archlinux-wallpaper, CC0), used only while the folders
+# above have no image yet: a fresh install before the private wallpapers repo is cloned
+SYSTEM_DIR=/usr/share/backgrounds/archlinux
+
+images_in() {   # $@ = folders
     local d
-    for d in "${DIRS[@]}"; do
+    for d in "$@"; do
         [ -d "$d" ] || continue
         find -L "$d" -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \)
     done | sort
+}
+
+list() {
+    local own
+    own=$(images_in "${DIRS[@]}")
+    if [ -n "$own" ]; then printf '%s\n' "$own"; else images_in "$SYSTEM_DIR"; fi
 }
 
 thumb() {   # $1 = image -> prints a portrait thumbnail path (made once, then cached)
