@@ -53,7 +53,7 @@ Manjaro KDE đã cài xong và chạy ổn; Hyprland đang chạy thử trên Ma
 
 Bộ cài phải sẵn sàng để cài lại trong một buổi khi cài lại; ghi vào đây mọi phần mềm và cấu hình bạn thực sự dùng.
 
-- [ ] Xuất danh sách gói: pacman -Qqen > ~/pkglist-repo.txt và pacman -Qqem > ~/pkglist-aur.txt (làm lại ngay trước khi cài lại, khi hệ thống đã ổn định)
+- [x] Danh sách gói: không cần xuất nữa (2026-11-20). Gói desktop khai báo trong setup/setup-arch.sh (đã dò mọi lệnh mà script và config gọi tới), công cụ lập trình ở mục Môi trường phát triển
 - [x] Kho GitHub Hyprland starter: đã fork thành dotfiles-hyprland, chạy trên Manjaro với Hyprland 0.56.2. Đã sửa lỗi cú pháp (gestures, pseudotile, togglesplit) và chuyển hẳn cấu hình sang định dạng Lua (hyprland.lua + conf/*.lua), nên Hyprland 0.57 bỏ .conf không còn ảnh hưởng. Đã kiểm tra nguồn: bản gốc khớp upstream mylinuxforwork/hyprland-starter; đã gỡ lệnh curl | bash, file AppImage và sửa bước cài yay trong setup-arch.sh
 - [x] Dotfiles Hyprland trong repo dotfiles-hyprland (đã push, 2026-11-12): kitty, zsh (bản sao manjaro-zsh-config trong repo nên dùng được trên Arch), bộ gõ fcitx5 + Lotus (gõ không gạch chân, Ctrl + Space), hình nền awww + trình chọn SUPER + W, màu theo hình nền bằng Matugen (rofi, Waybar, swaync, kitty, GTK, Qt, KDE, màu lệnh trong zsh), Waybar kiểu Hyprlust, rofi SUPER + Space, Nautilus, swaync, nm-applet, blueman, pavucontrol, hypridle (khoá 10 phút), caffeine SUPER + Shift + C, hyprsunset, clipboard SUPER + V (10 mục, 5 phút), preview ảnh chụp kiểu macOS, polkit agent, gnome-keyring, phím chụp và quay màn hình, hàng phím Fn, Fn+F7 màn hình ngoài, thông báo chế độ nguồn. Mọi chữ trong code, config và thông báo viết bằng tiếng Anh
 - [ ] Dotfiles còn lại: trình soạn thảo. (Bộ gõ fcitx5 + Lotus đã có cấu hình trong repo)
@@ -77,7 +77,7 @@ Chưa làm. Mục đích: chạy trọn quy trình cài Arch bằng repo trên m
 
 ### 2. Chạy quy trình cài như máy thật
 
-0. archinstall với đúng các lựa chọn ở mục Cài Arch Minimal và Hyprland (GRUB, btrfs mặc định, LUKS, EFI ở /boot, không display manager); dùng một mật khẩu LUKS thử, không dùng mật khẩu thật
+0. archinstall với đúng các lựa chọn ở mục Cài Arch Minimal và Hyprland (GRUB, trong mục Bootloader phải tắt UKI và Removable vì archinstall mới bật sẵn, arch-boot-in-root.sh cần kernel + initramfs thường; Network configuration chọn Use Network Manager (default backend), không chọn Copy ISO network configuration; Applications: Bluetooth bật, Audio pipewire, không bật Print service, Firewall, Additional fonts; btrfs mặc định, LUKS, EFI ở /boot, không display manager); dùng một mật khẩu LUKS thử, không dùng mật khẩu thật. Tài khoản: một tài khoản thường có sudo (superuser) và đặt mật khẩu riêng cho root (khác mật khẩu tài khoản, lưu trong trình quản lý mật khẩu; chỉ dùng cho emergency mode khi hệ thống hỏng, không đăng nhập root hằng ngày). Locale: en_US.UTF-8; định dạng số kiểu Việt (vi_VN, máy tính SUPER+= hiện 25.731,74) cần thêm sau khi cài, xem lại trong máy ảo
 1. Chroot: pacman -S git, clone repo, chạy setup/arch-boot-in-root.sh; tất cả dòng kiểm tra phải ok
 2. Khởi động lại, setup/setup-arch.sh, setup/link-dotfiles.sh, wallpaper restore, đăng xuất và đăng nhập lại ở TTY1
 

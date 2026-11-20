@@ -24,7 +24,7 @@ Only Arch is supported. `setup/setup-fedora.sh`, `setup/setup-opensuse.sh` and t
 
 ## Installing Arch (boot inside the encrypted root)
 
-archinstall: profile Minimal, **bootloader GRUB**, btrfs with the default subvolumes and
+archinstall: profile Minimal, **bootloader GRUB with Unified kernel images and Removable both Disabled** (newer archinstall turns them on by default; `arch-boot-in-root.sh` needs a plain kernel + initramfs), btrfs with the default subvolumes and
 zstd compression, LUKS, EFI partition at `/boot` (default), NetworkManager, pipewire,
 amd-ucode, no display manager.
 
