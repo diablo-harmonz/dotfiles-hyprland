@@ -116,6 +116,7 @@ packages=(
     "zsh-completions"
     "zsh-theme-powerlevel10k"
     "noto-fonts-emoji"
+    "noto-fonts-cjk"     # Japanese/Chinese/Korean text (yt-x search placeholder, web pages, subtitles)
     "wlogout"
     "archlinux-wallpaper"   # first wallpapers until the private wallpapers repo is cloned (bin/wallpaper)
     "fcitx5"

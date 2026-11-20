@@ -17,7 +17,7 @@ window {
     transparency:        "real";
     location:            south;
     anchor:              south;
-    y-offset:            -60px;
+    y-offset:            60px;    /* rofi 2.x: positive moves up from the south edge (1.7 needed -60px) */
     width:               820px;
     border:              2px solid;
     border-color:        @border;
