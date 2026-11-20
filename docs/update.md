@@ -297,6 +297,18 @@ systemctl reboot             #    nếu kernel đổi
 
 ---
 
+## Cập nhật dotfiles (repo này) trên máy khác
+
+Mọi cấu hình là symlink trỏ vào repo, nên sửa ở máy này, push, rồi ở máy kia:
+
+```
+git -C ~/Documents/personal/dotfiles-hyprland pull
+```
+
+- Sửa file đã có (config, script): xong ngay, app nào đọc lại config là thấy (Hyprland tự nạp lại; Waybar: SUPER + SHIFT + B).
+- Repo có **file hoặc thư mục mới** (script mới trong `bin/`, thư mục mới trong `dotfiles/.config/`): chạy thêm `setup/link-dotfiles.sh` để tạo symlink cho nó. Chạy lại bao nhiêu lần cũng an toàn (2026-11-20: `bin/waybar-launch` mới, chỉ pull thì Hyprland gọi script chưa có).
+- `setup-arch.sh` có **gói mới**: cài riêng gói đó (`sudo pacman -S …` hoặc `yay -S …`), hoặc chạy lại `setup/setup-arch.sh` (bỏ qua gói đã có).
+
 ## Plugin Neovim (không nằm trong yay)
 
 Plugin cài bằng `vim.pack` không được `yay -Syu` cập nhật. Làm riêng, cũng vào cuối tuần:

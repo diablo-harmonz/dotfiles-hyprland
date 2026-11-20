@@ -83,8 +83,8 @@ Chưa làm. Mục đích: chạy trọn quy trình cài Arch bằng repo trên m
 
 ### 3. Danh sách kiểm tra
 
-- [ ] Khởi động: GRUB hỏi mật khẩu LUKS đúng một lần (không hỏi lại ở initramfs); menu GRUB hiện 5 giây; findmnt /boot/efi là phân vùng EFI; ls /boot thấy vmlinuz-linux
-- [ ] Đăng nhập: TTY1 hỏi tài khoản và mật khẩu, Hyprland tự chạy; SUPER + M quay về màn hình đăng nhập; TTY2 (Ctrl+Alt+F2) vẫn là shell thường
+- [x] (2026-11-20, máy ảo) Khởi động: GRUB hỏi mật khẩu LUKS đúng một lần (không hỏi lại ở initramfs); menu GRUB hiện 5 giây; findmnt /boot/efi là phân vùng EFI; ls /boot thấy vmlinuz-linux
+- [x] (2026-11-20, máy ảo: Hyprland lên, Waybar đủ mục sau khi sửa chiều rộng theo màn hình, hình nền Arch khi chưa có repo hình nền) Đăng nhập: TTY1 hỏi tài khoản và mật khẩu, Hyprland tự chạy; SUPER + M quay về màn hình đăng nhập; TTY2 (Ctrl+Alt+F2) vẫn là shell thường
 - [ ] Timeshift và rollback: sudo timeshift --list có snapshot đầu tiên; cài thử một gói nhỏ (timeshift-autosnap phải tạo snapshot trước khi cài); menu GRUB có mục Arch Linux snapshots; khởi động thử vào snapshot cũ rồi khôi phục bằng sudo timeshift --restore; quan trọng nhất: cập nhật kernel (sudo pacman -Syu khi có linux mới, hoặc cài linux-lts) rồi khôi phục snapshot trước đó, máy vẫn phải khởi động được
 - [ ] Hệ thống: zramctl có zram0; systemctl --failed trống; NetworkManager, bluetooth, power-profiles-daemon, cronie, grub-btrfsd đang chạy; shell mặc định là zsh, prompt powerlevel10k và gợi ý lệnh có
 - [ ] Keyring và polkit: seahorse thấy keyring Login đã mở khoá sau khi đăng nhập TTY (không hỏi thêm mật khẩu); pkexec true hiện hộp thoại mật khẩu
