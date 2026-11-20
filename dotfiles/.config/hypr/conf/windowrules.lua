@@ -30,6 +30,7 @@ hl.layer_rule({ match = { namespace = "control-center" }, blur = true, ignore_al
 local translucent = {
     { class = "org.telegram.desktop", active = 0.85, inactive = 0.75 },
     { class = "firefox",              active = 0.87, inactive = 0.77 },
+    { class = "discord",              active = 0.85, inactive = 0.75 },
 }
 for _, app in ipairs(translucent) do
     hl.window_rule({
