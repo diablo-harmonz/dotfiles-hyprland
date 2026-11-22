@@ -11,10 +11,13 @@
 # download does not look like a hang.
 #   3 Power                warns when not plugged in
 #   4 Extra snapshot       offered for big updates (kept, unlike the automatic ones)
-#   5 Update               yay -Syu (timeshift-autosnap takes a snapshot first; the pacman
-#                          hooks check the Hyprland, rmpc and Matugen configs afterwards);
-#                          the upgrade and clean-build menus are pre-answered with None and
-#                          the remaining questions are explained before yay starts
+#   5 Update               with AUR updates pending, asks what to update: everything
+#                          (yay -Syu), official packages only (pacman -Syu, the AUR waits),
+#                          or everything but some AUR packages held back (yay --ignore);
+#                          timeshift-autosnap takes a snapshot first; the pacman hooks check
+#                          the Hyprland, rmpc and Matugen configs afterwards. yay's upgrade
+#                          and clean-build menus are pre-answered with None and the remaining
+#                          questions are explained before it starts
 #   6 Summary              hook warnings, .pacnew files, reboot / log out needed, a clear
 #                          "Done" line, then asks whether to reboot now
 # The whole update is recorded in ~/.local/state/sysupdate/<date>.log.
@@ -181,6 +184,10 @@ while read -r name old _ new; do
     elif [[ "$name" =~ ^(rmpc|matugen)$ ]]; then
         notes+=("$name $old -> $new   (a pacman hook checks its config afterwards)")
     fi
+    # AUR package jumping to a new major version: often worth waiting a few days
+    if grep -q "^$name " <<<"$aur" && [ "${old%%[.-]*}" != "${new%%[.-]*}" ]; then
+        notes+=("${Y}$name $old -> $new: new major version from the AUR.${N} Unsure? Hold it back in step 5.")
+    fi
 done <<<"$all"
 
 if [ ${#notes[@]} -gt 0 ]; then
@@ -246,26 +253,78 @@ fi
 
 # --- 5 update --------------------------------------------------------------------------
 step 5 "Update"
-YAY=(yay -Syu --answerupgrade None --answerclean None)
-info "Now running: yay -Syu (the \"exclude packages\" and \"clean build\" menus are answered"
-info "with None for you: exclude nothing, keep the build cache)."
+# AUR packages still in the list (leftovers removed in step 2 are gone from $all)
+aur_names=()
+while read -r name _; do
+    [ -n "$name" ] && grep -q "^$name " <<<"$all" && aur_names+=("$name")
+done <<<"$aur"
+repo_count=$(sed '/^$/d' <<<"$repo" | wc -l)
+
+# What to update. Official packages are always updated together (never a partial
+# upgrade); only AUR packages can wait.
+mode=all
+held=()
+if [ ${#aur_names[@]} -gt 0 ]; then
+    info "AUR packages in this update: ${aur_names[*]}"
+    info "  1  everything: official + AUR (yay -Syu)"
+    info "  2  official packages only (pacman -Syu); the AUR ones wait for the next sysupdate"
+    info "  3  everything, but hold back some AUR packages (e.g. a new major version)"
+    read -r -p "   What to update? [1/2/3, Enter = 1] " choice
+    case "$choice" in
+        2)  mode=repo ;;
+        3)  if [ ${#aur_names[@]} -eq 1 ]; then
+                held=("${aur_names[@]}")
+            else
+                read -r -p "   AUR packages to hold back (names, separated by spaces): " -a picked
+                for p in "${picked[@]}"; do
+                    if printf '%s\n' "${aur_names[@]}" | grep -qx -- "$p"; then held+=("$p")
+                    else warn "$p is not an AUR package in this update, ignored."; fi
+                done
+            fi
+            if [ ${#held[@]} -eq ${#aur_names[@]} ]; then mode=repo
+            elif [ ${#held[@]} -gt 0 ]; then mode=held
+            fi ;;
+    esac
+    if [ "$mode" = repo ] && [ "$repo_count" -eq 0 ]; then
+        good "No official updates; the AUR ones wait. Nothing to do now."
+        exit 0
+    fi
+    case "$mode" in
+        all)  good "Updating everything." ;;
+        repo) good "Official packages only. Waiting: ${aur_names[*]}" ;;
+        held) good "Everything except: ${held[*]}" ;;
+    esac
+fi
+
+case "$mode" in
+    repo) CMD=(sudo pacman -Syu); TOOL=pacman ;;
+    held) CMD=(yay -Syu --answerupgrade None --answerclean None --ignore "$(IFS=,; echo "${held[*]}")"); TOOL=yay ;;
+    *)    CMD=(yay -Syu --answerupgrade None --answerclean None); TOOL=yay ;;
+esac
+if [ "$TOOL" = yay ]; then
+    info "Now running: ${CMD[*]}"
+    info "(the \"exclude packages\" and \"clean build\" menus are answered with None for you:"
+    info "exclude nothing more, keep the build cache)."
+else
+    info "Now running: ${CMD[*]}"
+fi
 info "From here on, ${B}a line that ends and waits is a question${N}. What to press:"
 info "  [sudo] password for …              type your password, Enter (nothing shows while typing)"
-info "  Diffs to show? (AUR packages only)  Enter = skip; or the number to read what changed"
+[ "$TOOL" = yay ] && info "  Diffs to show? (AUR packages only)  Enter = skip; or the number to read what changed"
 info "  Proceed with installation? [Y/n]    Enter = yes"
 info "  Anything else …? [Y/n] / [y/N]      Enter takes the capital letter; unsure: n, then ask"
 info "Lines that keep scrolling (downloading, building, installing) need nothing: wait."
 info "Everything is also written to: $LOG"
 ask "Start the update?" || { info "Stopped. Nothing was changed."; exit 0; }
-# script records the session while keeping yay fully interactive
-script -q -e -c "${YAY[*]}" "$LOG"
+# script records the session while keeping yay / pacman fully interactive
+script -q -e -c "$(printf '%q ' "${CMD[@]}")" "$LOG"
 status=$?
 
 # --- 6 summary -------------------------------------------------------------------------
 step 6 "Summary"
 plain=$(sed 's/\x1b\[[0-9;]*[A-Za-z]//g; s/\r//g' "$LOG")
 if [ $status -ne 0 ]; then
-    bad "yay stopped with an error (code $status). Read the end of the log: $LOG"
+    bad "$TOOL stopped with an error (code $status). Read the end of the log: $LOG"
     info "Nothing is half-done as long as pacman did not start installing; you can run sysupdate again."
 else
     good "Packages updated."
@@ -299,6 +358,10 @@ else
     good "No reboot needed."
 fi
 
+case "$mode" in
+    repo) info "Not updated (AUR): ${aur_names[*]}. They come with the next sysupdate." ;;
+    held) info "Held back (AUR): ${held[*]}. They come with the next sysupdate." ;;
+esac
 info "Quick check: Waybar, Control Center, change the wallpaper once (SUPER+W), open rmpc."
 info "Log of this update: $LOG"
 

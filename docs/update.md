@@ -115,7 +115,19 @@ Trước câu hỏi, script in sẵn bảng **các câu yay sẽ hỏi và bấm
 **dừng lại, con trỏ nhấp nháy ở cuối** là máy đang **chờ bạn trả lời**; chữ **đang chạy liên
 tục** (tải, build, cài) thì chỉ cần chờ.
 
-Script hỏi `Start the update?` → **y**. Từ đây là `yay -Syu` chạy thật:
+Nếu đợt này có gói **AUR**, script hỏi trước `What to update? [1/2/3]`:
+
+- **1** (hoặc Enter): cập nhật tất cả, `yay -Syu`.
+- **2**: chỉ gói chính thức, `sudo pacman -Syu`; gói AUR để lần `sysupdate` sau.
+- **3**: tất cả, trừ vài gói AUR bạn gõ tên (`yay -Syu --ignore …`).
+
+Chọn 2 hoặc 3 khi một gói AUR **lên bản lớn** (bước 2 báo `new major version from the AUR`)
+hoặc vừa ra vài giờ, nhất là gói dùng hằng ngày như fcitx5-lotus: chờ 3–7 ngày rồi cập nhật.
+Gói chính thức thì luôn cập nhật cùng nhau, không bao giờ giữ lại gói nào (tránh cập nhật nửa
+vời); chỉ gói AUR mới được chờ.
+
+Script hỏi `Start the update?` → **y**. Từ đây là `yay -Syu` (hoặc `pacman -Syu` nếu chọn 2)
+chạy thật:
 
 1. Nhập **mật khẩu** khi được hỏi (gõ không hiện gì, gõ xong Enter).
 2. Hai menu của yay **được trả lời sẵn** (`--answerupgrade None --answerclean None`), nên
