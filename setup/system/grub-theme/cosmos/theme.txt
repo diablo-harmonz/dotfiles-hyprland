@@ -1,0 +1,67 @@
+# Cosmos: GRUB theme of dotfiles-hyprland, installed by setup/install-system-files.sh.
+# Background: spiral galaxy NGC 1566 (JWST), credit NASA, ESA, CSA, J. Lee (NOIRLab),
+# A. Pagan (STScI), CC BY 4.0. The translucent box (600,380 - 1320,820 at 1920x1200)
+# is baked into background.jpg; everything below is placed inside it.
+# Fonts: FiraCode Nerd Font Mono (grub-mkfont -s 13/18), the Waybar font.
+
+title-text: ""
+desktop-image: "background.jpg"
+desktop-image-scale-method: "stretch"
+desktop-color: "#000000"
+terminal-font: "FiraCode Nerd Font Mono Regular 18"
+terminal-left: "0"
+terminal-top: "0"
+terminal-width: "100%"
+terminal-height: "100%"
+terminal-border: "0"
+
++ label {
+    left = 50%-324
+    top = 50%-190
+    width = 648
+    height = 24
+    text = "SYSTEM BOOT // SELECT DESTINATION"
+    font = "FiraCode Nerd Font Mono Regular 18"
+    color = "#ffffffcc"
+}
+
++ boot_menu {
+    left = 50%-340
+    top = 50%-134
+    width = 680
+    height = 260
+    # 5 rows: 5 x (36 + 6) plus the item padding above and below
+    item_font = "FiraCode Nerd Font Mono Regular 18"
+    item_color = "#ffffffaa"
+    selected_item_color = "#ffffff"
+    item_height = 36
+    item_spacing = 6
+    item_padding = 16
+    item_icon_space = 0
+    icon_width = 0
+    icon_height = 0
+    selected_item_pixmap_style = "select_*.png"
+    scrollbar = false
+}
+
++ label {
+    id = "__timeout__"
+    left = 50%-324
+    top = 50%+170
+    width = 648
+    height = 24
+    text = "LAUNCH IN %ds"
+    font = "FiraCode Nerd Font Mono Regular 18"
+    color = "#ffffff88"
+}
+
++ label {
+    left = 100%-620
+    top = 100%-30
+    width = 600
+    height = 18
+    align = "right"
+    text = "NGC 1566 // NASA, ESA, CSA, J. Lee (NOIRLab), A. Pagan (STScI)"
+    font = "FiraCode Nerd Font Mono Regular 13"
+    color = "#ffffff55"
+}
