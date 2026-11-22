@@ -85,6 +85,7 @@ packages=(
     "mpv"
     "mpv-mpris"
     "yt-dlp"
+    "python-mutagen"            # yt-dlp: embed tags and the cover into .opus (bin/yt-music)
     "yt-x"
     "chafa"
     "mpd"

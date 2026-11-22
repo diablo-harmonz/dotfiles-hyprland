@@ -2,12 +2,16 @@
 # ~/Pictures/fastfetch/ (logo.png, logo.jpg, ...). That folder links to fastfetch/ in the
 # private wallpapers repo (setup/link-dotfiles.sh), never into this public repo. kitty shows
 # it as a real image; without a picture, or outside kitty, the small distro logo stays.
-# A theme pack (bin/theme) may bring its own: ~/.config/theme/fastfetch.jsonc and
-# fastfetch-logo.*, which then win over both.
+# A theme pack (bin/theme) may bring its own fastfetch.jsonc: then its logo is used (its
+# fastfetch-logo.* picture, else whatever logo the jsonc sets), never ~/Pictures/fastfetch.
 fastfetch() {
-  local args=()
-  [[ -f ~/.config/theme/fastfetch.jsonc ]] && args+=(--config ~/.config/theme/fastfetch.jsonc)
-  local img=( ~/.config/theme/fastfetch-logo.*(N.) ~/Pictures/fastfetch/logo.*(N.) )
+  local args=() img=()
+  if [[ -f ~/.config/theme/fastfetch.jsonc ]]; then
+    args+=(--config ~/.config/theme/fastfetch.jsonc)
+    img=( ~/.config/theme/fastfetch-logo.*(N.) )
+  else
+    img=( ~/Pictures/fastfetch/logo.*(N.) )
+  fi
   if [[ -n $img && $TERM == xterm-kitty ]]; then
     args+=(--logo-type kitty --logo "$img[1]" --logo-width 18)
   fi
