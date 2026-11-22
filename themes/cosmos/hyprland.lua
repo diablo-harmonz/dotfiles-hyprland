@@ -25,9 +25,9 @@ _G.theme_on_colors = function()
         decoration = {
             shadow = {
                 enabled        = true,
-                range          = 18,
+                range          = 10,
                 render_power   = 2,
-                color          = "rgba(" .. c.primary .. "66)",
+                color          = "rgba(" .. c.primary .. "33)",
                 color_inactive = "rgba(00000066)",
             },
         },

@@ -46,11 +46,11 @@ hl.bind("switch:on:Lid Switch",  exec("~/.local/bin/display-toggle lid-close; ~/
 hl.bind("switch:off:Lid Switch", exec("~/.local/bin/display-toggle lid-open; ~/.local/bin/caffeine lid-open"),   { locked = true })
 
 -- Hardware keys
-hl.bind("XF86AudioRaiseVolume",  exec("~/.local/bin/osd volume up"), { repeating = true })      -- with popup (bin/osd)
-hl.bind("XF86AudioLowerVolume",  exec("~/.local/bin/osd volume down"), { repeating = true })
+hl.bind("XF86AudioRaiseVolume",  exec("~/.local/bin/osd volume up"), { repeating = true, locked = true })      -- with popup (bin/osd)
+hl.bind("XF86AudioLowerVolume",  exec("~/.local/bin/osd volume down"), { repeating = true, locked = true })
 hl.bind("XF86MonBrightnessUp",   exec("~/.local/bin/osd brightness up"), { repeating = true })
 hl.bind("XF86MonBrightnessDown", exec("~/.local/bin/osd brightness down"), { repeating = true })
-hl.bind("XF86AudioMute",         exec("~/.local/bin/osd volume mute"))
+hl.bind("XF86AudioMute",         exec("~/.local/bin/osd volume mute"), { locked = true })
 hl.bind("XF86AudioMicMute",      exec("~/.local/bin/osd mic mute"))
 hl.bind("XF86WLAN",              exec("nmcli radio wifi toggle"))
 hl.bind("XF86Refresh",           exec("wtype -k F5"))
@@ -61,10 +61,11 @@ hl.bind("XF86Display",           exec("~/.local/bin/display-toggle"))        -- 
 -- KEY_LINK_PHONE (XF86LinkPhone); older ones had no keysym for it (keycode 248)
 hl.bind("XF86LinkPhone",         hl.dsp.window.fullscreen())
 hl.bind("code:248",              hl.dsp.window.fullscreen())
-hl.bind("XF86AudioPlay",         exec("playerctl play-pause"))
-hl.bind("XF86AudioNext",         exec("playerctl next"))
-hl.bind("XF86AudioPrev",         exec("playerctl previous"))
-hl.bind("XF86AudioStop",         exec("playerctl stop"))
+-- Media keys also work on the lock screen (hyprlock shows the song: bin/lock-media)
+hl.bind("XF86AudioPlay",         exec("playerctl play-pause"), { locked = true })
+hl.bind("XF86AudioNext",         exec("playerctl next"), { locked = true })
+hl.bind("XF86AudioPrev",         exec("playerctl previous"), { locked = true })
+hl.bind("XF86AudioStop",         exec("playerctl stop"), { locked = true })
 
 -- Screenshots (~/Pictures/Screenshots) and screen recording (~/Videos/Recordings)
 hl.bind("Print",                    exec("~/.local/bin/screenshot full"))   -- Fn+F9 (PrtSc): whole screen -> file + clipboard
