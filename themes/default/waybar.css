@@ -1,0 +1,2 @@
+/* Default theme: no changes to waybar/style.css. Imported near the top of style.css,
+   so a theme's rules need a more specific selector (window#waybar ...) to win. */

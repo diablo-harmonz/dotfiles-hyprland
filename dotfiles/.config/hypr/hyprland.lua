@@ -24,3 +24,9 @@ require("conf.misc")
 require("conf.windowrules")
 require("conf.startup-layout")   -- widget windows; opened by autostart.lua
 require("conf.binds")
+
+-- Theme pack last, so it can override any of the above: ~/.config/theme links to
+-- themes/<name> in the dotfiles repo (bin/theme apply <name>)
+local theme = os.getenv("HOME") .. "/.config/theme/hyprland.lua"
+local f = io.open(theme)
+if f then f:close(); dofile(theme) end

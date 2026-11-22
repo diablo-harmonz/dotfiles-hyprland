@@ -7,3 +7,13 @@ hl.config({
         },
     },
 })
+
+-- For theme packs (~/.config/theme/hyprland.lua): the palette, and their hook re-run
+-- after every wallpaper change
+_G.matugen = {
+    primary   = "{{colors.primary.default.hex_stripped}}",
+    secondary = "{{colors.secondary.default.hex_stripped}}",
+    tertiary  = "{{colors.tertiary.default.hex_stripped}}",
+    surface   = "{{colors.surface.default.hex_stripped}}",
+}
+if _G.theme_on_colors then _G.theme_on_colors() end

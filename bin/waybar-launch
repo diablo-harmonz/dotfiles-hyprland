@@ -24,6 +24,16 @@ sleep "${1:-0}"
 
 # The template without its whole-line // comments (jq reads plain JSON)
 bar=$(sed -E 's#^[[:space:]]*//.*$##' "$TEMPLATE")
+# Theme pack (bin/theme): each module listed in its waybar.json gets those keys replaced
+# (e.g. the workspace icons). A broken file is skipped rather than costing the bar.
+THEME_BAR="$HOME/.config/theme/waybar.json"
+if [ -f "$THEME_BAR" ]; then
+    themed=$(jq -n --argjson bar "$bar" --argjson t "$(sed -E 's#^[[:space:]]*//.*$##' "$THEME_BAR")" '
+        reduce ($t | to_entries[]) as $m ($bar;
+            .[$m.key] = (if (.[$m.key] | type) == "object" and ($m.value | type) == "object"
+                         then .[$m.key] + $m.value else $m.value end))' 2>/dev/null) \
+        && bar=$themed
+fi
 monitors=$(hyprctl monitors -j 2>/dev/null)
 
 if jq -e 'type == "array" and length > 0' <<<"$monitors" >/dev/null 2>&1; then

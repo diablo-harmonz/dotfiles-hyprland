@@ -1,0 +1,3 @@
+// Default theme: no changes to waybar/config. A theme's file lists modules whose keys
+// replace the bar's (bin/waybar-launch merges it); whole-line // comments only.
+{}

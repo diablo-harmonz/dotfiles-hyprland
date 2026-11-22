@@ -1,0 +1,7 @@
+/* Cosmos theme: HUD prompt in the launcher (imported at the end of rofi/config.rasi). */
+textbox-prompt-colon {
+    str:            "▸ ";
+}
+entry {
+    placeholder:    "SET COURSE";
+}

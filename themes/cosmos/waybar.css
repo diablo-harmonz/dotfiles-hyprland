@@ -1,0 +1,12 @@
+/* Cosmos theme: planet workspace dots, a faint glow on the current one.
+   Imported near the top of style.css: selectors start with window#waybar to win. */
+window#waybar #workspaces button {
+    font-size: 15px;
+    padding: 0 7px;
+}
+
+window#waybar #workspaces button.active {
+    color: @primary;
+    background: transparent;
+    text-shadow: 0 0 6px alpha(@primary, 0.9);
+}

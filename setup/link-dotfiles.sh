@@ -4,6 +4,7 @@
 #   dotfiles/.zprofile        -> ~/.zprofile (starts Hyprland after a TTY1 login)
 #   dotfiles/.config/<name>   -> ~/.config/<name>
 #   bin/<script>              -> ~/.local/bin/<script>
+#   themes/default            -> ~/.config/theme (only when no theme pack is active; bin/theme)
 #   dotfiles/icons/<icon>.svg -> ~/.local/share/icons/hicolor/scalable/status/<icon>.svg
 #   dotfiles/applications/*.desktop -> ~/.local/share/applications/
 #   dotfiles/.claude/statusline.sh -> ~/.claude/statusline.sh (Claude Code status line;
@@ -55,6 +56,13 @@ done
 for src in "$REPO"/bin/*; do
     _link "$src" "$HOME/.local/bin/$(basename -- "$src")"
 done
+
+# Active theme pack (bin/theme): themes/default until one is chosen. hyprlock, rofi and
+# Waybar read part of their config from it, so it must always exist.
+if [ ! -e "$HOME/.config/theme" ]; then
+    ln -sfn "$REPO/themes/default" "$HOME/.config/theme"
+    echo ":: linked   $HOME/.config/theme -> $REPO/themes/default"
+fi
 
 # Claude Code status line. settings.json stays out of this public repo (it holds
 # personal settings): only the statusLine entry is added, and only when missing.

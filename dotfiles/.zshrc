@@ -2,13 +2,16 @@
 # ~/Pictures/fastfetch/ (logo.png, logo.jpg, ...). That folder links to fastfetch/ in the
 # private wallpapers repo (setup/link-dotfiles.sh), never into this public repo. kitty shows
 # it as a real image; without a picture, or outside kitty, the small distro logo stays.
+# A theme pack (bin/theme) may bring its own: ~/.config/theme/fastfetch.jsonc and
+# fastfetch-logo.*, which then win over both.
 fastfetch() {
-  local img=( ~/Pictures/fastfetch/logo.*(N.) )
+  local args=()
+  [[ -f ~/.config/theme/fastfetch.jsonc ]] && args+=(--config ~/.config/theme/fastfetch.jsonc)
+  local img=( ~/.config/theme/fastfetch-logo.*(N.) ~/Pictures/fastfetch/logo.*(N.) )
   if [[ -n $img && $TERM == xterm-kitty ]]; then
-    command fastfetch --logo-type kitty --logo "$img[1]" --logo-width 18 "$@"
-  else
-    command fastfetch "$@"
+    args+=(--logo-type kitty --logo "$img[1]" --logo-width 18)
   fi
+  command fastfetch "${args[@]}" "$@"
 }
 
 # Fastfetch: only in the welcome terminal opened at login (hypr/conf/startup-layout.lua);

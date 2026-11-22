@@ -162,32 +162,4 @@ if command -v timeshift >/dev/null; then
 fi
 
 # --- GRUB theme (Cosmos: setup/system/grub-theme/cosmos) ---
-# Only images, fonts and theme.txt; a broken theme makes GRUB fall back to its text menu.
-# grub.cfg is regenerated only when the theme or /etc/default/grub changed.
-if [ -f /etc/default/grub ] && command -v grub-mkconfig >/dev/null; then
-    grub_changed=0
-    if ! sudo diff -rq "$DIR/system/grub-theme/cosmos" /boot/grub/themes/cosmos >/dev/null 2>&1; then
-        sudo rm -rf /boot/grub/themes/cosmos
-        sudo install -d -m 755 /boot/grub/themes
-        sudo cp -r "$DIR/system/grub-theme/cosmos" /boot/grub/themes/cosmos
-        grub_changed=1
-    fi
-    grub_set() {   # $1 = key, $2 = value: replace the line (commented or not) or append it
-        grep -qxF "$1=$2" /etc/default/grub && return 0
-        [ -f /etc/default/grub.bak-dotfiles ] || sudo cp /etc/default/grub /etc/default/grub.bak-dotfiles
-        if grep -qE "^#?$1=" /etc/default/grub; then
-            sudo sed -i -E "s|^#?$1=.*|$1=$2|" /etc/default/grub
-        else
-            echo "$1=$2" | sudo tee -a /etc/default/grub >/dev/null
-        fi
-        grub_changed=1
-    }
-    grub_set GRUB_THEME '"/boot/grub/themes/cosmos/theme.txt"'
-    grub_set GRUB_GFXMODE '1920x1200,auto'   # the panel's size; the theme is laid out for it
-    if [ "$grub_changed" = 1 ]; then
-        sudo grub-mkconfig -o /boot/grub/grub.cfg
-        echo ":: GRUB theme: Cosmos (shows at the next boot)"
-    else
-        echo ":: ok       GRUB theme"
-    fi
-fi
+"$DIR/install-grub-theme.sh" cosmos

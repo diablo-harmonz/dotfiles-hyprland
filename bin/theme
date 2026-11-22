@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+# theme: switch the whole look at once between theme packs (themes/<name> in this repo).
+#   theme               list the packs, * = active
+#   theme apply NAME    switch to NAME: Hyprland borders, lock screen, Waybar, rofi,
+#                       fastfetch and (if the pack has one) its wallpaper
+#   theme grub          install the active pack's GRUB theme (sudo; shows at next boot)
+# ~/.config/theme links to the active pack; the configs read their part from it:
+#   hyprland.lua   loaded last by hypr/hyprland.lua (checked with --verify-config first)
+#   hyprlock.conf  layout, sourced by hypr/hyprlock.conf
+#   waybar.json    module keys merged by bin/waybar-launch;  waybar.css  imported by style.css
+#   rofi.rasi      imported at the end of rofi/config.rasi
+#   fastfetch.jsonc, fastfetch-logo.*   used by the fastfetch function in .zshrc (optional)
+#   theme.conf     DESCRIPTION, WALLPAPER (file in the pack), GRUB (setup/system/grub-theme)
+# A pack with a wallpaper remembers the one before it; switching to a pack without one
+# puts that back. Colors always come from the wallpaper (Matugen).
+set -euo pipefail
+
+REPO=$(cd -- "$(dirname -- "$(realpath -- "$0")")/.." && pwd)
+THEMES="$REPO/themes"
+LINK="$HOME/.config/theme"
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/theme"
+REQUIRED=(theme.conf hyprland.lua hyprlock.conf waybar.json waybar.css rofi.rasi)
+
+active() { basename -- "$(readlink -- "$LINK" 2>/dev/null || echo none)"; }
+
+conf() {   # $1 = pack dir, $2 = key -> value from theme.conf (sourced in a subshell)
+    ( DESCRIPTION="" WALLPAPER="" GRUB=""; . "$1/theme.conf"; eval "printf '%s' \"\${$2}\"" )
+}
+
+list() {
+    local d name mark
+    for d in "$THEMES"/*/; do
+        name=$(basename -- "$d")
+        mark=" "; [ "$name" = "$(active)" ] && mark="*"
+        printf '%s %-10s %s\n' "$mark" "$name" "$(conf "$d" DESCRIPTION)"
+    done
+}
+
+verify_hyprland() {   # $1 = pack dir: Hyprland --verify-config with the pack in a fake HOME
+    local tmp out
+    tmp=$(mktemp -d)
+    mkdir -p "$tmp/.config"
+    ln -s "$HOME/.config/hypr" "$tmp/.config/hypr"
+    ln -s "$1" "$tmp/.config/theme"
+    out=$(cd / && HOME="$tmp" timeout 60 Hyprland --verify-config --config "$tmp/.config/hypr/hyprland.lua" 2>&1 \
+        | sed -n '/Config parsing result/,$p' | sed '/Config parsing result/d; /^$/d')
+    rm -rf "$tmp"
+    grep -qx 'config ok' <<<"$out" && return 0
+    echo "theme: Hyprland rejects $(basename -- "$1")/hyprland.lua, nothing changed:" >&2
+    sed 's/^/    /' <<<"$out" >&2
+    return 1
+}
+
+apply() {   # $1 = name
+    local pack="$THEMES/$1" f wall before
+    [ -d "$pack" ] || { echo "theme: no pack '$1' (theme to list them)" >&2; exit 1; }
+    for f in "${REQUIRED[@]}"; do
+        [ -f "$pack/$f" ] || { echo "theme: $1 lacks $f, nothing changed" >&2; exit 1; }
+    done
+    verify_hyprland "$pack"
+
+    mkdir -p "$STATE"
+    wall=$(conf "$pack" WALLPAPER)
+    before="$STATE/wallpaper-before"
+    # Remember the wallpaper that a pack's own one replaces (only the first time)
+    if [ -n "$wall" ] && [ -z "$(conf "$(readlink -f -- "$LINK")" WALLPAPER 2>/dev/null)" ]; then
+        readlink -f -- "$HOME/.cache/wallpaper/current" > "$before" 2>/dev/null || true
+    fi
+
+    ln -sfn -- "$pack" "$LINK"
+    # Reload first so the pack's hook exists when the new colors arrive
+    hyprctl reload >/dev/null
+    if [ -n "$wall" ]; then
+        wallpaper set "$pack/$wall" grow
+    elif [ -s "$before" ] && [ -f "$(cat "$before")" ]; then
+        wallpaper set "$(cat "$before")" grow
+        rm -f -- "$before"
+    else
+        # Same wallpaper: regenerate the colors (the Matugen templates may have changed)
+        wallpaper set "$HOME/.cache/wallpaper/current" fade
+    fi
+    waybar-launch >/dev/null 2>&1 &
+    notify-send -a theme "Theme: $1" "$(conf "$pack" DESCRIPTION)"
+    echo ":: theme $1 applied (lock screen and fastfetch: next time they start)"
+    local grub
+    grub=$(conf "$pack" GRUB)
+    if [ -n "$grub" ] && ! grep -qs "^GRUB_THEME=\"/boot/grub/themes/$grub/" /etc/default/grub; then
+        echo ":: GRUB theme $grub is not installed: run 'theme grub' (sudo)"
+    fi
+}
+
+grub() {
+    local pack grub
+    pack=$(readlink -f -- "$LINK") || { echo "theme: no active pack" >&2; exit 1; }
+    grub=$(conf "$pack" GRUB)
+    [ -n "$grub" ] || { echo ":: $(active) has no GRUB theme; GRUB left as it is"; exit 0; }
+    "$REPO/setup/install-grub-theme.sh" "$grub"
+}
+
+case "${1:-list}" in
+    list)  list ;;
+    apply) apply "${2:?usage: theme apply NAME}" ;;
+    grub)  grub ;;
+    *)     echo "usage: theme [list | apply NAME | grub]" >&2; exit 2 ;;
+esac

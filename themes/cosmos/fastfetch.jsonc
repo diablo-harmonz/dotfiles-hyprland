@@ -1,0 +1,25 @@
+// Cosmos theme: fastfetch as a ship status panel, the galaxy core as logo
+// (fastfetch-logo.png next to this file; .zshrc passes both).
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "padding": { "top": 1, "left": 2, "right": 3 }
+    },
+    "display": {
+        "separator": "  ",
+        "key": { "width": 9 }
+    },
+    "modules": [
+        { "type": "custom",   "format": "SHIP STATUS // {#1}online{#}" },
+        "break",
+        { "type": "host",     "key": "vessel",  "format": "{family}" },
+        { "type": "os",       "key": "system",  "format": "{name}" },
+        { "type": "kernel",   "key": "core",    "format": "{release}" },
+        { "type": "wm",       "key": "bridge",  "format": "{pretty-name}" },
+        { "type": "uptime",   "key": "flight" },
+        { "type": "memory",   "key": "memory" },
+        { "type": "battery",  "key": "cells",   "format": "{capacity}" },
+        "break",
+        { "type": "colors", "symbol": "circle" }
+    ]
+}

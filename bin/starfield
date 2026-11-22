@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+"""starfield: fly through a field of stars in the terminal. Any key quits.
+   starfield [STARS]   (default 160; fewer stars = less CPU)
+Stars come from the centre and grow brighter as they near the edge. 20 frames a second,
+drawn with curses; it only uses the terminal's own colors (kitty: the Matugen palette)."""
+import curses
+import random
+import sys
+
+FPS = 20
+SPEED = 0.025
+GLYPHS = ".·*+✦"  # far -> near
+
+
+def new_star(spawn_far=True):
+    return [random.uniform(-1, 1), random.uniform(-1, 1), random.uniform(0.6, 1) if spawn_far else random.uniform(0.05, 1)]
+
+
+def main(scr, count):
+    curses.curs_set(0)
+    curses.use_default_colors()
+    scr.nodelay(True)
+    scr.timeout(1000 // FPS)
+    near_attr = curses.A_BOLD
+    far_attr = curses.A_DIM
+    stars = [new_star(False) for _ in range(count)]
+    while True:
+        h, w = scr.getmaxyx()
+        cx, cy = w / 2, h / 2
+        scr.erase()
+        for s in stars:
+            s[2] -= SPEED
+            if s[2] <= 0.01:
+                s[:] = new_star()
+                continue
+            # perspective: x / z; terminal cells are about twice as tall as wide
+            x = int(cx + s[0] / s[2] * cx)
+            y = int(cy + s[1] / s[2] * cy)
+            if not (0 <= x < w - 1 and 0 <= y < h):
+                s[:] = new_star()
+                continue
+            depth = 1 - s[2]
+            glyph = GLYPHS[min(int(depth * len(GLYPHS)), len(GLYPHS) - 1)]
+            attr = near_attr if depth > 0.6 else far_attr if depth < 0.3 else curses.A_NORMAL
+            try:
+                scr.addstr(y, x, glyph, attr)
+            except curses.error:
+                pass
+        scr.refresh()
+        if scr.getch() != -1:
+            return
+
+
+if __name__ == "__main__":
+    n = int(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1].isdigit() else 160
+    try:
+        curses.wrapper(main, n)
+    except KeyboardInterrupt:
+        pass

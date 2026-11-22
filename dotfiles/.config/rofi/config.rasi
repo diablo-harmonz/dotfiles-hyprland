@@ -190,3 +190,6 @@ error-message {
     background-color:    @bg;
     text-color:          @text;
 }
+
+/* Theme pack (bin/theme), last so its rules win */
+@import "~/.config/theme/rofi.rasi"

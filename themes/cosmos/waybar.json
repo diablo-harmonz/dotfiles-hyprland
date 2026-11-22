@@ -1,0 +1,11 @@
+// Cosmos theme: workspaces as planets: the current one lit, others with windows a ring,
+// empty ones a faint dot. Keys here replace the bar's (bin/waybar-launch).
+{
+    "hyprland/workspaces": {
+        "format-icons": {
+            "active": "●",
+            "default": "◉",
+            "empty": "·"
+        }
+    }
+}
