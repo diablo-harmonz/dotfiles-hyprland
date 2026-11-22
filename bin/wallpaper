@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # wallpaper: pick, set and theme from the wallpaper.
-#   wallpaper select    rofi picker with thumbnails (SUPER+W)
+#   wallpaper select    picker (SUPER+W): the Quickshell carousel when quickshell is
+#                       installed (~/.config/quickshell/wallpicker), else rofi;
+#                       pressing SUPER+W again closes it
+#   wallpaper select-rofi  the rofi picker (thumbnail row), always
+#   wallpaper list-thumbs  for the carousel: "image<TAB>thumbnail<TAB>1 if current" lines
 #   wallpaper random    random wallpaper (SUPER+SHIFT+W)
 #   wallpaper set FILE  set FILE with a transition, then regenerate the colors
 #   wallpaper restore   at login: start awww, show the saved wallpaper, make sure colors exist
@@ -73,6 +77,28 @@ set_wallpaper() {   # $1 = image, $2 = transition type
 
 case "${1:-select}" in
     select)
+        if command -v qs >/dev/null && [ -f "$HOME/.config/quickshell/wallpicker/shell.qml" ]; then
+            # Toggle: a running picker closes. It quits by itself after a choice or Esc.
+            if qs list -c wallpicker 2>/dev/null | grep -q "^Instance"; then
+                qs kill -c wallpicker >/dev/null 2>&1
+                exit 0
+            fi
+            pkill -x rofi || true
+            WALLPICKER_SCREEN=$(hyprctl monitors -j 2>/dev/null | jq -r '.[] | select(.focused) | .name') \
+            WALLPICKER_ACCENT=$(sed -n 's/^ *primary: *#\([0-9a-fA-F]\{6\}\).*/\1/p' "$HOME/.config/rofi/colors.rasi" 2>/dev/null | head -1) \
+                setsid -f qs -n -c wallpicker >/dev/null 2>&1
+            exit 0
+        fi
+        exec "$0" select-rofi
+        ;;
+    list-thumbs)
+        current=$(readlink -f -- "$CURRENT" 2>/dev/null || true)
+        list | while IFS= read -r f; do
+            mark=0; [ "$(realpath -- "$f")" = "$current" ] && mark=1
+            printf '%s\t%s\t%s\n' "$f" "$(thumb "$f")" "$mark"
+        done
+        ;;
+    select-rofi)
         pkill -x rofi && exit 0   # pressing the key again closes the picker
         choice=$(
             list | while IFS= read -r f; do
@@ -115,7 +141,7 @@ case "${1:-select}" in
         done
         ;;
     *)
-        echo "usage: wallpaper [select|random|set FILE|restore]" >&2
+        echo "usage: wallpaper [select|select-rofi|random|set FILE|restore|list-thumbs]" >&2
         exit 2
         ;;
 esac
