@@ -1,19 +1,29 @@
-# Fastfetch logo: an own picture instead of the distro logo when one is in
-# ~/Pictures/fastfetch/ (logo.png, logo.jpg, ...). That folder links to fastfetch/ in the
-# private wallpapers repo (setup/link-dotfiles.sh), never into this public repo. kitty shows
-# it as a real image; without a picture, or outside kitty, the small distro logo stays.
-# A theme pack (bin/theme) may bring its own fastfetch.jsonc: then its logo is used (its
-# fastfetch-logo.* picture, else whatever logo the jsonc sets), never ~/Pictures/fastfetch.
+# Fastfetch logo, first found wins (kitty only; elsewhere the logo in the config stays):
+#   ~/Pictures/fastfetch/<theme>.*       own picture for the active theme pack (bin/theme)
+#   ~/.config/theme/fastfetch-logo.*     the theme pack's own logo
+#   ~/Pictures/fastfetch/logo.*          own picture, only when the pack has no fastfetch.jsonc
+# ~/Pictures/fastfetch links to fastfetch/ in the private wallpapers repo
+# (setup/link-dotfiles.sh), so downloaded pictures never land in this public repo.
+# A .gif plays animated (kitty icat); other formats are shown still.
 fastfetch() {
-  local args=() img=()
+  local args=() img=() theme
+  theme=${$(readlink ~/.config/theme 2>/dev/null):t}
+  [[ -n $theme ]] && img+=( ~/Pictures/fastfetch/$theme.*(N.) )
   if [[ -f ~/.config/theme/fastfetch.jsonc ]]; then
     args+=(--config ~/.config/theme/fastfetch.jsonc)
-    img=( ~/.config/theme/fastfetch-logo.*(N.) )
+    img+=( ~/.config/theme/fastfetch-logo.*(N.) )
   else
-    img=( ~/Pictures/fastfetch/logo.*(N.) )
+    img+=( ~/Pictures/fastfetch/logo.*(N.) )
   fi
   if [[ -n $img && $TERM == xterm-kitty ]]; then
-    args+=(--logo-type kitty --logo "$img[1]" --logo-width 18)
+    if [[ ${img[1]:e:l} == gif ]]; then
+      # one row lower and a column further left than still pictures: kitty draws the
+      # animation a little up and right of its cell box
+      args+=(--logo-type kitty-icat --logo "$img[1]" --logo-width 17 --logo-height 8 \
+             --logo-padding-top 1 --logo-padding-left 1 --logo-padding-right 4)
+    else
+      args+=(--logo-type kitty --logo "$img[1]" --logo-width 18)
+    fi
   fi
   command fastfetch "${args[@]}" "$@"
 }
