@@ -22,6 +22,7 @@ hl.bind(mainMod .. " + SHIFT + B",      exec("~/.config/ml4w/scripts/reload-wayb
 hl.bind(mainMod .. " + CTRL + R",       exec("hyprctl reload"))                                            -- Emergency: reload config, restores all screens
 hl.bind(mainMod .. " + W",              exec("~/.local/bin/wallpaper select"))                             -- Pick a wallpaper (colors follow it)
 hl.bind(mainMod .. " + SHIFT + W",      exec("~/.local/bin/wallpaper random"))                             -- Random wallpaper
+hl.bind(mainMod .. " + C",              exec("~/.local/bin/colors"))                                       -- Pick the colors: from the wallpaper or a fixed one, and the style
 hl.bind(mainMod .. " + L",              exec("loginctl lock-session"))                                     -- Lock the screen (hypridle runs hyprlock)
 -- Black lock screen (screen stayed off after resume): works while locked, turns the screens
 -- on and restarts hyprlock; the session stays locked

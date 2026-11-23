@@ -137,6 +137,7 @@ Defined in `dotfiles/.config/hypr/conf/binds.lua`.
 | SUPER + = | Calculator (rofi-calc, also units and currencies): Enter copies the result |
 | SUPER + SHIFT + T | Timer or alarm: `10m tea`, `1h30m`, `07:30 wake up`; countdown on Waybar, pick one to cancel |
 | SUPER + W / SUPER + SHIFT + W | Pick a wallpaper / random wallpaper |
+| SUPER + C | Pick the theme pack and the colors (from the wallpaper or a fixed one, and the style) |
 | SUPER + A | Audio visualizer (cava) on/off |
 | SUPER + SHIFT + C | Caffeine: no idle lock or suspend |
 | SUPER + L | Lock the screen |
@@ -197,6 +198,14 @@ Firefox, yazi, cava, btop, rmpc, yt-x, navi and the zsh command colors (syntax h
 after linking (Hyprland also runs it at login). The colors are made after the 1.2 s wallpaper
 transition so it stays smooth. Waybar picks up its new colors by itself
 (`reload_style_on_change`); it is never sent SIGUSR2, which crashed Waybar 0.15.
+
+`SUPER+C` (`bin/colors`, Quickshell `colorpicker`) picks the theme pack (Tab, as `theme apply`)
+and what Matugen starts from: one
+of the colors found in the wallpaper (the first one is the default), a preset or a typed
+`#rrggbb`, plus the style (Matugen scheme: tonal, vibrant, neutral, mono...). The panel
+previews the result in its own colors; Enter applies, `A` goes back to auto. A fixed color
+stays when the wallpaper changes. Same from a terminal: `colors set '#5b8def' vibrant`,
+`colors auto`.
 
 Translucent apps: list them in `translucent` at the top of
 `dotfiles/.config/hypr/conf/windowrules.lua` (class, opacity focused / unfocused; Telegram

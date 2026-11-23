@@ -31,7 +31,7 @@ packages=(
     "qt5-wayland"
     "qt6-wayland"
     "awww"
-    "quickshell"                # wallpaper carousel, SUPER+W (dotfiles/.config/quickshell/wallpicker)
+    "quickshell"                # wallpaper carousel SUPER+W, color picker SUPER+C (dotfiles/.config/quickshell)
     "matugen"
     "imagemagick"
     "hyprlock"

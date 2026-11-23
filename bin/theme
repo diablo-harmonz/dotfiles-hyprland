@@ -4,6 +4,8 @@
 #   theme apply NAME    switch to NAME: Hyprland borders, lock screen, Waybar, rofi,
 #                       fastfetch and (if the pack has one) its wallpaper
 #   theme grub          install the active pack's GRUB theme (sudo; shows at next boot)
+#   theme list-tsv      for the picker (SUPER+C): "name<TAB>description<TAB>wallpaper it
+#                       would show<TAB>1 if active" lines
 # ~/.config/theme links to the active pack; the configs read their part from it:
 #   hyprland.lua   loaded last by hypr/hyprland.lua (checked with --verify-config first)
 #   hyprlock.conf  layout, sourced by hypr/hyprlock.conf
@@ -33,6 +35,28 @@ list() {
         name=$(basename -- "$d")
         mark=" "; [ "$name" = "$(active)" ] && mark="*"
         printf '%s %-10s %s\n' "$mark" "$name" "$(conf "$d" DESCRIPTION)"
+    done
+}
+
+wallpaper_for() {   # $1 = pack dir -> the wallpaper applying it would show (see apply)
+    local wall current before="$STATE/wallpaper-before"
+    current=$(readlink -f -- "$HOME/.cache/wallpaper/current" 2>/dev/null || true)
+    if [ "$(basename -- "$1")" = "$(active)" ]; then printf '%s' "$current"; return; fi
+    wall=$(conf "$1" WALLPAPER)
+    if [ -n "$wall" ]; then printf '%s' "$1/$wall"; return; fi
+    if [ -n "$(conf "$(readlink -f -- "$LINK")" WALLPAPER 2>/dev/null)" ] \
+        && [ -s "$before" ] && [ -f "$(cat "$before")" ]; then
+        cat "$before"; return
+    fi
+    printf '%s' "$current"
+}
+
+list_tsv() {
+    local d name mark
+    for d in "$THEMES"/*/; do
+        d=${d%/}; name=$(basename -- "$d")
+        mark=0; [ "$name" = "$(active)" ] && mark=1
+        printf '%s\t%s\t%s\t%s\n' "$name" "$(conf "$d" DESCRIPTION)" "$(wallpaper_for "$d")" "$mark"
     done
 }
 
@@ -99,7 +123,8 @@ grub() {
 
 case "${1:-list}" in
     list)  list ;;
+    list-tsv) list_tsv ;;
     apply) apply "${2:?usage: theme apply NAME}" ;;
     grub)  grub ;;
-    *)     echo "usage: theme [list | apply NAME | grub]" >&2; exit 2 ;;
+    *)     echo "usage: theme [list | apply NAME | grub | list-tsv]" >&2; exit 2 ;;
 esac

@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+# colors: choose where the desktop colors come from. Matugen still makes them and writes
+# every template (~/.config/matugen/config.toml); this only picks its input.
+#   colors                        open the picker (SUPER+C; pressing it again closes it)
+#   colors status                 the saved choice: "SOURCE SCHEME"
+#   colors set SOURCE [SCHEME]    save a choice and recolor
+#                                   SOURCE  #rrggbb       a fixed color
+#                                           wallpaper[:N] the Nth color found in the wallpaper
+#                                   SCHEME  tonal-spot (default), vibrant, expressive, neutral,
+#                                           monochrome, fidelity, content, rainbow, fruit-salad
+#   colors save SOURCE [SCHEME]   save only, no recolor (the picker, before `theme apply`,
+#                                 which recolors with the new wallpaper anyway)
+#   colors auto                   back to the default: wallpaper:0 tonal-spot
+#   colors apply                  recolor from the saved choice (bin/wallpaper runs it
+#                                 after every wallpaper change)
+#   colors candidates [IMAGE]     the colors found in the wallpaper (or IMAGE), one per line
+#   colors preview SOURCE SCHEME [IMAGE]
+#                                 the main colors as one JSON line, nothing written (picker;
+#                                 IMAGE = the wallpaper a theme pack would show)
+# The choice is kept in ~/.local/state/colors/choice, so a fixed color stays when the
+# wallpaper changes. When the wallpaper has fewer colors than N, its first one is used.
+set -uo pipefail
+
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/colors"
+CHOICE="$STATE/choice"
+CURRENT="$HOME/.cache/wallpaper/current"
+IMAGE=""   # set by candidates / preview to look at another wallpaper than the current one
+MODE=dark
+SCHEMES="tonal-spot vibrant expressive neutral monochrome fidelity content rainbow fruit-salad"
+DEFAULT_SOURCE=wallpaper:0
+DEFAULT_SCHEME=tonal-spot
+FALLBACK_COLOR="#3b7dbd"   # wallpaper chosen but there is none
+
+die() { echo "colors: $*" >&2; exit 1; }
+
+read_choice() {   # -> SOURCE SCHEME
+    local src="" sch=""
+    [ -f "$CHOICE" ] && read -r src sch < "$CHOICE"
+    printf '%s %s\n' "${src:-$DEFAULT_SOURCE}" "${sch:-$DEFAULT_SCHEME}"
+}
+
+check() {   # $1 = source, $2 = scheme
+    case "$1" in
+        wallpaper|wallpaper:[0-9]|wallpaper:[0-9][0-9]) ;;
+        \#[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]) ;;
+        *) die "source must be #rrggbb or wallpaper[:N], not '$1'" ;;
+    esac
+    [[ " $SCHEMES " == *" $2 "* ]] || die "scheme must be one of: $SCHEMES"
+}
+
+# Run matugen for SOURCE and SCHEME, extra arguments ($3...) passed on
+run_matugen() {
+    local src=$1 sch=$2 n img
+    shift 2
+    if [[ $src == \#* ]]; then
+        matugen color hex "$src" -t "scheme-$sch" --mode "$MODE" "$@"
+        return
+    fi
+    img=${IMAGE:-$(readlink -f -- "$CURRENT" 2>/dev/null)}
+    if [ ! -f "$img" ]; then
+        matugen color hex "$FALLBACK_COLOR" -t "scheme-$sch" --mode "$MODE" "$@"
+        return
+    fi
+    n=${src#wallpaper}; n=${n#:}; n=${n:-0}
+    matugen image "$img" --source-color-index "$n" -t "scheme-$sch" --mode "$MODE" "$@" \
+        || { [ "$n" != 0 ] && matugen image "$img" --source-color-index 0 -t "scheme-$sch" --mode "$MODE" "$@"; }
+}
+
+apply() {
+    local src sch
+    read -r src sch < <(read_choice)
+    run_matugen "$src" "$sch" >/dev/null 2>&1 \
+        || notify-send -a colors "Colors" "Matugen could not generate colors ($src, $sch)."
+}
+
+candidates() {   # one per index until matugen runs out (a wallpaper gives 1 to ~5)
+    local img i c
+    img=${IMAGE:-$(readlink -f -- "$CURRENT" 2>/dev/null)}
+    [ -f "$img" ] || return 0
+    for i in 0 1 2 3 4 5 6 7; do
+        c=$(matugen image "$img" --source-color-index "$i" --dry-run --json hex --mode "$MODE" 2>/dev/null \
+            | jq -r '.colors.source_color.default.color // empty' 2>/dev/null)
+        [ -n "$c" ] || break
+        printf '%s\n' "$c"
+    done
+}
+
+preview() {   # $1 = source, $2 = scheme
+    run_matugen "$1" "$2" --dry-run --json hex 2>/dev/null | jq -c '.colors | with_entries(
+        select(.key | IN("primary", "on_primary", "secondary", "tertiary", "primary_container",
+                         "surface", "surface_container", "surface_container_high",
+                         "on_surface", "on_surface_variant", "outline_variant", "error"))
+        | .value = .value.dark.color)'
+}
+
+case "${1:-ui}" in
+    ui)
+        command -v qs >/dev/null && [ -f "$HOME/.config/quickshell/colorpicker/shell.qml" ] \
+            || die "needs quickshell and ~/.config/quickshell/colorpicker"
+        if qs list -c colorpicker 2>/dev/null | grep -q "^Instance"; then
+            qs kill -c colorpicker >/dev/null 2>&1
+            exit 0
+        fi
+        COLORPICKER_SCREEN=$(hyprctl monitors -j 2>/dev/null | jq -r '.[] | select(.focused) | .name') \
+            setsid -f qs -n -c colorpicker >/dev/null 2>&1
+        ;;
+    status)
+        read_choice ;;
+    set|save)
+        src=${2:?usage: colors $1 SOURCE [SCHEME]}
+        sch=${3:-$(read_choice | cut -d' ' -f2)}
+        check "$src" "$sch"
+        mkdir -p "$STATE"
+        printf '%s %s\n' "$src" "$sch" > "$CHOICE"
+        if [ "$1" = set ]; then apply; fi ;;
+    auto)
+        rm -f -- "$CHOICE"
+        apply ;;
+    apply)
+        apply ;;
+    candidates)
+        IMAGE=${2:-}
+        candidates ;;
+    preview)
+        check "${2:?usage: colors preview SOURCE SCHEME [IMAGE]}" "${3:?usage: colors preview SOURCE SCHEME [IMAGE]}"
+        IMAGE=${4:-}
+        preview "$2" "$3" ;;
+    *)
+        echo "usage: colors [ui | status | set|save SOURCE [SCHEME] | auto | apply | candidates [IMAGE] | preview SOURCE SCHEME [IMAGE]]" >&2
+        exit 2 ;;
+esac

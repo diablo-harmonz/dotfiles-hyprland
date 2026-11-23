@@ -10,7 +10,8 @@
 #   wallpaper restore   at login: start awww, show the saved wallpaper, make sure colors exist
 #                       (none of your own yet: Arch's wallpapers; none at all: FALLBACK_COLOR)
 # The wallpaper is shown by awww; Matugen turns it into colors for rofi, waybar,
-# kitty, GTK 4 and the Hyprland borders (see ~/.config/matugen/config.toml).
+# kitty, GTK 4 and the Hyprland borders (see ~/.config/matugen/config.toml); bin/colors
+# (SUPER+C) can pick another color from it or a fixed one instead.
 # ~/.cache/wallpaper/current links to the chosen file (used by rofi and hyprlock).
 set -euo pipefail
 
@@ -57,7 +58,10 @@ ensure_daemon() {
     for _ in $(seq 50); do awww query >/dev/null 2>&1 && return; sleep 0.1; done
 }
 
-colors() {   # $1 = image
+recolor() {   # $1 = image (already linked as $CURRENT)
+    # bin/colors follows the choice made in its picker (SUPER+C): the wallpaper's own
+    # color by default, or a fixed color that stays across wallpapers
+    if [ -x "$HOME/.local/bin/colors" ]; then "$HOME/.local/bin/colors" apply; return; fi
     matugen image "$1" --mode "$MODE" --source-color-index 0 >/dev/null 2>&1 \
         || notify-send -a wallpaper "Wallpaper" "Matugen could not generate colors."
 }
@@ -72,7 +76,7 @@ set_wallpaper() {   # $1 = image, $2 = transition type
     # Recolor after the transition: Matugen and the apps reloading their colors (kitty,
     # swaync, Waybar, Hyprland...) load the CPU and made the transition stutter
     sleep 1.3
-    colors "$img"
+    recolor "$img"
 }
 
 case "${1:-select}" in
@@ -137,7 +141,7 @@ case "${1:-select}" in
         ln -sfn "$img" "$CURRENT"
         # Generate colors on the first run, or when a generated file is missing
         for f in "$HOME/.config/rofi/colors.rasi" "$HOME/.config/waybar/colors.css"; do
-            [ -f "$f" ] || { colors "$img"; break; }
+            [ -f "$f" ] || { recolor "$img"; break; }
         done
         ;;
     *)
