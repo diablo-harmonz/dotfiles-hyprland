@@ -3,15 +3,11 @@
 #   lock-media text [WIDTH]   "Title · Artist" (cut to WIDTH, default 48), empty when nothing plays
 #   lock-media label PREFIX   PREFIX + the text above (e.g. "NOW PLAYING // "), empty likewise
 #   lock-media button prev|toggle|next   the button's glyph, empty when there is no player
-#   lock-media cover          path of a square cover picture (a transparent one when none)
 # The player is the one playerctld tracks (the last active one), as for the media keys.
 # Clicking the buttons (onclick) and the media keys (binds.lua, locked = true) run
 # playerctl previous / play-pause / next.
 set -uo pipefail
 
-CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/lock-media"
-EMPTY="$CACHE/none.png"
-mkdir -p "$CACHE"
 
 status=$(playerctl status 2>/dev/null) || status=""
 active() { [ "$status" = Playing ] || [ "$status" = Paused ]; }
@@ -41,32 +37,7 @@ case "${1:-text}" in
             next)   printf '\U000F04AD' ;;
             toggle) if [ "$status" = Playing ]; then printf '\U000F03E4'; else printf '\U000F040A'; fi ;;
         esac ;;
-    cover)
-        [ -f "$EMPTY" ] || magick -size 1x1 xc:none "$EMPTY" 2>/dev/null
-        active || { printf '%s' "$EMPTY"; exit 0; }
-        url=$(playerctl metadata mpris:artUrl 2>/dev/null)
-        [ -n "$url" ] || { printf '%s' "$EMPTY"; exit 0; }
-        out="$CACHE/$(printf '%s' "$url" | md5sum | cut -c1-16).png"
-        if [ ! -f "$out" ]; then
-            src="$CACHE/src.tmp"
-            case "$url" in
-                file://*) src=$(python3 -c 'import sys, urllib.parse; print(urllib.parse.unquote(sys.argv[1][7:]))' "$url") ;;
-                http*://*) curl -sfL --max-time 5 -o "$src" "$url" || src="" ;;
-                *) src="" ;;
-            esac
-            if [ -n "$src" ] && [ -f "$src" ]; then
-                # square crop from the middle (YouTube thumbnails are 16:9)
-                magick "$src[0]" -fuzz 12% -trim +repage -gravity center -extent "%[fx:min(w,h)]x%[fx:min(w,h)]" \
-                    -resize 240x240 "$out" 2>/dev/null || out="$EMPTY"
-            else
-                out="$EMPTY"
-            fi
-            rm -f "$CACHE/src.tmp"
-            # keep the cache small
-            ls -1t "$CACHE"/*.png 2>/dev/null | grep -v none.png | tail -n +31 | xargs -r rm -f
-        fi
-        printf '%s' "$out" ;;
     *)
-        echo "usage: lock-media text [WIDTH] | label PREFIX [WIDTH] | button prev|toggle|next | cover" >&2
+        echo "usage: lock-media text [WIDTH] | label PREFIX [WIDTH] | button prev|toggle|next" >&2
         exit 2 ;;
 esac

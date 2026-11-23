@@ -19,7 +19,7 @@ fastfetch() {
     if [[ ${img[1]:e:l} == gif ]]; then
       # one row lower and a column further left than still pictures: kitty draws the
       # animation a little up and right of its cell box
-      args+=(--logo-type kitty-icat --logo "$img[1]" --logo-width 17 --logo-height 8 \
+      args+=(--logo-type kitty-icat --logo "$img[1]" --logo-width 24 --logo-height 12 \
              --logo-padding-top 1 --logo-padding-left 1 --logo-padding-right 4)
     else
       args+=(--logo-type kitty --logo "$img[1]" --logo-width 18)

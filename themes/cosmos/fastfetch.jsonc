@@ -10,19 +10,25 @@
     },
     "display": {
         "separator": "  ",
-        "key": { "width": 9 }
+        "key": { "width": 10 }
     },
     "modules": [
         { "type": "custom",   "format": "SHIP STATUS // {#1}online{#}" },
         "break",
-        { "type": "host",     "key": "vessel",  "format": "{family}" },
-        { "type": "os",       "key": "system",  "format": "{name}" },
-        { "type": "kernel",   "key": "core",    "format": "{release}" },
-        { "type": "wm",       "key": "bridge",  "format": "{pretty-name}" },
-        { "type": "uptime",   "key": "flight" },
-        { "type": "memory",   "key": "memory" },
+        { "type": "host",     "key": "vessel",   "format": "{family}" },
+        { "type": "os",       "key": "system",   "format": "{name}" },
+        { "type": "kernel",   "key": "core",     "format": "{release}" },
+        { "type": "wm",       "key": "bridge",   "format": "{pretty-name}" },
+        { "type": "shell",    "key": "comms",    "format": "{pretty-name} {version}" },
+        { "type": "packages", "key": "modules",  "format": "{all}" },
         "break",
-        { "type": "colors", "symbol": "circle" },
-        "break"
+        { "type": "cpu",      "key": "engine",   "format": "{name} ({cores-logical})" },
+        { "type": "gpu",      "key": "optics",   "format": "{name}" },
+        { "type": "display",  "key": "viewport", "format": "{width}x{height} @ {refresh-rate} Hz" },
+        { "type": "disk",     "key": "cargo",    "folders": "/", "format": "{size-used} / {size-total} ({size-percentage})" },
+        { "type": "memory",   "key": "memory" },
+        { "type": "uptime",   "key": "flight" },
+        "break",
+        { "type": "colors", "symbol": "circle" }
     ]
 }

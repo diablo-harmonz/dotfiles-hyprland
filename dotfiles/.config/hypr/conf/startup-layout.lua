@@ -11,7 +11,7 @@ hl.window_rule({
     match = { class = "^(welcome)$" },
 
     float = true,
-    size  = "(monitor_w*0.36) (monitor_h*0.35)",
+    size  = "(monitor_w*0.38) (monitor_h*0.44)",   -- room for fastfetch (17 lines + prompt)
     move  = "(monitor_w*0.07) (monitor_h*0.17)",
 })
 
