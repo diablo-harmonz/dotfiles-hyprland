@@ -13,7 +13,9 @@
         "key": { "width": 10 }
     },
     "modules": [
-        { "type": "custom",   "format": "SHIP STATUS // {#1}online{#}" },
+        { "type": "custom",   "format": "{#36}▍{#} {#1}S H I P   S T A T U S{#}  {#90}//{#}  {#32}●{#} {#1}ONLINE{#}" },
+        "break",
+        { "type": "custom",   "format": "{#36}█████████\ue0bc \ue0ba\ue0bc \ue0ba\ue0bc{#90}───────────────────{#36}›››{#}" },
         "break",
         { "type": "host",     "key": "vessel",   "format": "{family}" },
         { "type": "os",       "key": "system",   "format": "{name}" },
@@ -22,13 +24,16 @@
         { "type": "shell",    "key": "comms",    "format": "{pretty-name} {version}" },
         { "type": "packages", "key": "modules",  "format": "{all}" },
         "break",
+        // Divider (an empty line above and below): solid bar with a slanted end, two slanted stripes, a thin rail and
+        // chevrons (powerline triangles \ue0ba \ue0bc, drawn seamlessly by kitty)
+        { "type": "custom",   "format": "{#36}█████████\ue0bc \ue0ba\ue0bc \ue0ba\ue0bc{#90}───────────────────{#36}›››{#}" },
+        "break",
         { "type": "cpu",      "key": "engine",   "format": "{name} ({cores-logical})" },
         { "type": "gpu",      "key": "optics",   "format": "{name}" },
         { "type": "display",  "key": "viewport", "format": "{width}x{height} @ {refresh-rate} Hz" },
         { "type": "disk",     "key": "cargo",    "folders": "/", "format": "{size-used} / {size-total} ({size-percentage})" },
         { "type": "memory",   "key": "memory" },
         { "type": "uptime",   "key": "flight" },
-        "break",
-        { "type": "colors", "symbol": "circle" }
+        "break"
     ]
 }
