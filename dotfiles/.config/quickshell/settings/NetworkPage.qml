@@ -80,8 +80,7 @@ Page {
     // ---- page ---------------------------------------------------------------------------------
     Group {
         SRow {
-            icon: ""; iconColor: "#0a84ff"
-            title: "Wi-Fi"
+            icon: "";             title: "Wi-Fi"
             subtitle: !p.wifi ? "No Wi-Fi adapter"
                       : !Networking.wifiHardwareEnabled ? "Turned off by the hardware switch"
                       : Networking.wifiEnabled ? (p.current ? "Connected to " + p.current.name : "Not connected") : "Off"

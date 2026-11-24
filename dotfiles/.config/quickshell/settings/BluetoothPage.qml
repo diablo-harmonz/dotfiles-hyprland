@@ -70,8 +70,7 @@ Page {
 
     Group {
         SRow {
-            icon: ""; iconColor: "#0a84ff"
-            title: "Bluetooth"
+            icon: "";             title: "Bluetooth"
             subtitle: !p.adapter ? "No Bluetooth adapter"
                       : p.on ? "On · " + (p.discovering ? "looking for devices" : p.adapter.name) : "Off"
             Toggle {

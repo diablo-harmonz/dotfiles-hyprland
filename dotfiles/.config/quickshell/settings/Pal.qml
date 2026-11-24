@@ -32,13 +32,20 @@ Singleton {
     readonly property color card: Qt.rgba(surface.r, surface.g, surface.b, 0.75)
     readonly property color line: Qt.rgba(text.r, text.g, text.b, 0.08)
     readonly property color hover: Qt.rgba(text.r, text.g, text.b, 0.06)
-    readonly property color good: "#30d158"
+    readonly property color good: text   // level bars (battery, mic): no colour coding
 
     // Type and size (ui = scale of the focused screen, set by shell.qml)
     property real ui: 1
     // Shapes and font families from the design tokens (shared/Tokens.qml, bin/tokens);
     // sizes stay per panel, in logical pixels scaled by ui
-    readonly property string font: Tokens.fontUi
+    // Look (tokens UI_STYLE): mac = filled cards; hud = outlined rows, UPPERCASE spaced labels,
+    // corner brackets and the mono font (Cosmos)
+    readonly property bool hud: Tokens.uiStyle === "hud"
+    readonly property string font: hud ? Tokens.fontMono : Tokens.fontUi
+    readonly property real tracking: hud ? 1.6 * ui : 0             // letter spacing of labels
+    function label(s) { return hud ? String(s).toUpperCase() : s }
+    readonly property color outline: Qt.rgba(text.r, text.g, text.b, 0.22)       // hud row frame
+    readonly property color outlineHot: Qt.rgba(text.r, text.g, text.b, 0.6)     // hovered / chosen
     readonly property string icons: Tokens.fontMono
     readonly property real radiusLg: Tokens.radiusLg * ui   // the panel itself
     readonly property real radiusMd: Tokens.radiusMd * ui   // cards, buttons, sidebar rows

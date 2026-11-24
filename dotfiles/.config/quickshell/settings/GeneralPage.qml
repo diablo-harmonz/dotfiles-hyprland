@@ -92,13 +92,17 @@ Page {
                 Rectangle {   // initial, when there is no picture
                     anchors.fill: parent
                     radius: width / 2
-                    color: Pal.primary
+                    // No accent colour: a neutral disc (mac) or a thin ring (HUD)
+                    color: Pal.hud ? "transparent" : Qt.rgba(Pal.text.r, Pal.text.g, Pal.text.b, 0.14)
+                    border.width: Pal.hud ? 1 : 0
+                    border.color: Pal.outlineHot
                     visible: pic.status !== Image.Ready
                     Text {
                         anchors.centerIn: parent
                         text: p.initial
-                        color: Pal.primaryFg
-                        font.family: Pal.font; font.pixelSize: 28 * Pal.ui; font.weight: Font.DemiBold
+                        color: Pal.text
+                        font.family: Pal.font; font.pixelSize: 28 * Pal.ui
+                        font.weight: Pal.hud ? Font.Light : Font.DemiBold
                     }
                 }
                 Image {
@@ -173,11 +177,11 @@ Page {
             }
         }
 
-        Status { icon: ""; iconColor: "#0a84ff"; title: "Wi-Fi"; value: p.netText; target: "Network" }
-        Status { icon: ""; iconColor: "#0a84ff"; title: "Bluetooth"; value: p.btText; target: "Bluetooth" }
-        Status { icon: ""; iconColor: "#ff375f"; title: "Sound"; value: p.volText; target: "Sound" }
-        Status { icon: ""; iconColor: "#0a84ff"; title: "Brightness"; value: p.value("bright", "").replace("%", " %"); target: "Display" }
-        Status { icon: ""; iconColor: "#30d158"; title: "Battery"; value: p.batText; target: "Power" }
-        Status { icon: ""; iconColor: "#8e8e93"; title: "Storage"; value: p.value("disk", "") ? p.info.disk + " free" : ""; target: "Storage" }
+        Status { icon: ""; title: "Wi-Fi"; value: p.netText; target: "Network" }
+        Status { icon: ""; title: "Bluetooth"; value: p.btText; target: "Bluetooth" }
+        Status { icon: ""; title: "Sound"; value: p.volText; target: "Sound" }
+        Status { icon: ""; title: "Brightness"; value: p.value("bright", "").replace("%", " %"); target: "Display" }
+        Status { icon: ""; title: "Battery"; value: p.batText; target: "Power" }
+        Status { icon: ""; title: "Storage"; value: p.value("disk", "") ? p.info.disk + " free" : ""; target: "Storage" }
     }
 }

@@ -22,9 +22,11 @@ Flickable {
         width: page.width - 56 * Pal.ui
         spacing: 18 * Pal.ui
         Text {
-            text: page.title
+            text: Pal.label(page.title)
             color: Pal.text
-            font.family: Pal.font; font.pixelSize: Pal.fsTitle; font.weight: Font.Bold
+            font.family: Pal.font; font.pixelSize: Pal.fsTitle
+            font.weight: Pal.hud ? Font.Light : Font.Bold
+            font.letterSpacing: Pal.hud ? 5 * Pal.ui : 0
         }
     }
 }

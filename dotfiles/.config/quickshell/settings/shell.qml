@@ -22,22 +22,22 @@ import Quickshell.Wayland
 ShellRoot {
     id: root
 
-    // key, label, Nerd Font glyph, tile color; "" = gap between sidebar groups
+    // key, label, Nerd Font glyph; "" = gap between sidebar groups
     readonly property var sections: [
-        { key: "General",    label: "General",    glyph: "", color: "#636366" },
+        { key: "General",    label: "General",    glyph: "" },
         { key: "" },
-        { key: "Network",    label: "Wi-Fi",      glyph: "", color: "#0a84ff" },
-        { key: "Bluetooth",  label: "Bluetooth",  glyph: "", color: "#0a84ff" },
+        { key: "Network",    label: "Wi-Fi",      glyph: "" },
+        { key: "Bluetooth",  label: "Bluetooth",  glyph: "" },
         { key: "" },
-        { key: "Sound",      label: "Sound",      glyph: "", color: "#ff375f" },
-        { key: "Display",    label: "Displays",   glyph: "", color: "#0a84ff" },
-        { key: "Power",      label: "Battery",    glyph: "", color: "#30d158" },
+        { key: "Sound",      label: "Sound",      glyph: "" },
+        { key: "Display",    label: "Displays",   glyph: "" },
+        { key: "Power",      label: "Battery",    glyph: "" },
         { key: "" },
-        { key: "Storage",    label: "Storage",    glyph: "", color: "#8e8e93" },
-        { key: "System",     label: "About",      glyph: "", color: "#8e8e93" },
+        { key: "Storage",    label: "Storage",    glyph: "" },
+        { key: "System",     label: "About",      glyph: "" },
         { key: "" },
-        { key: "Appearance", label: "Appearance", glyph: "󰏘", color: "#bf5af2" },
-        { key: "Configs",    label: "Configs",    glyph: "", color: "#ff9f0a" }
+        { key: "Appearance", label: "Appearance", glyph: "󰏘" },
+        { key: "Configs",    label: "Configs",    glyph: "" }
     ]
     readonly property var keys: sections.filter(s => s.key !== "").map(s => s.key)
     property string page: {
@@ -154,21 +154,29 @@ ShellRoot {
                 id: side
                 width: 220 * win.ui
                 height: parent.height
-                color: Pal.sidebar
-                Rectangle { anchors.right: parent.right; width: 1; height: parent.height; color: Pal.line }
+                color: Pal.hud ? "transparent" : Pal.sidebar
+                Rectangle {   // divider (HUD: inset, brighter)
+                    anchors.right: parent.right
+                    y: Pal.hud ? 24 * win.ui : 0
+                    width: 1; height: parent.height - 2 * y
+                    color: Pal.hud ? Pal.outline : Pal.line
+                }
 
                 Column {
-                    x: 10 * win.ui
-                    y: 18 * win.ui
-                    width: parent.width - 20 * win.ui
+                    // HUD: clear of the corner bracket
+                    x: (Pal.hud ? 18 : 10) * win.ui
+                    y: (Pal.hud ? 34 : 18) * win.ui
+                    width: parent.width - 2 * x
                     spacing: 2 * win.ui
 
                     Text {
-                        text: "Settings"
+                        text: Pal.label("Settings")
                         leftPadding: 8 * win.ui
                         bottomPadding: 10 * win.ui
                         color: Pal.text
-                        font.family: Pal.font; font.pixelSize: 15 * win.ui; font.weight: Font.Bold
+                        font.family: Pal.font; font.pixelSize: 15 * win.ui
+                        font.weight: Pal.hud ? Font.Light : Font.Bold
+                        font.letterSpacing: Pal.hud ? 4 * win.ui : 0
                     }
                     Repeater {
                         model: root.sections
@@ -183,7 +191,17 @@ ShellRoot {
                                 visible: !parent.gap
                                 anchors.fill: parent
                                 radius: Pal.radiusMd
-                                color: parent.on ? Pal.primary : (a.containsMouse ? Pal.hover : "transparent")
+                                color: parent.on && !Pal.hud ? Pal.primary : (a.containsMouse ? Pal.hover : "transparent")
+                                border.width: parent.on && Pal.hud ? 1 : 0
+                                border.color: Pal.outlineHot
+                            }
+                            Rectangle {   // HUD: a line from the chosen section across to the content
+                                visible: Pal.hud && parent.on
+                                anchors.left: parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: 18 * win.ui + 28 * win.ui   // the sidebar margin + into the content
+                                height: 1
+                                color: Pal.outlineHot
                             }
                             Rectangle {   // colored icon tile
                                 visible: !parent.gap
@@ -191,12 +209,15 @@ ShellRoot {
                                 anchors.verticalCenter: parent.verticalCenter
                                 width: 22 * win.ui; height: width
                                 radius: Pal.radiusSm
-                                color: parent.gap ? "transparent" : parent.modelData.color
+                                // A plain flat glyph, no coloured tile (both looks); on the chosen
+                                // row of the mac look it takes the accent's text colour
+                                color: "transparent"
                                 Text {
                                     anchors.centerIn: parent
                                     text: parent.parent.gap ? "" : parent.parent.modelData.glyph
-                                    color: "#ffffff"
-                                    font.family: Pal.icons; font.pixelSize: 12 * win.ui
+                                    color: parent.parent.on && !Pal.hud ? Pal.primaryFg
+                                         : (parent.parent.on ? Pal.text : Pal.muted)
+                                    font.family: Pal.icons; font.pixelSize: 14 * win.ui
                                 }
                             }
                             Text {
@@ -204,9 +225,9 @@ ShellRoot {
                                 x: 40 * win.ui
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: parent.gap ? "" : parent.modelData.label
-                                color: parent.on ? Pal.primaryFg : Pal.text
+                                color: parent.on && !Pal.hud ? Pal.primaryFg : Pal.text
                                 font.family: Pal.font; font.pixelSize: Pal.fs
-                                font.weight: parent.on ? Font.DemiBold : Font.Normal
+                                font.weight: parent.on && !Pal.hud ? Font.DemiBold : Font.Normal
                             }
                             MouseArea {
                                 id: a
@@ -220,6 +241,19 @@ ShellRoot {
                     }
                 }
             }
+
+            // ---- HUD corner brackets (top left, bottom right) ---------------------------------
+            component Bracket: Item {
+                property bool flip: false
+                width: 30 * win.ui; height: width
+                Rectangle { x: parent.flip ? parent.width - width : 0; y: parent.flip ? parent.height - 2 : 0
+                            width: parent.width; height: 2; color: Pal.outlineHot }
+                Rectangle { x: parent.flip ? parent.width - 2 : 0; y: 0
+                            width: 2; height: parent.height; color: Pal.outlineHot }
+            }
+            Bracket { visible: Pal.hud; x: 8 * win.ui; y: 8 * win.ui; z: 10 }
+            Bracket { visible: Pal.hud; flip: true; z: 10
+                      x: card.width - width - 8 * win.ui; y: card.height - height - 8 * win.ui }
 
             // ---- content -------------------------------------------------------------------
             Loader {

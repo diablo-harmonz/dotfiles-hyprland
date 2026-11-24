@@ -70,8 +70,7 @@ Page {
     Group {
         title: "System disk"
         SRow {
-            icon: ""; iconColor: "#8e8e93"
-            title: p.human(p.avail) + " free of " + p.human(p.size)
+            icon: "";             title: p.human(p.avail) + " free of " + p.human(p.size)
             subtitle: p.human(p.used) + " used · btrfs, shared by the system and the home folder"
             Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
