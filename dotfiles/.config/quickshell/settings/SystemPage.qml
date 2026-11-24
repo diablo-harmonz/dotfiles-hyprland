@@ -1,4 +1,4 @@
-// General: about this computer (model, CPU, GPU, memory, system, kernel, Hyprland,
+// About: this computer (model, CPU, GPU, memory, system, kernel, Hyprland,
 // packages, uptime), pending updates (checkupdates + AUR, checked in the background) and
 // shortcuts to bin/sysupdate, btop and bin/sysreport.
 import QtQuick
@@ -7,7 +7,7 @@ import Quickshell.Io
 
 Page {
     id: p
-    title: "General"
+    title: "About"
 
     property var about: ({})
     property int updates: -1          // official packages, -1 = checking
@@ -73,7 +73,7 @@ Page {
     }
 
     Group {
-        title: "About"
+        title: "Details"
         Info { title: "Processor"; value: p.about.cpu || "" }
         Info { title: "Graphics"; value: p.about.gpu || "" }
         Info { title: "Memory"; value: p.about.mem || "" }
