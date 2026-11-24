@@ -29,7 +29,7 @@ Page {
             { name: "Night light", path: "~/.config/hypr/hyprsunset.conf" } ] },
         { title: "Bar, launcher, terminal", files: [
             { name: "Waybar modules", path: "~/.config/waybar/config" },
-            { name: "Waybar style", path: "~/.config/waybar/style.css" },
+            { name: "Waybar style", path: "~/.config/waybar/style.in.css" },
             { name: "Launcher (rofi)", path: "~/.config/rofi/config.rasi" },
             { name: "Terminal (kitty)", path: "~/.config/kitty/kitty.conf" },
             { name: "Shell (zsh)", path: "~/.zshrc" } ] }

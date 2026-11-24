@@ -7,15 +7,19 @@
 #                          waits for the screen change to settle; calls that arrive while
 #                          one is waiting are dropped)
 # The bar itself is ~/.config/waybar/config (one bar, a template); the per-screen config
-# is written to $XDG_RUNTIME_DIR/waybar/config.json. Waybar's log goes to the journal:
+# is written to $XDG_RUNTIME_DIR/waybar/config.json, and the style (style.in.css with the
+# design tokens filled in, bin/tokens) to $XDG_RUNTIME_DIR/waybar/style.css. Waybar's log
+# goes to the journal:
 #   journalctl --user -t waybar
 set -uo pipefail
 
 RATIO=0.77
 TEMPLATE="$HOME/.config/waybar/config"
-STYLE="$HOME/.config/waybar/style.css"
+STYLE_IN="$HOME/.config/waybar/style.in.css"   # template; double-braced keys = design tokens
+TOKENS="$HOME/.config/theme-tokens/tokens.env"
 DIR="${XDG_RUNTIME_DIR:-/tmp}/waybar"
 OUT="$DIR/config.json"
+STYLE="$DIR/style.css"
 
 mkdir -p "$DIR"
 exec 9>"$DIR/launch.lock"
@@ -47,6 +51,23 @@ else
     # Hyprland not answering: one full-width bar on every screen rather than none
     printf '%s\n' "$bar" > "$OUT"
 fi
+
+# Style: fill the template with the design tokens (GTK 3 CSS has no variables). A key left
+# unfilled would break the whole style, so then the running bar is kept as it is.
+[ -f "$TOKENS" ] || "$HOME/.local/bin/tokens" >/dev/null 2>&1
+style=$(
+    # shellcheck source=/dev/null
+    . "$TOKENS" 2>/dev/null
+    sed -e "s|{{HOME}}|$HOME|g" \
+        -e "s|{{RADIUS_LG}}|${RADIUS_LG:-}|g" -e "s|{{RADIUS_MD}}|${RADIUS_MD:-}|g" \
+        -e "s|{{RADIUS_SM}}|${RADIUS_SM:-}|g" -e "s|{{BORDER}}|${BORDER:-}|g" -e "s|{{PANEL_ALPHA}}|${PANEL_ALPHA:-}|g" \
+        -e "s|{{FONT_UI}}|${FONT_UI:-}|g" -e "s|{{FONT_MONO}}|${FONT_MONO:-}|g" "$STYLE_IN"
+)
+if grep -qE '\{\{[A-Z_]+\}\}|: ?px|"", ' <<<"$style"; then
+    notify-send -a waybar "Waybar" "Style not updated: a design token is missing (run: tokens)" 2>/dev/null
+    exit 1
+fi
+printf '%s\n' "$style" > "$STYLE.tmp" && mv -f "$STYLE.tmp" "$STYLE"
 
 # Stop the running bar (never SIGUSR2: Waybar 0.15 crashes on it)
 pkill -x waybar

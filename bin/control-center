@@ -2,12 +2,12 @@
 """control-center: macOS-style Control Center, opened from the Waybar icon (run it
 again, press Esc or click outside to close).
 
-  Wi-Fi, Bluetooth      round icon: on/off; the name opens nmtui / bluetui
+  Wi-Fi, Bluetooth      round icon: on/off; the name opens its Settings section
   Do Not Disturb        swaync's DND           Caffeine   no idle lock / suspend
   Now playing           the active player (playerctld): previous, play/pause, next,
                         x stops it (mpv quits, MPD stops, a browser stops playing)
   Display, Sound        brightness and volume sliders (speaker icon: mute;
-                        "Sound" opens wiremix)
+                        "Sound" opens Settings > Sound)
   Small tiles           charge limit 80/100, power mode, record, screenshot,
                         wallpaper, lock, notifications, power menu
 
@@ -391,8 +391,8 @@ class ControlCenter(Gtk.Application):
         row1 = Gtk.Box(spacing=10, homogeneous=True)
         conn = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
         conn.add_css_class("card")
-        self.wifi = ToggleRow(self.toggle_wifi, lambda: self.leave(bin_("tui-popup"), "nmtui"))
-        self.bt = ToggleRow(self.toggle_bt, lambda: self.leave(bin_("tui-popup"), "bluetui"))
+        self.wifi = ToggleRow(self.toggle_wifi, lambda: self.leave(bin_("settings"), "network"))
+        self.bt = ToggleRow(self.toggle_bt, lambda: self.leave(bin_("settings"), "bluetooth"))
         conn.append(self.wifi)
         conn.append(self.bt)
         quick = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
@@ -455,7 +455,7 @@ class ControlCenter(Gtk.Application):
                                   lambda v: spawn("brightnessctl", "-q", "set", f"{max(v, 1)}%"))
         self.sound = SliderCard("Sound", G["vol"],
                                 lambda v: spawn("wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", f"{v / 100:.2f}"),
-                                on_title=lambda: self.leave(bin_("tui-popup"), "wiremix"),
+                                on_title=lambda: self.leave(bin_("settings"), "sound"),
                                 on_glyph=lambda: (spawn("wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"),
                                                   self.soon(300)))
         panel.append(self.display)

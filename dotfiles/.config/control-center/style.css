@@ -4,9 +4,12 @@
  * is drawn (Hyprland blurs it: layer rule "control-center" in windowrules.lua).
  */
 @import url("colors.css");
+/* Corners, border, fonts: the design tokens (bin/tokens) */
+@import url("../theme-tokens/tokens.css");
 
 * {
-    font-family: "FiraCode Nerd Font", monospace;
+    /* UI font for text; icon glyphs fall back to the mono (Nerd) font */
+    font-family: var(--font-ui), var(--font-mono);
 }
 
 window.backdrop {
@@ -14,9 +17,9 @@ window.backdrop {
 }
 
 .panel {
-    background: alpha(@cc_surface, 0.78);
+    background: alpha(@cc_surface, var(--panel-alpha));
     border: 1px solid alpha(@cc_outline, 0.8);
-    border-radius: 18px;
+    border-radius: var(--radius-lg);
     padding: 12px;
 }
 
@@ -25,7 +28,7 @@ window.backdrop {
 .tile {
     background: alpha(@cc_container, 0.85);
     border: none;
-    border-radius: 14px;
+    border-radius: var(--radius-md);
     padding: 10px 12px;
     box-shadow: none;
 }
@@ -97,14 +100,14 @@ button.tile.on .tile-label {
 
 /* Now playing */
 .art {
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
 }
 
 .art-glyph {
     font-size: 24px;
     color: @cc_primary;
     background: alpha(@cc_on_surface, 0.08);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
 }
 
 button.flat-btn {

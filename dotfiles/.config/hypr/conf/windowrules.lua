@@ -16,7 +16,9 @@ hl.layer_rule({ match = { namespace = "rofi" },   blur = true, ignore_alpha = 0.
 hl.layer_rule({ match = { namespace = "waybar" }, blur = true, ignore_alpha = 0.1 })
 hl.layer_rule({ match = { namespace = "swaync-notification-window" }, blur = true, ignore_alpha = 0.1 })
 hl.layer_rule({ match = { namespace = "swaync-control-center" },      blur = true, ignore_alpha = 0.1 })
-hl.layer_rule({ match = { namespace = "control-center" }, blur = true, ignore_alpha = 0.3 })   -- bin/control-center (the full-screen backdrop is transparent)
+hl.layer_rule({ match = { namespace = "control-center" }, blur = true, ignore_alpha = 0.3 })
+-- Settings panel (quickshell/settings): only the panel is blurred, not its 0.30 dark backdrop
+hl.layer_rule({ match = { namespace = "settings" }, blur = true, ignore_alpha = 0.4 })   -- bin/control-center (the full-screen backdrop is transparent)
 
 -- Translucent apps: add a line to make an app see-through (blur shows the wallpaper behind).
 -- class   = the window class: focus the app, then run `hyprctl activewindow -j | jq -r .class`
@@ -48,18 +50,6 @@ hl.window_rule({
     float  = true,
     size   = "380 830",
     center = true,
-})
-
--- Terminal popups from Waybar (bin/tui-popup): wiremix (volume) and bluetui (Bluetooth),
--- floating under the right end of the bar. The bar is centred and ~77 % wide, so its
--- right edge is at ~88.5 % of the screen width on every monitor.
-hl.window_rule({
-    name  = "tui-popup",
-    match = { class = "^(tui-.*)$" },
-
-    float = true,
-    size  = "900 560",
-    move  = "(monitor_w*0.885-900) 52",
 })
 
 -- yt-x videos (mpv started with --wayland-app-id=mpv-pip in yt-x/config): small floating

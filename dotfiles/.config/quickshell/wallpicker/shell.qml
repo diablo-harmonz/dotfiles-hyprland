@@ -186,7 +186,7 @@ ShellRoot {
                         width: parent.width; height: parent.height
                         color: "#000000"
                         opacity: 0.45
-                        radius: 4 * win.ui
+                        radius: Tokens.radiusSm * win.ui
                     }
 
                     Image {
@@ -207,7 +207,7 @@ ShellRoot {
                         color: "transparent"
                         border.color: root.accent
                         border.width: 2 * win.ui
-                        radius: 4 * win.ui
+                        radius: Tokens.radiusSm * win.ui
                         opacity: tile.middle ? 1 : 0
                         Behavior on opacity { NumberAnimation { duration: 150 } }
                     }
@@ -234,7 +234,7 @@ ShellRoot {
                       : "Loading wallpapers..."
                 color: "#ffffff"
                 opacity: 0.85
-                font.family: "FiraCode Nerd Font"
+                font.family: Tokens.fontUi
                 font.pixelSize: 15 * win.ui
                 style: Text.Raised
                 styleColor: "#80000000"

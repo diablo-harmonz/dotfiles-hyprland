@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 # colors: choose where the desktop colors come from. Matugen still makes them and writes
 # every template (~/.config/matugen/config.toml); this only picks its input.
-#   colors                        open the picker (SUPER+C; pressing it again closes it)
+#   colors                        open the picker: Settings > Appearance (again closes it)
 #   colors status                 the saved choice: "SOURCE SCHEME"
 #   colors set SOURCE [SCHEME]    save a choice and recolor
 #                                   SOURCE  #rrggbb       a fixed color
 #                                           wallpaper[:N] the Nth color found in the wallpaper
 #                                   SCHEME  tonal-spot (default), vibrant, expressive, neutral,
 #                                           monochrome, fidelity, content, rainbow, fruit-salad
-#   colors save SOURCE [SCHEME]   save only, no recolor (the picker, before `theme apply`,
-#                                 which recolors with the new wallpaper anyway)
+#   colors save SOURCE [SCHEME]   save only, no recolor (e.g. before `theme apply`, which
+#                                 recolors with the new wallpaper anyway)
 #   colors auto                   back to the default: wallpaper:0 tonal-spot
 #   colors apply                  recolor from the saved choice (bin/wallpaper runs it
 #                                 after every wallpaper change)
 #   colors candidates [IMAGE]     the colors found in the wallpaper (or IMAGE), one per line
 #   colors preview SOURCE SCHEME [IMAGE]
-#                                 the main colors as one JSON line, nothing written (picker;
-#                                 IMAGE = the wallpaper a theme pack would show)
+#                                 the main colors as one JSON line, nothing written
+#                                 (IMAGE = the wallpaper a theme pack would show)
 # The choice is kept in ~/.local/state/colors/choice, so a fixed color stays when the
 # wallpaper changes. When the wallpaper has fewer colors than N, its first one is used.
 set -uo pipefail
@@ -95,14 +95,8 @@ preview() {   # $1 = source, $2 = scheme
 
 case "${1:-ui}" in
     ui)
-        command -v qs >/dev/null && [ -f "$HOME/.config/quickshell/colorpicker/shell.qml" ] \
-            || die "needs quickshell and ~/.config/quickshell/colorpicker"
-        if qs list -c colorpicker 2>/dev/null | grep -q "^Instance"; then
-            qs kill -c colorpicker >/dev/null 2>&1
-            exit 0
-        fi
-        COLORPICKER_SCREEN=$(hyprctl monitors -j 2>/dev/null | jq -r '.[] | select(.focused) | .name') \
-            setsid -f qs -n -c colorpicker >/dev/null 2>&1
+        # The picker is the Appearance page of the Settings panel
+        exec "$HOME/.local/bin/settings" appearance
         ;;
     status)
         read_choice ;;

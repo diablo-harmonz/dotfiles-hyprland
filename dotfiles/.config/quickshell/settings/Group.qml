@@ -20,7 +20,7 @@ Column {
     Rectangle {
         width: parent.width
         height: rows.implicitHeight
-        radius: Pal.radius
+        radius: Pal.radiusMd
         color: Pal.card
         border.color: Pal.line
         border.width: 1

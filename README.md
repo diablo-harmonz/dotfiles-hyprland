@@ -117,7 +117,7 @@ to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#
 | Clipboard | cliphist |
 | Screenshots, recording | grim, slurp, satty, wf-recorder |
 | Polkit, secrets | hyprpolkitagent, gnome-keyring |
-| Audio, Bluetooth, Wi-Fi | wiremix, bluetui and nmtui in floating kitty windows (`bin/tui-popup`), opened from the Waybar volume, Bluetooth and Wi-Fi icons |
+| Audio, Bluetooth, Wi-Fi | Settings sections (Sound, Bluetooth, Wi-Fi), opened from the Control Center and the Waybar Wi-Fi icon; wiremix, bluetui and nmtui stay installed for the terminal |
 | Bluetooth on the bar | `bin/bt-status`: devices and battery levels from UPower |
 | Browser | Firefox (FF Ultima theme) |
 | Media | mpv (video, also for yt-x; resumes where you left off, but a video played to the end starts over), yt-dlp (downloads to `~/Videos/YouTube`), yt-x (YouTube in the terminal; videos open as a small window in the bottom-right corner, pinned to every workspace), MPD + rmpc (music in `~/Music`; player view with the record picture, queue and library as icon tabs, a keys tab); media keys and Waybar control mpv and MPD through MPRIS |
@@ -140,7 +140,6 @@ Defined in `dotfiles/.config/hypr/conf/binds.lua`.
 | SUPER + = | Calculator (rofi-calc, also units and currencies): Enter copies the result |
 | SUPER + SHIFT + T | Timer or alarm: `10m tea`, `1h30m`, `07:30 wake up`; countdown on Waybar, pick one to cancel |
 | SUPER + W / SUPER + SHIFT + W | Pick a wallpaper / random wallpaper |
-| SUPER + C | Pick the theme pack and the colors (from the wallpaper or a fixed one, and the style) |
 | SUPER + A | Audio visualizer (cava) on/off |
 | SUPER + SHIFT + C | Caffeine: no idle lock or suspend |
 | SUPER + , | Settings panel (macOS style): General (you, quick status), Wi-Fi, Bluetooth, Sound, Displays, Battery, Storage, About, Appearance, Configs (also the gear icon in Waybar) |
@@ -204,12 +203,11 @@ after linking (Hyprland also runs it at login). The colors are made after the 1.
 transition so it stays smooth. Waybar picks up its new colors by itself
 (`reload_style_on_change`); it is never sent SIGUSR2, which crashed Waybar 0.15.
 
-`SUPER+C` (`bin/colors`, Quickshell `colorpicker`) picks the theme pack (Tab, as `theme apply`)
-and what Matugen starts from: one
-of the colors found in the wallpaper (the first one is the default), a preset or a typed
-`#rrggbb`, plus the style (Matugen scheme: tonal, vibrant, neutral, mono...). The panel
-previews the result in its own colors; Enter applies, `A` goes back to auto. A fixed color
-stays when the wallpaper changes. Same from a terminal: `colors set '#5b8def' vibrant`,
+Settings > Appearance (`settings appearance`, `bin/colors` with no argument) picks the theme
+pack and what Matugen starts from: one of the colors found in the wallpaper (the first one
+is the default), a preset or a typed `#rrggbb`, plus the style (Matugen scheme: tonal,
+vibrant, neutral, mono...). A click recolors the whole desktop at once; Auto goes back to
+the default. A fixed color stays when the wallpaper changes. Same from a terminal: `colors set '#5b8def' vibrant`,
 `colors auto`.
 
 Translucent apps: list them in `translucent` at the top of
@@ -271,7 +269,7 @@ installs from `setup/system/`:
 | `screenrec` | Start/stop screen recording |
 | `capture-menu` | macOS-style screenshot / recording toolbar (rofi) |
 | `control-center` | macOS-style Control Center from the Waybar icon: Wi-Fi, Bluetooth, Do Not Disturb, Caffeine, now playing, brightness and volume sliders, charge limit, power mode, record, screenshot, wallpaper, lock, notifications, power menu; x on the player stops it |
-| `tui-popup` | Toggle wiremix / bluetui / nmtui as a floating terminal under the bar |
+| `tokens` | Design tokens: turns `themes/*/tokens.conf` (corner radii 8 / 6 / 4, border, fonts, backdrop) into `~/.config/theme-tokens/` for rofi, GTK 4, Quickshell, Waybar, Hyprland, hyprlock; `tokens show` lists them. Run by `theme apply` |
 | `settings` | Settings panel (Quickshell, `~/.config/quickshell/settings`): starts on demand, quits when closed, shows only once fully built; `settings SECTION` opens a section directly |
 | `power-menu` | rofi 4 x 2 tile grid centred on the focused screen: one highlighted tile for mouse and keys, one click runs it, letter keys l u h s f e r b |
 | `force-quit` | Power menu "Force quit": after a rofi confirmation, close every window outside workspace 1 (kill what does not close within 5 s) |

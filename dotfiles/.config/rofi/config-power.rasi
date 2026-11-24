@@ -7,13 +7,17 @@
  */
 @theme "/dev/null"
 @import "colors.rasi"
+@import "~/.config/theme-tokens/tokens.rasi"   /* corners, border, fonts: bin/tokens */
 
 configuration {
-    font:                "FiraCode Nerd Font Bold 11";
     show-icons:          true;
     hover-select:        true;
     me-select-entry:     "";
     me-accept-entry:     "MousePrimary";
+}
+
+* {
+    font:                @font-ui;
 }
 
 window {
@@ -46,7 +50,7 @@ element {
     orientation:         vertical;
     padding:             42px 0px 34px 0px;
     spacing:             24px;
-    border-radius:       14px;
+    border-radius:       @radius-lg;
     background-color:    @surface-translucent;
     text-color:          @text;
     cursor:              pointer;

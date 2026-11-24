@@ -6,9 +6,9 @@
  */
 @theme "/dev/null"
 @import "colors.rasi"
+@import "~/.config/theme-tokens/tokens.rasi"   /* corners, border, fonts: bin/tokens */
 
 configuration {
-    font:                "Noto Sans 11";
     show-icons:          false;
     icon-theme:          "Papirus-Dark";
     /* One click runs an entry (rofi default: click selects, double click runs); the
@@ -18,14 +18,18 @@ configuration {
     me-accept-entry:     "MousePrimary";
 }
 
+* {
+    font:                @font-ui;
+}
+
 window {
     transparency:        "real";
     location:            center;
     anchor:              center;
     width:               400px;
-    border:              1px solid;
+    border:              @border-w;
     border-color:        @surface;
-    border-radius:       14px;
+    border-radius:       @radius-lg;
     cursor:              "default";
     background-color:    @bg;
 }
@@ -72,7 +76,7 @@ listview {
 
 element {
     padding:             8px;
-    border-radius:       8px;
+    border-radius:       @radius-md;
     background-color:    @surface;
     text-color:          @text;
     cursor:              pointer;

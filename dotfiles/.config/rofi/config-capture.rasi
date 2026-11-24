@@ -5,12 +5,16 @@
  */
 @theme "/dev/null"
 @import "colors.rasi"
+@import "~/.config/theme-tokens/tokens.rasi"   /* corners, border, fonts: bin/tokens */
 
 configuration {
-    font:                "FiraCode Nerd Font 10";
     show-icons:          false;
     /* The button under the pointer becomes the selected one (lit like with the keys) */
     hover-select:        true;
+}
+
+* {
+    font:                @font-mono;
 }
 
 window {
@@ -19,9 +23,9 @@ window {
     anchor:              south;
     y-offset:            60px;    /* rofi 2.x: positive moves up from the south edge (1.7 needed -60px) */
     width:               820px;
-    border:              2px solid;
+    border:              @border-w;
     border-color:        @border;
-    border-radius:       15px;
+    border-radius:       @radius-lg;
     background-color:    @bg;
 }
 
@@ -55,7 +59,7 @@ listview {
 
 element {
     padding:             10px 4px;
-    border-radius:       10px;
+    border-radius:       @radius-md;
     cursor:              pointer;
     background-color:    transparent;
     text-color:          @text;

@@ -31,7 +31,7 @@ packages=(
     "qt5-wayland"
     "qt6-wayland"
     "awww"
-    "quickshell"                # wallpaper carousel SUPER+W, color picker SUPER+C (dotfiles/.config/quickshell)
+    "quickshell"                # wallpaper carousel SUPER+W, Settings panel SUPER+, (dotfiles/.config/quickshell)
     "matugen"
     "imagemagick"
     "hyprlock"
@@ -291,10 +291,10 @@ gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark
 gsettings set org.gnome.desktop.interface cursor-theme breeze_cursors
 gsettings set org.gnome.desktop.interface cursor-size 24
 gsettings set org.gnome.desktop.interface font-name "Noto Sans 10"
-# macOS-style window buttons in GTK 4 apps: close and maximize on the left (Hyprland has
-# no minimize), drawn as coloured dots by window-controls.css (Matugen template)
+# GTK 4 tweaks (window-controls.css, Matugen template: Nautilus sidebar divider). No window
+# buttons in header bars: Hyprland closes / maximizes windows with its own keys
 grep -qs "window-controls.css" ~/.config/gtk-4.0/gtk.css || echo "@import 'window-controls.css';" >> ~/.config/gtk-4.0/gtk.css
-gsettings set org.gnome.desktop.wm.preferences button-layout "close,maximize:"
+gsettings set org.gnome.desktop.wm.preferences button-layout ":"
 
 # Nautilus like the Finder list view: list by default, small rows, folders first, name /
 # size / modified columns, folders expand in place (tree view)

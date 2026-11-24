@@ -174,7 +174,7 @@
         "spacing": 8
     },
     // Wi-Fi / Ethernet (replaces the nm-applet tray icon): signal-strength icon,
-    // details in the tooltip, click opens nmtui (bin/tui-popup)
+    // details in the tooltip, click opens Settings > Wi-Fi
     "network": {
         "format-wifi": "{icon}",
         "format-ethernet": "󰈀",
@@ -193,7 +193,7 @@
         "tooltip-format-disconnected": "Not connected",
         "tooltip-format-disabled": "Wi-Fi off",
         "interval": 5,
-        "on-click": "~/.local/bin/tui-popup nmtui"
+        "on-click": "~/.local/bin/settings network"
     },
     "battery": {
         "states": {

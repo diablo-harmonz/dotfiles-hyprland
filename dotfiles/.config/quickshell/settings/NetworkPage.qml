@@ -174,7 +174,7 @@ Page {
                         anchors.verticalCenter: parent.verticalCenter
                         width: parent.width - x - join.width - 2 * Pal.pad - 8 * Pal.ui
                         height: 28 * Pal.ui
-                        radius: 6 * Pal.ui
+                        radius: Pal.radiusSm
                         color: Qt.rgba(Pal.text.r, Pal.text.g, Pal.text.b, 0.08)
                         border.color: psk.activeFocus ? Pal.primary : Pal.line
                         TextInput {

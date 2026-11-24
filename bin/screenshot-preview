@@ -38,19 +38,23 @@ TIMEOUT_S = 6
 THUMB_W, THUMB_H = 280, 175
 MARGIN = 20
 
+# Corners, border and fonts come from the design tokens (bin/tokens): tokens.css is put in
+# front of this, so var(--radius-lg) etc. resolve; the fallbacks keep a missing file harmless
+TOKENS_CSS = os.path.join(os.path.expanduser("~"), ".config", "theme-tokens", "tokens.css")
 CSS = b"""
 window { background: transparent; }
+* { font-family: var(--font-ui, "Noto Sans"), var(--font-mono, monospace); }
 .card {
     background: alpha(@window_bg_color, 0.92);
-    border: 1px solid alpha(@accent_color, 0.6);
-    border-radius: 14px;
+    border: var(--border-w, 1px) solid alpha(@accent_color, 0.6);
+    border-radius: var(--radius-lg, 8px);
     padding: 8px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
 }
-.thumb { border-radius: 8px; }
+.thumb { border-radius: var(--radius-md, 6px); }
 .bar button {
     min-width: 28px; min-height: 28px; padding: 2px;
-    border-radius: 8px;
+    border-radius: var(--radius-md, 6px);
 }
 .name { font-size: 11px; opacity: 0.75; }
 .play-badge {
@@ -62,7 +66,7 @@ window { background: transparent; }
 .duration {
     background: rgba(0, 0, 0, 0.6);
     color: white;
-    border-radius: 6px;
+    border-radius: var(--radius-sm, 4px);
     padding: 1px 6px;
     margin: 6px;
     font-size: 11px;
@@ -192,7 +196,12 @@ class Preview(Gtk.Application):
 
     def do_activate(self):
         provider = Gtk.CssProvider()
-        provider.load_from_data(CSS)
+        try:
+            with open(TOKENS_CSS, "rb") as f:
+                tokens = f.read()
+        except OSError:
+            tokens = b""
+        provider.load_from_data(tokens + CSS)
         Gtk.StyleContext.add_provider_for_display(
             Gdk.Display.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 

@@ -1,7 +1,11 @@
 -- See https://wiki.hypr.land/Configuring/Basics/Variables/
+-- Window corners from the design tokens (bin/tokens); 8 if the file is not there yet
+local ok, tokens = pcall(dofile, os.getenv("HOME") .. "/.config/theme-tokens/tokens.lua")
+if not ok or type(tokens) ~= "table" then tokens = {} end
+
 hl.config({
     decoration = {
-        rounding = 10,
+        rounding = tokens.radius_lg or 8,
         blur = {
             enabled = true,
             size    = 3,

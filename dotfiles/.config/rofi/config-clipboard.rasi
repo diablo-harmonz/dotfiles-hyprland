@@ -3,10 +3,14 @@
  */
 @theme "/dev/null"
 @import "colors.rasi"
+@import "~/.config/theme-tokens/tokens.rasi"   /* corners, border, fonts: bin/tokens */
 
 configuration {
-    font:                "FiraCode Nerd Font 10";
     show-icons:          false;
+}
+
+* {
+    font:                @font-mono;
 }
 
 window {
@@ -14,9 +18,9 @@ window {
     location:            center;
     anchor:              center;
     width:               700px;
-    border:              2px solid;
+    border:              @border-w;
     border-color:        @border;
-    border-radius:       15px;
+    border-radius:       @radius-lg;
     background-color:    @bg;
 }
 
@@ -29,7 +33,7 @@ mainbox {
 
 inputbar {
     padding:             12px;
-    border-radius:       10px;
+    border-radius:       @radius-md;
     background-color:    @surface;
     text-color:          @text;
     children:            [ "entry" ];
@@ -62,7 +66,7 @@ listview {
 
 element {
     padding:             8px 10px;
-    border-radius:       8px;
+    border-radius:       @radius-md;
     background-color:    transparent;
     text-color:          @text;
 }

@@ -27,7 +27,7 @@ Singleton {
     property color urgent: "#ffffb4ab"
 
     // Derived
-    readonly property color window: Qt.rgba(bg.r, bg.g, bg.b, 0.96)
+    readonly property color window: Qt.rgba(bg.r, bg.g, bg.b, Tokens.panelAlpha)   // blurred behind (Hyprland)
     readonly property color sidebar: Qt.rgba(surface.r, surface.g, surface.b, 0.35)
     readonly property color card: Qt.rgba(surface.r, surface.g, surface.b, 0.75)
     readonly property color line: Qt.rgba(text.r, text.g, text.b, 0.08)
@@ -36,13 +36,18 @@ Singleton {
 
     // Type and size (ui = scale of the focused screen, set by shell.qml)
     property real ui: 1
-    readonly property string font: "Noto Sans"
-    readonly property string icons: "FiraCode Nerd Font"
+    // Shapes and font families from the design tokens (shared/Tokens.qml, bin/tokens);
+    // sizes stay per panel, in logical pixels scaled by ui
+    readonly property string font: Tokens.fontUi
+    readonly property string icons: Tokens.fontMono
+    readonly property real radiusLg: Tokens.radiusLg * ui   // the panel itself
+    readonly property real radiusMd: Tokens.radiusMd * ui   // cards, buttons, sidebar rows
+    readonly property real radiusSm: Tokens.radiusSm * ui   // fields, inner segments, icon tiles
+    readonly property real dim: Tokens.dim
     readonly property real fs: 13 * ui           // body text
     readonly property real fsSmall: 11 * ui
     readonly property real fsTitle: 20 * ui
     readonly property real rowH: 42 * ui
-    readonly property real radius: 10 * ui
     readonly property real pad: 14 * ui
 
     function rofiColor(s) {   // "#rrggbbaa" -> "#aarrggbb"

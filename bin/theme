@@ -4,7 +4,7 @@
 #   theme apply NAME    switch to NAME: Hyprland borders, lock screen, Waybar, rofi,
 #                       fastfetch and (if the pack has one) its wallpaper
 #   theme grub          install the active pack's GRUB theme (sudo; shows at next boot)
-#   theme list-tsv      for the picker (SUPER+C): "name<TAB>description<TAB>wallpaper it
+#   theme list-tsv      for Settings > Appearance: "name<TAB>description<TAB>wallpaper it
 #                       would show<TAB>1 if active" lines
 # ~/.config/theme links to the active pack; the configs read their part from it:
 #   hyprland.lua   loaded last by hypr/hyprland.lua (checked with --verify-config first)
@@ -13,6 +13,8 @@
 #   rofi.rasi      imported at the end of rofi/config.rasi
 #   fastfetch.jsonc, fastfetch-logo.*   used by the fastfetch function in .zshrc (optional)
 #   theme.conf     DESCRIPTION, WALLPAPER (file in the pack), GRUB (setup/system/grub-theme)
+#   tokens.conf    corner radii, border, fonts, backdrop (optional: only the keys that differ
+#                  from themes/default/tokens.conf); bin/tokens writes ~/.config/theme-tokens/
 # A pack with a wallpaper remembers the one before it; switching to a pack without one
 # puts that back. Colors always come from the wallpaper (Matugen).
 set -euo pipefail
@@ -92,6 +94,8 @@ apply() {   # $1 = name
     fi
 
     ln -sfn -- "$pack" "$LINK"
+    # Shapes and fonts of the new pack (themes/default/tokens.conf + the pack's own)
+    tokens >/dev/null
     # Reload first so the pack's hook exists when the new colors arrive
     hyprctl reload >/dev/null
     if [ -n "$wall" ]; then

@@ -9,7 +9,7 @@ Rectangle {
 
     width: row.implicitWidth + 4 * Pal.ui
     height: 26 * Pal.ui
-    radius: 7 * Pal.ui
+    radius: Pal.radiusMd
     color: Qt.rgba(Pal.text.r, Pal.text.g, Pal.text.b, 0.10)
 
     Row {
@@ -22,7 +22,7 @@ Rectangle {
                 readonly property bool on: modelData.key === seg.current
                 width: t.implicitWidth + 20 * Pal.ui
                 height: seg.height - 4 * Pal.ui
-                radius: 5 * Pal.ui
+                radius: Pal.radiusSm
                 color: on ? Pal.primary : (a.containsMouse ? Pal.hover : "transparent")
                 Text {
                     id: t

@@ -9,6 +9,7 @@
  */
 @theme "/dev/null"
 @import "colors.rasi"
+@import "~/.config/theme-tokens/tokens.rasi"   /* corners, border, fonts: bin/tokens */
 
 configuration {
     modi:                   "drun,run,window";
@@ -17,8 +18,6 @@ configuration {
     display-window:         "Windows";
     drun-display-format:    "{name}";
     combi-hide-mode-prefix: true;
-    /* Sans-serif like macOS (Noto Sans: San Francisco is not on Linux) */
-    font:                   "Noto Sans 12";
     /* Terminal apps (btop, nmtui, ...) open in kitty, not whatever rofi finds first */
     terminal:               "kitty";
     show-icons:             true;
@@ -30,15 +29,20 @@ configuration {
     me-accept-entry:     "MousePrimary";
 }
 
+/* Sans-serif like macOS (the UI font of the tokens; San Francisco is not on Linux) */
+* {
+    font:                @font-ui;
+}
+
 window {
     transparency:        "real";
     location:            north;
     anchor:              north;
     y-offset:            25%;
     width:               680px;
-    border:              1px solid;
+    border:              @border-w;
     border-color:        @surface;
-    border-radius:       14px;
+    border-radius:       @radius-lg;
     cursor:              "default";
     background-color:    @bg;
 }
@@ -64,7 +68,7 @@ textbox-prompt-colon {
     str:                 " ";
     background-color:    transparent;
     text-color:          @text-muted;
-    font:                "FiraCode Nerd Font 17";
+    font:                "FiraCode Nerd Font 17";   /* bigger than the tokens: the search glyph */
     vertical-align:      0.5;
 }
 
@@ -72,7 +76,7 @@ entry {
     background-color:    transparent;
     text-color:          inherit;
     cursor:              text;
-    font:                "Noto Sans Light 19";
+    font:                "Noto Sans Light 19";      /* bigger than the tokens: the search line */
     placeholder:         "Spotlight Search";
     placeholder-color:   @text-muted;
     vertical-align:      0.5;
@@ -100,7 +104,7 @@ listview {
 element {
     spacing:             12px;
     padding:             7px 12px;
-    border-radius:       8px;
+    border-radius:       @radius-md;
     background-color:    transparent;
     text-color:          @text;
     cursor:              pointer;
@@ -158,7 +162,7 @@ message {
 
 textbox {
     padding:             10px 12px;
-    border-radius:       8px;
+    border-radius:       @radius-md;
     background-color:    @surface;
     text-color:          @text;
     vertical-align:      0.5;
@@ -167,7 +171,7 @@ textbox {
 
 error-message {
     padding:             15px;
-    border-radius:       14px;
+    border-radius:       @radius-lg;
     background-color:    @bg;
     text-color:          @text;
 }

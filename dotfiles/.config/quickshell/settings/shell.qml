@@ -122,7 +122,7 @@ ShellRoot {
         Rectangle {
             anchors.fill: parent
             color: "#000000"
-            opacity: 0.30 * win.shown
+            opacity: Pal.dim * win.shown
         }
         MouseArea { anchors.fill: parent; onClicked: root.close() }
 
@@ -131,7 +131,7 @@ ShellRoot {
             width: 920 * win.ui
             height: 640 * win.ui
             anchors.centerIn: parent
-            radius: 14 * win.ui
+            radius: Pal.radiusLg
             color: Pal.window
             border.color: Pal.line
             border.width: 1
@@ -182,7 +182,7 @@ ShellRoot {
                             Rectangle {
                                 visible: !parent.gap
                                 anchors.fill: parent
-                                radius: 7 * win.ui
+                                radius: Pal.radiusMd
                                 color: parent.on ? Pal.primary : (a.containsMouse ? Pal.hover : "transparent")
                             }
                             Rectangle {   // colored icon tile
@@ -190,7 +190,7 @@ ShellRoot {
                                 x: 8 * win.ui
                                 anchors.verticalCenter: parent.verticalCenter
                                 width: 22 * win.ui; height: width
-                                radius: 6 * win.ui
+                                radius: Pal.radiusSm
                                 color: parent.gap ? "transparent" : parent.modelData.color
                                 Text {
                                     anchors.centerIn: parent

@@ -63,6 +63,8 @@ if [ ! -e "$HOME/.config/theme" ]; then
     ln -sfn "$REPO/themes/default" "$HOME/.config/theme"
     echo ":: linked   $HOME/.config/theme -> $REPO/themes/default"
 fi
+# Design tokens of the active pack (corner radii, fonts...) for rofi, Waybar, Quickshell...
+"$REPO/bin/tokens" || echo ":: tokens failed, run it again later"
 
 # Claude Code status line. settings.json stays out of this public repo (it holds
 # personal settings): only the statusLine entry is added, and only when missing.

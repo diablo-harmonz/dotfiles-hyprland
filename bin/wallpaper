@@ -11,7 +11,7 @@
 #                       (none of your own yet: Arch's wallpapers; none at all: FALLBACK_COLOR)
 # The wallpaper is shown by awww; Matugen turns it into colors for rofi, waybar,
 # kitty, GTK 4 and the Hyprland borders (see ~/.config/matugen/config.toml); bin/colors
-# (SUPER+C) can pick another color from it or a fixed one instead.
+# (Settings > Appearance) can pick another color from it or a fixed one instead.
 # ~/.cache/wallpaper/current links to the chosen file (used by rofi and hyprlock).
 set -euo pipefail
 
@@ -59,7 +59,7 @@ ensure_daemon() {
 }
 
 recolor() {   # $1 = image (already linked as $CURRENT)
-    # bin/colors follows the choice made in its picker (SUPER+C): the wallpaper's own
+    # bin/colors follows the choice made in Settings > Appearance: the wallpaper's own
     # color by default, or a fixed color that stays across wallpapers
     if [ -x "$HOME/.local/bin/colors" ]; then "$HOME/.local/bin/colors" apply; return; fi
     matugen image "$1" --mode "$MODE" --source-color-index 0 >/dev/null 2>&1 \
