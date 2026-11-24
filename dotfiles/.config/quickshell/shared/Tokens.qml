@@ -20,6 +20,7 @@ Singleton {
     property int fontMonoSize: 11
     property real dim: 0.30
     property real panelAlpha: 0.82
+    property string uiStyle: "mac"     // mac | hud
 
     FileView {
         id: file
@@ -30,7 +31,7 @@ Singleton {
             try {
                 const j = JSON.parse(file.text())
                 for (const k of ["radiusLg", "radiusMd", "radiusSm", "border", "fontUi", "fontUiSize",
-                                 "fontMono", "fontMonoSize", "dim", "panelAlpha"])
+                                 "fontMono", "fontMonoSize", "dim", "panelAlpha", "uiStyle"])
                     if (j[k] !== undefined) t[k] = j[k]
             } catch (e) { console.warn("Tokens: cannot read tokens.json:", e) }
         }

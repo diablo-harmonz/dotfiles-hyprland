@@ -269,7 +269,7 @@ installs from `setup/system/`:
 | `screenrec` | Start/stop screen recording |
 | `capture-menu` | macOS-style screenshot / recording toolbar (rofi) |
 | `control-center` | macOS-style Control Center from the Waybar icon: Wi-Fi, Bluetooth, Do Not Disturb, Caffeine, now playing, brightness and volume sliders, charge limit, power mode, record, screenshot, wallpaper, lock, notifications, power menu; x on the player stops it |
-| `tokens` | Design tokens: turns `themes/*/tokens.conf` (corner radii 8 / 6 / 4, border, fonts, backdrop) into `~/.config/theme-tokens/` for rofi, GTK 4, Quickshell, Waybar, Hyprland, hyprlock; `tokens show` lists them. Run by `theme apply` |
+| `tokens` | Design tokens: turns `themes/*/tokens.conf` (corner radii 8 / 6 / 4, border, fonts, backdrop, panel opacity, UI_STYLE: mac or hud panels) into `~/.config/theme-tokens/` for rofi, GTK 4, Quickshell, Waybar, Hyprland, hyprlock; `tokens show` lists them. Run by `theme apply` |
 | `settings` | Settings panel (Quickshell, `~/.config/quickshell/settings`): starts on demand, quits when closed, shows only once fully built; `settings SECTION` opens a section directly |
 | `power-menu` | rofi 4 x 2 tile grid centred on the focused screen: one highlighted tile for mouse and keys, one click runs it, letter keys l u h s f e r b |
 | `force-quit` | Power menu "Force quit": after a rofi confirmation, close every window outside workspace 1 (kill what does not close within 5 s) |
