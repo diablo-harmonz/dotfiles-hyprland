@@ -32,7 +32,6 @@ packages=(
     "brightnessctl"
     "NetworkManager-connection-editor"
     "wireplumber"
-    "wlogout"
     "flatpak"
 )
 

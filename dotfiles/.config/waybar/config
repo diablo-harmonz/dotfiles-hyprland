@@ -39,7 +39,7 @@
     "custom/launcher": {
         "format": "",
         "tooltip-format": "Apps (middle click: wallpaper)",
-        "on-click": "pkill -x rofi || rofi -show drun",
+        "on-click": "~/.local/bin/launcher",
         "on-click-middle": "~/.local/bin/wallpaper select"
     },
     "hyprland/window": {

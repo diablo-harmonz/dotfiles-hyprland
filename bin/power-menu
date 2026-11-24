@@ -1,14 +1,27 @@
 #!/usr/bin/env bash
-# power-menu: wlogout as a 3 x 2 grid of tiles centred on the focused screen
-# (Lock, Shutdown, Suspend / Reboot, Logout, BIOS). Waybar's power button runs it;
-# running it again closes the menu. Look: ~/.config/wlogout/style.css. wlogout fills the
-# grid column by column, so ~/.config/wlogout/layout lists lock, reboot, shutdown,
-# logout, suspend, bios.
+# power-menu: rofi as a 4 x 2 grid of tiles centred on the focused screen
+# (Lock, Suspend, Hibernate, Shutdown / Force quit, Logout, Reboot, BIOS).
+# SUPER+Escape and Waybar's power button run it; running it again closes the menu.
+# Mouse and arrow keys move one highlighted tile; Enter or one click runs it; the letter
+# keys below run a tile directly; Esc closes. Look: ~/.config/rofi/config-power.rasi.
 set -euo pipefail
 
-pkill -x wlogout && exit 0
+pkill -x rofi && exit 0
 
-TILE_W=300 TILE_H=190 GAP=14 COLS=3 ROWS=2
+TILE_W=300 TILE_H=190 GAP=14 COLS=4 ROWS=2
+ICONS="$HOME/.config/rofi/power-icons"
+
+# label | icon | key | command  (grid order, row by row)
+ITEMS=(
+    "Lock|lock|l|loginctl lock-session"
+    "Suspend|suspend|u|systemctl suspend"
+    "Hibernate|hibernate|h|systemctl hibernate"
+    "Shutdown|shutdown|s|systemctl poweroff"
+    "Force quit|forcequit|f|setsid -f $HOME/.local/bin/force-quit"
+    "Logout|logout|e|hyprctl dispatch 'hl.dsp.exit()'"
+    "Reboot|reboot|r|systemctl reboot"
+    "BIOS|bios|b|systemctl reboot --firmware-setup"
+)
 
 # Logical size of the focused monitor (pixels / scale; rotated screens swap w and h)
 read -r w h < <(hyprctl -j monitors | jq -r '.[] | select(.focused) |
@@ -20,4 +33,38 @@ grid_h=$((ROWS * TILE_H + (ROWS - 1) * GAP))
 side=$(( (w - grid_w) / 2 )); (( side < 0 )) && side=0
 top=$(( (h - grid_h) / 2 )); (( top < 0 )) && top=0
 
-exec wlogout -b "$COLS" -c "$GAP" -r "$GAP" -L "$side" -R "$side" -T "$top" -B "$top"
+# Letter keys: rofi exits with 10 + n for kb-custom-(n+1)
+keys=()
+for i in "${!ITEMS[@]}"; do
+    IFS='|' read -r _ _ key _ <<<"${ITEMS[$i]}"
+    keys+=(-kb-custom-$((i + 1)) "$key")
+done
+
+# One row per tile: "label\0icon\x1fpath" (printed directly: bash strings cannot hold \0)
+rows() {
+    local label icon
+    for item in "${ITEMS[@]}"; do
+        IFS='|' read -r label icon _ <<<"$item"
+        printf '%s\0icon\x1f%s\n' "$label" "$ICONS/$icon.png"
+    done
+}
+
+set +e
+index=$(rows | rofi -dmenu -no-custom -format i -p "" \
+    -config "$HOME/.config/rofi/config-power.rasi" \
+    -theme-str "mainbox { padding: ${top}px ${side}px; }" \
+    -kb-move-char-back "" -kb-move-char-forward "" \
+    -kb-row-left "Left" -kb-row-right "Right" \
+    "${keys[@]}")
+code=$?
+set -e
+
+case $code in
+    0)  ;;                                   # Enter or click: $index
+    1)  exit 0 ;;                            # Esc
+    *)  index=$((code - 10)) ;;              # letter key
+esac
+[[ $index =~ ^[0-9]+$ ]] && (( index < ${#ITEMS[@]} )) || exit 0
+
+IFS='|' read -r _ _ _ cmd <<<"${ITEMS[$index]}"
+eval "$cmd"

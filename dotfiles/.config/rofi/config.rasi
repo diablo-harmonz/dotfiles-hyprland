@@ -1,61 +1,60 @@
 /*
- * Rofi launcher: wallpaper panel with search + mode buttons on the left,
- * results on the right. Colors live in colors.rasi.
- * Modes: Applications (drun), Run, Windows. Switch with the buttons or Ctrl+Tab.
+ * Rofi launcher in the macOS Spotlight look: one column, a large light search line on top,
+ * results below, sans-serif font, subtle border; Hyprland blurs what is behind it.
+ * No picture, no mode buttons. Colors live in colors.rasi (Matugen).
+ * bin/launcher (SUPER+SPACE, SUPER+S, Fn+F12, Waybar logo) shows apps and web search in one
+ * list: Enter starts the app, or searches the web when nothing matches; Ctrl+Enter always
+ * searches the web (bin/web-search). Also the default look of other rofi menus
+ * (e.g. bin/force-quit), whose -mesg text shows above the list.
  */
 @theme "/dev/null"
 @import "colors.rasi"
 
 configuration {
-    modi:                "drun,run,window";
-    display-drun:        "Applications";
-    display-run:         "Run";
-    display-window:      "Windows";
-    drun-display-format: "{name}";
-    font:                "FiraCode Nerd Font 10";
+    modi:                   "drun,run,window";
+    display-drun:           "Applications";
+    display-run:            "Run";
+    display-window:         "Windows";
+    drun-display-format:    "{name}";
+    combi-hide-mode-prefix: true;
+    /* Sans-serif like macOS (Noto Sans: San Francisco is not on Linux) */
+    font:                   "Noto Sans 12";
     /* Terminal apps (btop, nmtui, ...) open in kitty, not whatever rofi finds first */
-    terminal:            "kitty";
-    show-icons:          true;
-    icon-theme:          "Papirus-Dark";
+    terminal:               "kitty";
+    show-icons:             true;
+    icon-theme:             "Papirus-Dark";
+    /* One click runs an entry (rofi default: click selects, double click runs); the
+       mouse pointer moves the selection, so the click lands on the highlighted row */
+    hover-select:        true;
+    me-select-entry:     "";
+    me-accept-entry:     "MousePrimary";
 }
 
 window {
     transparency:        "real";
-    location:            center;
-    anchor:              center;
-    width:               1000px;
-    border:              2px solid;
-    border-color:        @border;
-    border-radius:       15px;
+    location:            north;
+    anchor:              north;
+    y-offset:            25%;
+    width:               680px;
+    border:              1px solid;
+    border-color:        @surface;
+    border-radius:       14px;
     cursor:              "default";
     background-color:    @bg;
 }
 
 mainbox {
     spacing:             0px;
+    padding:             0px;
     background-color:    transparent;
-    orientation:         horizontal;
-    children:            [ "imagebox", "listbox" ];
-}
-
-/* Left: wallpaper with the search box on top and mode buttons at the bottom */
-imagebox {
-    padding:             20px;
-    background-color:    transparent;
-    background-image:    url("~/.cache/wallpaper/current", height);
     orientation:         vertical;
-    children:            [ "inputbar", "dummy", "mode-switcher" ];
-}
-
-dummy {
-    background-color:    transparent;
+    children:            [ "inputbar", "message", "listview" ];
 }
 
 inputbar {
-    spacing:             10px;
-    padding:             15px;
-    border-radius:       10px;
-    background-color:    @surface;
+    spacing:             12px;
+    padding:             16px 20px;
+    background-color:    transparent;
     text-color:          @text;
     children:            [ "textbox-prompt-colon", "entry" ];
 }
@@ -63,46 +62,23 @@ inputbar {
 textbox-prompt-colon {
     expand:              false;
     str:                 " ";
-    background-color:    inherit;
+    background-color:    transparent;
     text-color:          @text-muted;
+    font:                "FiraCode Nerd Font 17";
+    vertical-align:      0.5;
 }
 
 entry {
-    background-color:    inherit;
+    background-color:    transparent;
     text-color:          inherit;
     cursor:              text;
-    placeholder:         "Search";
+    font:                "Noto Sans Light 19";
+    placeholder:         "Spotlight Search";
     placeholder-color:   @text-muted;
+    vertical-align:      0.5;
 }
 
-mode-switcher {
-    spacing:             20px;
-    background-color:    transparent;
-    text-color:          @text;
-}
-
-button {
-    padding:             15px;
-    border-radius:       10px;
-    background-color:    @surface;
-    text-color:          inherit;
-    cursor:              pointer;
-}
-
-button selected {
-    background-color:    @primary;
-    text-color:          @on-primary;
-}
-
-/* Right: results */
-listbox {
-    spacing:             20px;
-    padding:             20px;
-    background-color:    transparent;
-    orientation:         vertical;
-    children:            [ "message", "listview" ];
-}
-
+/* Thin line under the search field, only above the list */
 listview {
     columns:             1;
     lines:               8;
@@ -110,18 +86,21 @@ listview {
     dynamic:             true;
     scrollbar:           false;
     layout:              vertical;
-    fixed-height:        true;
+    fixed-height:        false;
     fixed-columns:       true;
-    spacing:             10px;
+    spacing:             2px;
+    padding:             6px;
+    border:              1px 0px 0px 0px;
+    border-color:        @surface;
     background-color:    transparent;
     text-color:          @text;
     cursor:              "default";
 }
 
 element {
-    spacing:             15px;
-    padding:             8px;
-    border-radius:       10px;
+    spacing:             12px;
+    padding:             7px 12px;
+    border-radius:       8px;
     background-color:    transparent;
     text-color:          @text;
     cursor:              pointer;
@@ -141,7 +120,7 @@ element alternate.urgent {
 
 element normal.active,
 element alternate.active {
-    background-color:    @surface;
+    background-color:    transparent;
     text-color:          @primary;
 }
 
@@ -159,7 +138,7 @@ element selected.urgent {
 element-icon {
     background-color:    transparent;
     text-color:          inherit;
-    size:                32px;
+    size:                28px;
     cursor:              inherit;
 }
 
@@ -171,13 +150,15 @@ element-text {
     horizontal-align:    0.0;
 }
 
+/* -mesg text (e.g. bin/force-quit's question) between the search line and the list */
 message {
+    padding:             0px 6px 6px 6px;
     background-color:    transparent;
 }
 
 textbox {
-    padding:             15px;
-    border-radius:       10px;
+    padding:             10px 12px;
+    border-radius:       8px;
     background-color:    @surface;
     text-color:          @text;
     vertical-align:      0.5;
@@ -186,7 +167,7 @@ textbox {
 
 error-message {
     padding:             15px;
-    border-radius:       15px;
+    border-radius:       14px;
     background-color:    @bg;
     text-color:          @text;
 }

@@ -1,26 +1,34 @@
 #!/usr/bin/env bash
-# web-search: quick search bar under waybar (SUPER+S). Enter opens Firefox:
+# web-search: the web part of bin/launcher (a rofi script mode). rofi runs it with
+# ROFI_RETV=0 to get rows (none) and ROFI_RETV=2 with the typed text. Opens Firefox:
 #   an address (github.com, https://..., localhost:5173, 192.168.1.1) -> that page
 #   anything else                                                    -> Google search
-# Pressing the key again closes the bar.
+# Run by hand: web-search            -> opens bin/launcher
+#              web-search "some text" -> opens that search / address directly
 set -uo pipefail
 
 ENGINE="https://www.google.com/search?q="
 
-pkill -x rofi && exit 0
+open_query() {
+    local query url
+    query=$(printf '%s' "$1" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
+    [ -n "$query" ] || return 0
+    if [[ $query =~ ^[a-zA-Z][a-zA-Z0-9+.-]*:// ]]; then
+        url=$query                                   # full URL
+    elif [[ $query != *" "* && ( $query =~ ^(localhost|[0-9]{1,3}(\.[0-9]{1,3}){3})(:[0-9]+)?(/.*)?$ \
+            || $query =~ ^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}(:[0-9]+)?(/.*)?$ ) ]]; then
+        url="https://$query"                         # bare domain or host
+        [[ $query =~ ^(localhost|[0-9]) ]] && url="http://$query"
+    else
+        url="$ENGINE$(jq -rn --arg q "$query" '$q | @uri')"
+    fi
+    # Detached: rofi waits for this script to exit
+    setsid -f firefox --new-tab "$url" >/dev/null 2>&1
+}
 
-query=$(rofi -dmenu -p "" -config "$HOME/.config/rofi/config-search.rasi" </dev/null) || exit 0
-query=$(printf '%s' "$query" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
-[ -n "$query" ] || exit 0
-
-if [[ $query =~ ^[a-zA-Z][a-zA-Z0-9+.-]*:// ]]; then
-    url=$query                                   # full URL
-elif [[ $query != *" "* && ( $query =~ ^(localhost|[0-9]{1,3}(\.[0-9]{1,3}){3})(:[0-9]+)?(/.*)?$ \
-        || $query =~ ^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}(:[0-9]+)?(/.*)?$ ) ]]; then
-    url="https://$query"                         # bare domain or host
-    [[ $query =~ ^(localhost|[0-9]) ]] && url="http://$query"
-else
-    url="$ENGINE$(jq -rn --arg q "$query" '$q | @uri')"
-fi
-
-setsid -f firefox --new-tab "$url" >/dev/null 2>&1
+case "${ROFI_RETV:-}" in
+    "")  if [ $# -gt 0 ]; then open_query "$*"; else exec "$HOME/.local/bin/launcher"; fi ;;
+    0)   ;;                       # first call: no rows of our own
+    2)   open_query "$*" ;;       # custom input: the typed text
+esac
+exit 0

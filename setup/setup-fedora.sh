@@ -27,7 +27,6 @@ packages=(
     "fastfetch"
     "mozilla-fira-sans-fonts"
     "fira-code-fonts"
-    "wlogout"
 )
 
 # ----------------------------------------------------------

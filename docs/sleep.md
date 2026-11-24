@@ -1,8 +1,13 @@
 # Gập máy và chế độ ngủ
 
-Ghi chú cho ThinkPad T14 Gen 6 (AMD). Gập máy là máy **ngủ (suspend)**, không cần tắt. Máy
-chỉ có chế độ ngủ nhẹ `s2idle` (`cat /sys/power/mem_sleep`), chưa có ngủ đông (hibernate)
-vì swap là zram.
+Ghi chú cho ThinkPad T14 Gen 6 (AMD). Gập máy là máy **ngủ nhẹ** (`s2idle`, xem
+`cat /sys/power/mem_sleep`), mở ra dùng ngay. Gập quá **30 phút** (chạy pin hay cắm sạc đều
+vậy) thì máy tự **ngủ đông**: lưu RAM xuống `/swap/swapfile` rồi tắt hẳn. Bật lại bằng nút
+nguồn, nhập mật khẩu LUKS ở GRUB, máy về màn khoá với các cửa sổ cũ. Có từ 2026-11-24:
+`setup/enable-hibernate.sh` (swapfile 20 GB, `resume=`), `setup/system/logind.conf.d/lid.conf`
+và `sleep.conf.d/hibernate.conf` (cài bằng `setup/install-system-files.sh`). Gập máy khi
+đang cắm màn hình ngoài thì không ngủ (xem `bin/display-toggle`). Menu nguồn có nút
+Hibernate để ngủ đông ngay.
 
 ---
 

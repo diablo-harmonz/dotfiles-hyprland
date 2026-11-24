@@ -14,6 +14,7 @@
 #     battery level they send over HFP (forwarded by PipeWire)
 #   - Timeshift (btrfs): daily 5, weekly 3, /home excluded; grub-btrfsd keeps the GRUB
 #     snapshot menu up to date; cronie runs the schedule
+#   - Lid closed: suspend, then hibernate after 30 min (needs setup/enable-hibernate.sh)
 #   - GRUB theme Cosmos: galaxy background, HUD-style menu (setup/system/grub-theme)
 set -euo pipefail
 DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -159,6 +160,23 @@ if command -v timeshift >/dev/null; then
         /etc/systemd/system/grub-btrfsd.service.d/timeshift.conf
     sudo systemctl daemon-reload
     sudo systemctl enable --now cronie.service grub-btrfsd.service
+fi
+
+# --- Lid: suspend, then hibernate after 30 min (only once enable-hibernate.sh has run;
+#     /etc/default/grub, not /proc/cmdline: resume= is only live after the next reboot) ---
+if grep -qE '^GRUB_CMDLINE_LINUX_DEFAULT=.*resume=' /etc/default/grub; then
+    changed=0
+    for f in logind.conf.d/lid.conf sleep.conf.d/hibernate.conf; do
+        if ! cmp -s "$DIR/system/$f" "/etc/systemd/$f"; then
+            sudo install -D -m 644 "$DIR/system/$f" "/etc/systemd/$f"
+            changed=1
+        fi
+    done
+    # HUP = reload logind's config; a restart would end the running session
+    [ "$changed" = 0 ] || sudo systemctl kill -s HUP systemd-logind
+    echo ":: Lid: suspend-then-hibernate after 30 min"
+else
+    echo ":: No resume= on the kernel command line, lid hibernate skipped (setup/enable-hibernate.sh)"
 fi
 
 # --- GRUB theme (Cosmos: setup/system/grub-theme/cosmos) ---

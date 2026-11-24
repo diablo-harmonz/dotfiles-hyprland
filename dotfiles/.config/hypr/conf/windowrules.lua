@@ -16,7 +16,6 @@ hl.layer_rule({ match = { namespace = "rofi" },   blur = true, ignore_alpha = 0.
 hl.layer_rule({ match = { namespace = "waybar" }, blur = true, ignore_alpha = 0.1 })
 hl.layer_rule({ match = { namespace = "swaync-notification-window" }, blur = true, ignore_alpha = 0.1 })
 hl.layer_rule({ match = { namespace = "swaync-control-center" },      blur = true, ignore_alpha = 0.1 })
-hl.layer_rule({ match = { namespace = "logout_dialog" },              blur = true })   -- wlogout (bin/power-menu)
 hl.layer_rule({ match = { namespace = "control-center" }, blur = true, ignore_alpha = 0.3 })   -- bin/control-center (the full-screen backdrop is transparent)
 
 -- Translucent apps: add a line to make an app see-through (blur shows the wallpaper behind).

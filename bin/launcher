@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# launcher: one rofi search for apps and the web (SUPER+SPACE, SUPER+S, Fn+F12, Waybar logo).
+#   Enter        start the selected app; when nothing matches, search the web
+#   Ctrl+Enter   always search the web / open the address typed (bin/web-search)
+# How: rofi combi of a "web" script mode (no rows of its own) and drun. Text that matches
+# no row is "custom input", which combi hands to its first mode: web. Look: rofi/config.rasi.
+# Pressing the key again closes it.
+set -uo pipefail
+
+pkill -x rofi && exit 0
+
+exec rofi -show combi -modes combi \
+    -combi-modes "web:$HOME/.local/bin/web-search,drun" \
+    -display-combi ""

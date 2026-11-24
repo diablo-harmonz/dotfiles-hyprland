@@ -1,7 +1,1 @@
-/* Cosmos theme: HUD prompt in the launcher (imported at the end of rofi/config.rasi). */
-textbox-prompt-colon {
-    str:            "▸ ";
-}
-entry {
-    placeholder:    "SET COURSE";
-}
+/* Cosmos theme: no changes to the launcher, it keeps the macOS Spotlight look of rofi/config.rasi (imported at its end, so rules here win). */

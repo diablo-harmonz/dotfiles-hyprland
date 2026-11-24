@@ -14,7 +14,7 @@ Only Arch is supported. `setup/setup-fedora.sh`, `setup/setup-opensuse.sh` and t
 
 | Path | Contents |
 |---|---|
-| `dotfiles/.config/` | One folder per app: hypr, waybar, rofi, kitty, swaync, matugen, fcitx5, zsh, nvim, yazi, cava, fastfetch, wlogout, firefox-chrome, ml4w |
+| `dotfiles/.config/` | One folder per app: hypr, waybar, rofi, kitty, swaync, matugen, fcitx5, zsh, nvim, yazi, cava, fastfetch, firefox-chrome, ml4w |
 | `dotfiles/.zshrc`, `dotfiles/.zprofile` | zsh config; `.zprofile` starts Hyprland after a TTY1 login |
 | `dotfiles/icons/` | Dot-matrix icons for the OSD popup |
 | `bin/` | Scripts linked into `~/.local/bin` (see [Scripts](#scripts)) |
@@ -52,6 +52,9 @@ try it in a VM first.
    - switches the login shell to zsh
    - runs `setup/install-system-files.sh` and `setup/install-pacman-hooks.sh`
    - takes the first Timeshift snapshot
+   - asks to enable hibernate (`setup/enable-hibernate.sh`: btrfs swapfile of RAM + 5 GB,
+     `resume=` in GRUB, lid closed -> suspend, hibernate after 30 min; skipped in a VM,
+     live after a reboot)
    - then offers steps 3 to 5 one by one (Enter = yes, n = later), so a fresh install is
      one command; each script can also be run on its own later
    - last, offers Claude Code (the official installer, downloaded to a file and shown on
@@ -100,7 +103,7 @@ to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#
 |---|---|
 | Compositor | Hyprland (Lua config in `~/.config/hypr/hyprland.lua` + `conf/*.lua`) |
 | Bar | Waybar, minimal like macOS: launcher, app name, CPU / RAM, workspaces (Roman numerals), tray, Wi-Fi, battery, the Control Center icon, notification bell (right click: Do Not Disturb), clock (click: notifications), timer countdown while one runs, power button |
-| Launcher, menus | rofi 2.0 (Wayland) |
+| Launcher, menus | rofi 2.0 (Wayland), Spotlight-style: one search line over one list, no picture |
 | Terminal | kitty (its image protocol keeps transparency for pictures in terminal apps) |
 | Shell | zsh with powerlevel10k, autosuggestions, syntax highlighting, history substring search |
 | Notifications, OSD | swaync: compact translucent cards, control center with a media player card; OSD popups for volume and brightness |
@@ -109,7 +112,7 @@ to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#
 | Claude Code | Status line: folder, git branch, model, context bar, 5-hour / 7-day plan usage (`dotfiles/.claude/statusline.sh`; `setup/link-dotfiles.sh` adds the `statusLine` entry to `~/.claude/settings.json`) |
 | Wallpaper, colors | awww, Matugen |
 | Lock, idle, night light | hyprlock, hypridle, hyprsunset |
-| Power menu | wlogout via `bin/power-menu`: Lock, Shutdown, Suspend, Reboot, Logout, BIOS over the blurred desktop |
+| Power menu | rofi via `bin/power-menu` (SUPER+Escape, Waybar power button): Lock, Suspend, Hibernate, Shutdown, Force quit (closes everything outside workspace 1, asks first), Logout, Reboot, BIOS over the blurred desktop |
 | Input method | fcitx5 with Lotus (Vietnamese, Telex; a lone `w` types ư everywhere, `ww` types w), Bamboo as fallback |
 | Clipboard | cliphist |
 | Screenshots, recording | grim, slurp, satty, wf-recorder |
@@ -128,11 +131,11 @@ Defined in `dotfiles/.config/hypr/conf/binds.lua`.
 | Keys | Action |
 |---|---|
 | SUPER + Return | kitty |
-| SUPER + Space | rofi app launcher (also Fn+F12) |
+| SUPER + Space | Launcher (Spotlight-style rofi, also Fn+F12): apps and web search in one list; Enter starts the app or, with no match, searches the web; Ctrl+Enter always searches / opens the address |
 | SUPER + B | Browser |
 | SUPER + E | Nautilus |
 | SUPER + SHIFT + E | yazi in kitty |
-| SUPER + S | Quick web search or address, opens in Firefox |
+| SUPER + S | Same launcher (type, then Ctrl+Enter for a web search or address) |
 | SUPER + V | Clipboard history (Shift+Enter deletes an entry) |
 | SUPER + = | Calculator (rofi-calc, also units and currencies): Enter copies the result |
 | SUPER + SHIFT + T | Timer or alarm: `10m tea`, `1h30m`, `07:30 wake up`; countdown on Waybar, pick one to cancel |
@@ -140,6 +143,7 @@ Defined in `dotfiles/.config/hypr/conf/binds.lua`.
 | SUPER + C | Pick the theme pack and the colors (from the wallpaper or a fixed one, and the style) |
 | SUPER + A | Audio visualizer (cava) on/off |
 | SUPER + SHIFT + C | Caffeine: no idle lock or suspend |
+| SUPER + Escape | Power menu: Lock, Suspend, Hibernate, Shutdown, Force quit, Logout, Reboot, BIOS (again closes it) |
 | SUPER + L | Lock the screen |
 | SUPER + CTRL + L | Black lock screen: turn the screens on and restart hyprlock (works while locked) |
 | SUPER + CTRL + Escape | Way out of a virtual machine or remote desktop that holds the keyboard: leaves fullscreen, back to the previous workspace (always reaches Hyprland) |
@@ -193,7 +197,7 @@ that repo (linked to `~/Pictures/fastfetch`) and fastfetch shows it in kitty ins
 distro logo; without one it keeps the small distro logo.
 
 After each change Matugen (`dotfiles/.config/matugen`) generates matching colors for
-rofi, Waybar, kitty, the Control Center, the Hyprland borders, hyprlock, wlogout, GTK 3, GTK 4, swaync, Qt (qt6ct), KDE apps,
+rofi, Waybar, kitty, the Control Center, the Hyprland borders, hyprlock, GTK 3, GTK 4, swaync, Qt (qt6ct), KDE apps,
 Firefox, yazi, cava, btop, rmpc, yt-x, navi and the zsh command colors (syntax highlighting). The generated files are git-ignored; run `wallpaper restore` once
 after linking (Hyprland also runs it at login). The colors are made after the 1.2 s wallpaper
 transition so it stays smooth. Waybar picks up its new colors by itself
@@ -267,7 +271,8 @@ installs from `setup/system/`:
 | `capture-menu` | macOS-style screenshot / recording toolbar (rofi) |
 | `control-center` | macOS-style Control Center from the Waybar icon: Wi-Fi, Bluetooth, Do Not Disturb, Caffeine, now playing, brightness and volume sliders, charge limit, power mode, record, screenshot, wallpaper, lock, notifications, power menu; x on the player stops it |
 | `tui-popup` | Toggle wiremix / bluetui / nmtui as a floating terminal under the bar |
-| `power-menu` | wlogout grid centred on the focused screen (Waybar power button) |
+| `power-menu` | rofi 4 x 2 tile grid centred on the focused screen: one highlighted tile for mouse and keys, one click runs it, letter keys l u h s f e r b |
+| `force-quit` | Power menu "Force quit": after a rofi confirmation, close every window outside workspace 1 (kill what does not close within 5 s) |
 | `yt-music` | Download songs as best-quality audio into ~/Music/<artist>/<title>/ and make their record picture |
 | `vinyl-cover` | Record picture for rmpc: square sleeve with a vinyl pulled half out (cover.png per folder) |
 | `rmpc-notify` | rmpc song-change notification with the album art |
@@ -275,7 +280,8 @@ installs from `setup/system/`:
 | `navi` (Ctrl+G in zsh) | Command notebook: every command of this setup with a description, searchable; add your own in `dotfiles/.config/navi/cheats/dotfiles.cheat`. `tldr <command>` (tealdeer) for common commands |
 | `rec-status` | Waybar red stop button with the elapsed time while recording |
 | `clipboard` | Clipboard history picker |
-| `web-search` | Quick search / address bar |
+| `launcher` | rofi: apps (drun) and web search in one list (SUPER+Space, SUPER+S) |
+| `web-search` | Web part of `launcher` (rofi script mode); `web-search "text"` opens it directly in Firefox |
 | `caffeine` | Keep the laptop awake, also handles the lid while on |
 | `calc` | Calculator under the bar (rofi-calc): units, currencies, percentages; Enter copies the result |
 | `timer` | Countdown timers and alarms as systemd user timers (ring after sleep too), Waybar countdown, snooze from the notification |

@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# force-quit: close every window outside workspace 1, after a rofi confirmation that lists
+# them (power menu tile "Force quit"). Windows on workspace 1 are kept.
+# Look: rofi/config-confirm.rasi (macOS-style alert, Cancel / Force Quit).
+#   1. every window outside workspace 1 gets a normal close request (apps may still save)
+#   2. after 5 s, programs whose windows are still open get SIGTERM, then SIGKILL after 2 s,
+#      unless the same program also has a window on workspace 1 (one process can own
+#      windows on several workspaces: killing it would close those too)
+# Windows are closed by address only: a close/kill dispatcher with a bad argument acts on
+# the focused window instead.
+set -euo pipefail
+
+KEEP_WS=1
+GRACE=5
+
+notify() { timeout 3 notify-send -a force-quit "$@" || true; }
+
+# Let the power menu (rofi) close first
+sleep 0.3
+
+clients=$(hyprctl clients -j)
+targets=$(jq -c --argjson keep "$KEEP_WS" '[.[] | select(.workspace.id != $keep and .mapped)]' <<<"$clients")
+count=$(jq length <<<"$targets")
+
+if [ "$count" = 0 ]; then
+    notify "Force quit" "Nothing to close outside workspace $KEEP_WS."
+    exit 0
+fi
+
+# "kitty (2) · ws 3, 4" per program, for the confirmation (escaped for Pango markup)
+summary=$(jq -r 'group_by(.class) | .[] |
+    "\(.[0].class // "?") (\(length)) · ws \([.[].workspace.name] | unique | join(", "))"' <<<"$targets" |
+    sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
+[ "$count" = 1 ] && what="1 window" || what="$count windows"
+
+# macOS-style alert (rofi/config-confirm.rasi): Cancel is selected first; Left / Right or
+# Tab pick a button, so the arrows do not move a text cursor (there is no text field)
+choice=$(printf 'Cancel\nForce Quit\n' | rofi -dmenu -no-custom -p "" \
+    -config "$HOME/.config/rofi/config-confirm.rasi" \
+    -kb-move-char-back "" -kb-move-char-forward "" \
+    -kb-row-left "Left" -kb-row-right "Right" \
+    -markup -mesg "<span size='large' weight='bold'>Force quit $what?</span>
+<span size='small'>Windows outside workspace $KEEP_WS will close.
+Unsaved work may be lost.</span>
+
+<span alpha='75%'>$summary</span>") || exit 0
+[ "$choice" = "Force Quit" ] || exit 0
+
+# 1. Polite close
+for addr in $(jq -r '.[].address' <<<"$targets"); do
+    hyprctl dispatch "hl.dsp.window.close({ window = \"address:$addr\" })" >/dev/null
+done
+sleep "$GRACE"
+
+# 2. Still open: kill the program, unless it also owns a window on the kept workspace
+clients=$(hyprctl clients -j)
+keep_pids=$(jq -r --argjson keep "$KEEP_WS" '[.[] | select(.workspace.id == $keep) | .pid] | unique | .[]' <<<"$clients")
+left_pids=$(jq -r --argjson t "$targets" '[.[] | select(.address as $a | $t | any(.address == $a)) | .pid]
+    | unique | .[]' <<<"$clients")
+
+kill_pids=()
+for pid in $left_pids; do
+    grep -qx "$pid" <<<"$keep_pids" || kill_pids+=("$pid")
+done
+if [ "${#kill_pids[@]}" -gt 0 ]; then
+    kill -TERM "${kill_pids[@]}" 2>/dev/null || true
+    sleep 2
+    kill -KILL "${kill_pids[@]}" 2>/dev/null || true
+fi
+
+sleep 0.5
+left=$(hyprctl clients -j | jq -r --argjson keep "$KEEP_WS" \
+    '[.[] | select(.workspace.id != $keep and .mapped) | .class] | unique | join(", ")')
+if [ -n "$left" ]; then
+    notify "Force quit" "Still open (shares a program with workspace $KEEP_WS): $left"
+else
+    notify "Force quit" "Closed everything outside workspace $KEEP_WS."
+fi

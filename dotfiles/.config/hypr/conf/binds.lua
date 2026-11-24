@@ -14,7 +14,7 @@ hl.bind(mainMod .. " + SHIFT + E",      exec("kitty yazi"))                     
 hl.bind(mainMod .. " + T",              hl.dsp.window.float({ action = "toggle" }))                        -- Toggle tiling/floating
 hl.bind(mainMod .. " + O",              hl.dsp.window.pin())                                               -- Pin floating window to every workspace (PiP)
 hl.bind(mainMod .. " + F",              hl.dsp.window.fullscreen())                                        -- Fullscreen
-hl.bind(mainMod .. " + SPACE",          exec("rofi -show drun"))                                           -- Open rofi (app launcher)
+hl.bind(mainMod .. " + SPACE",          exec("~/.local/bin/launcher"))                                     -- Launcher: apps + web search (rofi)
 hl.bind(mainMod .. " + P",              hl.dsp.window.pseudo())                                            -- dwindle
 hl.bind(mainMod .. " + J",              hl.dsp.layout("togglesplit"))                                      -- dwindle
 hl.bind(mainMod .. " + B",              exec("~/.config/ml4w/settings/browser.sh"))                        -- Opens the browser
@@ -27,13 +27,15 @@ hl.bind(mainMod .. " + L",              exec("loginctl lock-session"))          
 -- Black lock screen (screen stayed off after resume): works while locked, turns the screens
 -- on and restarts hyprlock; the session stays locked
 hl.bind(mainMod .. " + CTRL + L",       exec("~/.local/bin/lock-recover --if-locked"), { locked = true })
+hl.bind(mainMod .. " + Escape",         exec("~/.local/bin/power-menu"))                                   -- Power menu (lock, suspend, hibernate, force quit, ...); again closes it
+
 -- Way out of an app that holds the keyboard (virt-manager / remote desktop in fullscreen send
 -- every SUPER key to the guest): dont_inhibit makes this one key reach Hyprland anyway. It
 -- leaves fullscreen and goes back to the previous workspace; the app keeps running.
 hl.bind(mainMod .. " + CTRL + Escape",
     exec("hyprctl activewindow -j | jq -e '.fullscreen != 0' >/dev/null && hyprctl dispatch 'hl.dsp.window.fullscreen()'; hyprctl dispatch 'hl.dsp.focus({ workspace = \"previous\" })'"),
     { dont_inhibit = true })
-hl.bind(mainMod .. " + S",              exec("~/.local/bin/web-search"))                                   -- Quick web search / address -> Firefox
+hl.bind(mainMod .. " + S",              exec("~/.local/bin/launcher"))                                     -- Same launcher: type, Ctrl+Enter = web search
 hl.bind(mainMod .. " + V",              exec("~/.local/bin/clipboard"))                                    -- Clipboard history: pick to paste (Shift+Enter: delete entry)
 hl.bind(mainMod .. " + equal",          exec("~/.local/bin/calc"))                                         -- Calculator (rofi-calc): Enter copies the result
 hl.bind(mainMod .. " + SHIFT + T",      exec("~/.local/bin/timer"))                                        -- Timers and alarms (countdown on Waybar)
@@ -56,7 +58,7 @@ hl.bind("XF86AudioMicMute",      exec("~/.local/bin/osd mic mute"))
 hl.bind("XF86WLAN",              exec("nmcli radio wifi toggle"))
 hl.bind("XF86Refresh",           exec("wtype -k F5"))
 hl.bind("XF86SelectiveScreenshot", exec("~/.local/bin/screenshot area"))  -- Fn+F10: select a region -> file + clipboard
-hl.bind("XF86Favorites",         exec("rofi -show drun"))                    -- Fn+F12 (star): app launcher
+hl.bind("XF86Favorites",         exec("~/.local/bin/launcher"))              -- Fn+F12 (star): launcher
 hl.bind("XF86Display",           exec("~/.local/bin/display-toggle"))        -- Fn+F7: cycle external monitor mirror -> extended -> off
 -- F11 hotkey (phone icon): fullscreen the active window. Newer kernels send it as
 -- KEY_LINK_PHONE (XF86LinkPhone); older ones had no keysym for it (keycode 248)

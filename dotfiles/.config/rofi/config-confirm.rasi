@@ -1,0 +1,97 @@
+/*
+ * Confirmation dialog in the macOS alert look (bin/force-quit): warning icon, bold title and
+ * text from -mesg (Pango markup), two buttons side by side. No search line.
+ * Keys: Left / Right or Tab pick a button, Enter confirms, Esc cancels.
+ * Colors from colors.rasi (Matugen), fonts as in config.rasi.
+ */
+@theme "/dev/null"
+@import "colors.rasi"
+
+configuration {
+    font:                "Noto Sans 11";
+    show-icons:          false;
+    icon-theme:          "Papirus-Dark";
+    /* One click runs an entry (rofi default: click selects, double click runs); the
+       mouse pointer moves the selection, so the click lands on the highlighted row */
+    hover-select:        true;
+    me-select-entry:     "";
+    me-accept-entry:     "MousePrimary";
+}
+
+window {
+    transparency:        "real";
+    location:            center;
+    anchor:              center;
+    width:               400px;
+    border:              1px solid;
+    border-color:        @surface;
+    border-radius:       14px;
+    cursor:              "default";
+    background-color:    @bg;
+}
+
+mainbox {
+    padding:             22px 20px 18px 20px;
+    spacing:             14px;
+    background-color:    transparent;
+    orientation:         vertical;
+    children:            [ "icon-alert", "message", "listview" ];
+}
+
+icon-alert {
+    expand:              false;
+    filename:            "dialog-warning";
+    size:                52px;
+    horizontal-align:    0.5;
+    background-color:    transparent;
+}
+
+message {
+    background-color:    transparent;
+}
+
+textbox {
+    background-color:    transparent;
+    text-color:          @text;
+    horizontal-align:    0.5;
+    vertical-align:      0.5;
+    markup:              true;
+}
+
+listview {
+    columns:             2;
+    lines:               1;
+    fixed-columns:       true;
+    fixed-height:        true;
+    dynamic:             false;
+    cycle:               true;
+    scrollbar:           false;
+    spacing:             10px;
+    background-color:    transparent;
+}
+
+element {
+    padding:             8px;
+    border-radius:       8px;
+    background-color:    @surface;
+    text-color:          @text;
+    cursor:              pointer;
+}
+
+element normal.normal,
+element alternate.normal {
+    background-color:    @surface;
+    text-color:          @text;
+}
+
+element selected.normal {
+    background-color:    @primary;
+    text-color:          @on-primary;
+}
+
+element-text {
+    background-color:    transparent;
+    text-color:          inherit;
+    cursor:              inherit;
+    horizontal-align:    0.5;
+}
