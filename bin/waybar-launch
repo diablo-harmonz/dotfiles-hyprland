@@ -3,6 +3,7 @@
 # so the centred bar fits any screen (laptop panel, 2560 px monitor, a 1080p projector,
 # a virtual machine) instead of fixed pixel widths that spill off narrower screens.
 #   waybar-launch          now (login, SUPER+SHIFT+B)
+#   waybar-launch --render-style FILE   only write the filled style to FILE (checks)
 #   waybar-launch DELAY    after DELAY seconds (Hyprland monitor.added / monitor.removed:
 #                          waits for the screen change to settle; calls that arrive while
 #                          one is waiting are dropped)
@@ -20,6 +21,30 @@ TOKENS="$HOME/.config/theme-tokens/tokens.env"
 DIR="${XDG_RUNTIME_DIR:-/tmp}/waybar"
 OUT="$DIR/config.json"
 STYLE="$DIR/style.css"
+
+# Style: fill the template with the design tokens (GTK 3 CSS has no variables). A key left
+# unfilled would break the whole style, so then the running bar is kept as it is.
+render_style() {   # stdout: the filled style; fails when a token is missing
+    local style
+    [ -f "$TOKENS" ] || "$HOME/.local/bin/tokens" >/dev/null 2>&1
+    style=$(
+        # shellcheck source=/dev/null
+        . "$TOKENS" 2>/dev/null
+        sed -e "s|{{HOME}}|$HOME|g" \
+            -e "s|{{RADIUS_LG}}|${RADIUS_LG:-}|g" -e "s|{{RADIUS_MD}}|${RADIUS_MD:-}|g" \
+            -e "s|{{RADIUS_SM}}|${RADIUS_SM:-}|g" -e "s|{{BORDER}}|${BORDER:-}|g" -e "s|{{PANEL_ALPHA}}|${PANEL_ALPHA:-}|g" \
+            -e "s|{{FONT_UI}}|${FONT_UI:-}|g" -e "s|{{FONT_MONO}}|${FONT_MONO:-}|g" "$STYLE_IN"
+    )
+    grep -qE '\{\{[A-Z_]+\}\}|: ?px|"", ' <<<"$style" && return 1
+    printf '%s\n' "$style"
+}
+
+# --render-style FILE: only write the filled style to FILE (bin/dotfiles-verify checks it)
+if [ "${1:-}" = --render-style ]; then
+    out=${2:?usage: waybar-launch --render-style FILE}
+    render_style > "$out" || { echo "waybar-launch: a design token is missing (run: tokens)" >&2; exit 1; }
+    exit 0
+fi
 
 mkdir -p "$DIR"
 exec 9>"$DIR/launch.lock"
@@ -52,22 +77,12 @@ else
     printf '%s\n' "$bar" > "$OUT"
 fi
 
-# Style: fill the template with the design tokens (GTK 3 CSS has no variables). A key left
-# unfilled would break the whole style, so then the running bar is kept as it is.
-[ -f "$TOKENS" ] || "$HOME/.local/bin/tokens" >/dev/null 2>&1
-style=$(
-    # shellcheck source=/dev/null
-    . "$TOKENS" 2>/dev/null
-    sed -e "s|{{HOME}}|$HOME|g" \
-        -e "s|{{RADIUS_LG}}|${RADIUS_LG:-}|g" -e "s|{{RADIUS_MD}}|${RADIUS_MD:-}|g" \
-        -e "s|{{RADIUS_SM}}|${RADIUS_SM:-}|g" -e "s|{{BORDER}}|${BORDER:-}|g" -e "s|{{PANEL_ALPHA}}|${PANEL_ALPHA:-}|g" \
-        -e "s|{{FONT_UI}}|${FONT_UI:-}|g" -e "s|{{FONT_MONO}}|${FONT_MONO:-}|g" "$STYLE_IN"
-)
-if grep -qE '\{\{[A-Z_]+\}\}|: ?px|"", ' <<<"$style"; then
+if ! render_style > "$STYLE.tmp"; then
+    rm -f "$STYLE.tmp"
     notify-send -a waybar "Waybar" "Style not updated: a design token is missing (run: tokens)" 2>/dev/null
     exit 1
 fi
-printf '%s\n' "$style" > "$STYLE.tmp" && mv -f "$STYLE.tmp" "$STYLE"
+mv -f "$STYLE.tmp" "$STYLE"
 
 # Stop the running bar (never SIGUSR2: Waybar 0.15 crashes on it)
 pkill -x waybar
