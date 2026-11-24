@@ -369,14 +369,15 @@ ask_next() { local a; read -r -p ":: $1 [Y/n] " a; [[ ! "$a" =~ ^[Nn]$ ]]; }
 echo ":: Installation complete."
 echo
 
-# Hibernate: swapfile + resume=, lid closed -> suspend, hibernate after 30 min; power menu
-# Hibernate tile (setup/enable-hibernate.sh, docs/plan.md "suspend-then-hibernate").
+# Hibernate: swapfile + resume= (setup/enable-hibernate.sh, docs/plan.md
+# "suspend-then-hibernate"). Since 2026-11-25 the lid and idle only suspend: the AMD GPU
+# failed to resume from hibernate (docs/sleep.md), so this only prepares it.
 # Real hardware only (not in a VM); live after the next reboot.
 if grep -qE '^GRUB_CMDLINE_LINUX_DEFAULT=.*resume=' /etc/default/grub; then
     echo ":: Hibernate already set up"
 elif systemd-detect-virt -q; then
     echo ":: Virtual machine: hibernate skipped (later on real hardware: sudo bash $SETUP_DIR/enable-hibernate.sh)"
-elif ask_next "Enable hibernate (lid closed 30 min -> hibernate; needs a reboot)?"; then
+elif ask_next "Prepare hibernate (swapfile + resume=; lid still only suspends, see docs/sleep.md; needs a reboot)?"; then
     sudo bash "$SETUP_DIR/enable-hibernate.sh" ||
         echo ":: Hibernate setup failed; later: sudo bash $SETUP_DIR/enable-hibernate.sh"
 else

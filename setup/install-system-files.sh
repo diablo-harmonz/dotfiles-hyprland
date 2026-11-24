@@ -162,8 +162,9 @@ if command -v timeshift >/dev/null; then
     sudo systemctl enable --now cronie.service grub-btrfsd.service
 fi
 
-# --- Lid: suspend, then hibernate after 30 min (only once enable-hibernate.sh has run;
-#     /etc/default/grub, not /proc/cmdline: resume= is only live after the next reboot) ---
+# --- Lid config (only once enable-hibernate.sh has run; /etc/default/grub, not
+#     /proc/cmdline: resume= is only live after the next reboot). lid.conf is plain suspend
+#     since 2026-11-25: the AMD GPU failed to resume from hibernate (docs/sleep.md) ---
 if grep -qE '^GRUB_CMDLINE_LINUX_DEFAULT=.*resume=' /etc/default/grub; then
     changed=0
     for f in logind.conf.d/lid.conf sleep.conf.d/hibernate.conf; do
@@ -174,7 +175,7 @@ if grep -qE '^GRUB_CMDLINE_LINUX_DEFAULT=.*resume=' /etc/default/grub; then
     done
     # HUP = reload logind's config; a restart would end the running session
     [ "$changed" = 0 ] || sudo systemctl kill -s HUP systemd-logind
-    echo ":: Lid: suspend-then-hibernate after 30 min"
+    echo ":: Lid: $(grep -m1 '^HandleLidSwitch=' "$DIR/system/logind.conf.d/lid.conf")"
 else
     echo ":: No resume= on the kernel command line, lid hibernate skipped (setup/enable-hibernate.sh)"
 fi

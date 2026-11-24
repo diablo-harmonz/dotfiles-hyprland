@@ -1,13 +1,71 @@
 # Gập máy và chế độ ngủ
 
 Ghi chú cho ThinkPad T14 Gen 6 (AMD). Gập máy là máy **ngủ nhẹ** (`s2idle`, xem
-`cat /sys/power/mem_sleep`), mở ra dùng ngay. Gập quá **30 phút** (chạy pin hay cắm sạc đều
-vậy) thì máy tự **ngủ đông**: lưu RAM xuống `/swap/swapfile` rồi tắt hẳn. Bật lại bằng nút
-nguồn, nhập mật khẩu LUKS ở GRUB, máy về màn khoá với các cửa sổ cũ. Có từ 2026-11-24:
-`setup/enable-hibernate.sh` (swapfile 20 GB, `resume=`), `setup/system/logind.conf.d/lid.conf`
-và `sleep.conf.d/hibernate.conf` (cài bằng `setup/install-system-files.sh`). Gập máy khi
-đang cắm màn hình ngoài thì không ngủ (xem `bin/display-toggle`). Menu nguồn có nút
-Hibernate để ngủ đông ngay.
+`cat /sys/power/mem_sleep`), mở ra dùng ngay. Gập máy khi đang cắm màn hình ngoài thì không
+ngủ (xem `bin/display-toggle`).
+
+**Ngủ đông đang tắt từ 2026-11-25** vì GPU không thức dậy được sau ngủ đông, xem mục
+**Ngủ đông: tạm tắt** ngay dưới. Phần cài đặt ngủ đông vẫn còn (swapfile 20 GB, `resume=`,
+`setup/enable-hibernate.sh`), chỉ không còn tự chuyển sang ngủ đông nữa.
+
+---
+
+## Ngủ đông: tạm tắt (2026-11-25)
+
+**Đừng dùng ngủ đông** (`systemctl hibernate`, nút Hibernate ở menu nguồn) cho tới khi có
+kernel hoặc `linux-firmware` sửa lỗi dưới đây.
+
+### Lỗi 1: GPU AMD không khôi phục được sau ngủ đông (nghiêm trọng)
+
+- 2026-11-24: thử tay `systemctl hibernate` một lần, thành công, cửa sổ còn nguyên.
+- 2026-11-25 06:16: thử lại `systemctl hibernate`. Ngủ đông và nạp lại RAM đều thành công,
+  nhưng GPU (`amdgpu`, PCI `c4:00.0`, device `0x1114`, khối `gfx_v11_0`) **không khởi động
+  lại được**:
+  ```
+  amdgpu: MES failed to respond to msg=SET_HW_RSRC_1
+  [drm:mes_v11_0_hw_init [amdgpu]] *ERROR* failed mes_v11_0_set_hw_resources_1, r=-110
+  amdgpu: resume of IP block <gfx_v11_0> failed -110
+  amdgpu: PM: dpm_run_callback(): pci_pm_restore returns -110
+  ```
+  Sau đó driver reset GPU nhiều lần (`ring sdma0 timeout`, `MODE2 reset`, `Ring comp_1.2.0
+  reset failed`), Hyprland hỏng, phải khởi động lại máy.
+- Lúc đó: kernel `linux 7.3.5.arch1-1`, `linux-firmware 20261019-1`, `mesa 26.3.1`,
+  `hyprland 0.57.2`. Không có bản cập nhật kernel hay firmware nào đang chờ.
+- Ngủ nhẹ (`s2idle`) **không** bị lỗi này: gập máy qua đêm 2026-11-24, mở ra bình thường.
+- Lỗi lúc được lúc không (11-24 thành công, 11-25 hỏng), nên một lần thử thành công chưa đủ
+  để bật lại.
+
+Đã đổi (2026-11-25):
+- `setup/system/logind.conf.d/lid.conf`: `HandleLidSwitch=suspend` (trước là
+  `suspend-then-hibernate`). Cài lên máy bằng `sudo install -m 644` vào
+  `/etc/systemd/logind.conf.d/`, rồi `sudo systemctl kill -s HUP systemd-logind`.
+- `hypr/hypridle.conf`: bước 30 phút khi chạy pin gọi `systemctl suspend` (trước là
+  `suspend-then-hibernate`). Cần khởi động lại hypridle hoặc đăng nhập lại.
+- Giữ nguyên: swapfile, `resume=` trong GRUB, `sleep.conf.d/hibernate.conf`
+  (`HibernateDelaySec` chỉ có tác dụng với `suspend-then-hibernate`).
+
+Bật lại khi nào: khi có `linux` hoặc `linux-firmware` mới, đọc changelog tìm `MES`,
+`gfx11`/`gfx_v11`, `hibernate`/`S4`, `pci_pm_restore`. Nếu có, lưu hết việc đang làm rồi thử
+`systemctl hibernate` **vài lần**, mỗi lần xem
+`journalctl -b -1 -k | grep -iE 'amdgpu|hibernat'` (nếu không khởi động lại thì `-b 0`).
+Ổn thì đổi lại hai chỗ trên và nhớ sửa luôn Lỗi 2.
+
+### Lỗi 2: zram làm ngủ đông thất bại khi RAM đầy
+
+- Đêm 2026-11-24 gập máy: 22:02 ngủ nhẹ, 22:32 thử ngủ đông thì lỗi
+  `PM: hibernation: Error -12 creating image` (`Normal pages needed: 1988125 + 1024,
+  available pages: 1850339`), máy quay lại ngủ nhẹ tới sáng.
+- Lý do: trước khi ngủ đông kernel phải giải phóng RAM bằng cách đẩy ra swap, nhưng zram
+  (`/dev/zram0`, ưu tiên 100) **nằm trong RAM**, nên đẩy vào đó không giải phóng được gì.
+  Swapfile trên ổ (`/swap/swapfile`, ưu tiên -1) không được dùng tới.
+- Sáng 2026-11-25 ngủ đông được vì lúc đó máy dùng ít RAM hơn, không phải vì đã sửa.
+- Cách sửa khi bật lại ngủ đông: hook tắt zram trước khi ngủ đông, bật lại sau khi thức dậy
+  (`systemctl stop dev-zram0.swap` / `start`). **Hook phải nằm trong
+  `/usr/lib/systemd/system-sleep/`**: systemd 262 trên máy này không đọc
+  `/etc/systemd/system-sleep/` (kiểm tra bằng
+  `strings /usr/lib/systemd/systemd-sleep | grep system-sleep`). Lần đầu đặt sai chỗ nên hook
+  không hề chạy. Thư mục trong `/usr/lib` thuộc gói, nên nếu đặt hook ở đó thì phải ghi nó vào
+  `setup/install-system-files.sh` để cài lại được.
 
 ---
 

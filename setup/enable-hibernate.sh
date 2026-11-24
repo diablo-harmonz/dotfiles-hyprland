@@ -2,8 +2,9 @@
 # enable-hibernate.sh: "suspend-then-hibernate" in docs/plan.md (steps 1-3 and 5).
 # Adds a btrfs swapfile in its own @swap subvolume (zram stays the main swap), points the
 # kernel at it (resume= / resume_offset=), adds the resume hook to the initramfs, and
-# installs the lid config: lid closed -> suspend, hibernate after 30 min
-# (setup/system/logind.conf.d/lid.conf, setup/system/sleep.conf.d/hibernate.conf).
+# installs the lid config (setup/system/logind.conf.d/lid.conf, sleep.conf.d/hibernate.conf).
+# Since 2026-11-25 lid.conf is plain suspend: the AMD GPU failed to resume from hibernate,
+# see docs/sleep.md. This script still prepares hibernate so it can be turned back on later.
 # setup-arch.sh asks to run it. Safe to run again: every step checks whether it is done.
 # Run as root: sudo bash setup/enable-hibernate.sh   (then reboot, then: systemctl hibernate)
 set -euo pipefail
@@ -97,13 +98,14 @@ mkinitcpio -P
 echo "==> Rebuilding GRUB config"
 grub-mkconfig -o /boot/grub/grub.cfg
 
-# 5. Lid closed: suspend, hibernate after 30 min (HUP = reload logind's config; a restart
-#    would end the running session)
+# 5. Lid config (HUP = reload logind's config; a restart would end the running session).
+#    lid.conf is plain suspend while hibernate is off (docs/sleep.md).
 for f in logind.conf.d/lid.conf sleep.conf.d/hibernate.conf; do
     install -D -m 644 "$SYSTEM_DIR/$f" "/etc/systemd/$f"
 done
 systemctl kill -s HUP systemd-logind
-echo "==> Lid: suspend, then hibernate after 30 min"
+echo "==> Lid: $(grep -m1 '^HandleLidSwitch=' "$SYSTEM_DIR/logind.conf.d/lid.conf")"
+echo "==> Note: hibernate is off on this laptop since 2026-11-25 (AMD GPU fails to resume), see docs/sleep.md"
 
 echo
 echo "==> Result"
