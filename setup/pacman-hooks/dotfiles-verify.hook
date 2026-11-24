@@ -1,0 +1,30 @@
+# Installed to /etc/pacman.d/hooks/ by setup/install-pacman-hooks.sh.
+# After an update of anything the bar, the menus, the panels or the lock screen rely on,
+# check every user's dotfiles with the new versions (bin/dotfiles-verify), so a breaking
+# change shows up in the pacman output instead of as a missing bar or a panel that does
+# not open. Hyprland, Matugen and rmpc have their own hooks.
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = quickshell
+Target = qt6-base
+Target = qt6-declarative
+Target = rofi
+Target = rofi-calc
+Target = waybar
+Target = gtk3
+Target = gtk4
+Target = gtk4-layer-shell
+Target = python
+Target = python-gobject
+Target = swaync
+Target = kitty
+Target = hyprlock
+Target = hypridle
+
+[Action]
+Description = Checking the dotfiles (bar, menus, panels, lock screen) with the new versions...
+When = PostTransaction
+Exec = /usr/local/lib/dotfiles-hyprland/dotfiles-verify
+NeedsTargets

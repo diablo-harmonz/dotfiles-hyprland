@@ -8,7 +8,10 @@ SRC="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/pacman-hooks"
 # hyprland-verify-config: Hyprland config after Hyprland upgrades
 # rmpc-verify-config:     rmpc config + theme after rmpc upgrades
 # matugen-verify-config:  Matugen templates after Matugen upgrades
-for name in hyprland-verify-config rmpc-verify-config matugen-verify-config; do
+# dotfiles-verify:        bar, menus, panels, lock screen after Quickshell, Qt, rofi, Waybar,
+#                         GTK, Python, swaync, kitty, hyprlock / hypridle upgrades (it runs
+#                         each user's bin/dotfiles-verify as that user)
+for name in hyprland-verify-config rmpc-verify-config matugen-verify-config dotfiles-verify; do
     sudo install -D -m 755 -o root -g root "$SRC/$name" "/usr/local/lib/dotfiles-hyprland/$name"
     sudo install -D -m 644 -o root -g root "$SRC/$name.hook" "/etc/pacman.d/hooks/$name.hook"
     echo ":: Installed pacman hook: /etc/pacman.d/hooks/$name.hook"

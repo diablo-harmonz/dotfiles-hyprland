@@ -18,7 +18,7 @@ Only Arch is supported. `setup/setup-fedora.sh`, `setup/setup-opensuse.sh` and t
 | `dotfiles/.zshrc`, `dotfiles/.zprofile` | zsh config; `.zprofile` starts Hyprland after a TTY1 login |
 | `dotfiles/icons/` | Dot-matrix icons for the OSD popup |
 | `bin/` | Scripts linked into `~/.local/bin` (see [Scripts](#scripts)) |
-| `setup/` | Arch install scripts, system files and the pacman hook |
+| `setup/` | Arch install scripts, system files and the pacman hooks |
 | `docs/plan.md` | Setup plan and notes for this machine (Vietnamese) |
 | `docs/sleep.md` | Lid close and suspend: unplug the mouse receiver, finding what wakes the laptop (Vietnamese) |
 
@@ -255,9 +255,9 @@ installs from `setup/system/`:
   snapshot menu up to date, cronie runs the schedule. timeshift-autosnap takes a
   snapshot before every pacman upgrade.
 
-## Pacman hook
+## Pacman hooks
 
-`setup/install-pacman-hooks.sh` (run by `setup/setup-arch.sh`, needs sudo) installs a hook that runs `Hyprland --verify-config` on every user's Hyprland config after each Hyprland install or upgrade, so a breaking change shows up in the pacman output instead of as a black screen at the next login. The hook script is copied root-owned to `/usr/local/lib/dotfiles-hyprland/`, because a root hook must never execute a file inside `$HOME`. Run the script again after editing `setup/pacman-hooks/`. To check by hand: `setup/pacman-hooks/hyprland-verify-config`. A second hook does the same for rmpc: after an rmpc upgrade it starts rmpc for two seconds with each user's config and theme and prints rmpc's error if it cannot read them (`setup/pacman-hooks/rmpc-verify-config`, also by hand). A third one renders the Matugen templates into a temporary folder after a Matugen upgrade (real colour files untouched, no post hooks) and names the template and line of every error or left-over `{{...}}` (`setup/pacman-hooks/matugen-verify-config`).
+`setup/install-pacman-hooks.sh` (run by `setup/setup-arch.sh`, needs sudo) installs a hook that runs `Hyprland --verify-config` on every user's Hyprland config after each Hyprland install or upgrade, so a breaking change shows up in the pacman output instead of as a black screen at the next login. The hook script is copied root-owned to `/usr/local/lib/dotfiles-hyprland/`, because a root hook must never execute a file inside `$HOME`. Run the script again after editing `setup/pacman-hooks/`. To check by hand: `setup/pacman-hooks/hyprland-verify-config`. A second hook does the same for rmpc: after an rmpc upgrade it starts rmpc for two seconds with each user's config and theme and prints rmpc's error if it cannot read them (`setup/pacman-hooks/rmpc-verify-config`, also by hand). A third one renders the Matugen templates into a temporary folder after a Matugen upgrade (real colour files untouched, no post hooks) and names the template and line of every error or left-over `{{...}}` (`setup/pacman-hooks/matugen-verify-config`). A fourth one, `dotfiles-verify`, runs after an upgrade of anything else this setup relies on (Quickshell, Qt, rofi, Waybar, GTK 3/4, gtk4-layer-shell, Python, python-gobject, swaync, kitty, hyprlock, hypridle): it starts each user's own `bin/dotfiles-verify` as that user (never as root), which checks that every rofi theme parses, the Waybar config and filled style load, the GTK 4 styles (Control Center, swaync, screenshot preview) parse, the Python GTK scripts compile and find their libraries, kitty reads its config, the Settings panel loads all its sections and the wallpaper picker loads (`QS_SELFTEST=1`, no window; needs the Wayland session, skipped from a TTY), and the lock screen's files exist; after a hyprlock / hypridle upgrade it reminds you to press SUPER+L. It only warns, an update is never blocked. Run `dotfiles-verify` by hand any time.
 
 ## Scripts
 
@@ -268,6 +268,7 @@ installs from `setup/system/`:
 | `screenrec` | Start/stop screen recording |
 | `capture-menu` | macOS-style screenshot / recording toolbar (rofi) |
 | `control-center` | macOS-style Control Center from the Waybar icon: Wi-Fi, Bluetooth, Do Not Disturb, Caffeine, now playing, brightness and volume sliders, charge limit, power mode, record, screenshot, wallpaper, lock, notifications, power menu; x on the player stops it |
+| `dotfiles-verify` | Check the bar, menus, panels and lock screen still load with the installed versions (run by the pacman hook after updates; by hand any time) |
 | `tokens` | Design tokens: turns `themes/*/tokens.conf` (corner radii 8 / 6 / 4, border, fonts, backdrop, panel opacity, UI_STYLE: mac or hud panels) into `~/.config/theme-tokens/` for rofi, GTK 4, Quickshell, Waybar, Hyprland, hyprlock; `tokens show` lists them. Run by `theme apply` |
 | `settings` | Settings panel (Quickshell, `~/.config/quickshell/settings`): starts on demand, quits when closed, shows only once fully built; `settings SECTION` opens a section directly |
 | `power-menu` | rofi 4 x 2 tile grid centred on the focused screen: one highlighted tile for mouse and keys, one click runs it, letter keys l u h s f e r b |

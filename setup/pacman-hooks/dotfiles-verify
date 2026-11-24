@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# dotfiles-verify (pacman hook side): after an update of a program this setup relies on, run
+# every user's own ~/.local/bin/dotfiles-verify AS THAT USER, with the upgraded package names
+# (read from stdin, NeedsTargets). The check itself lives in the dotfiles repo (bin/), so it
+# changes with the configs; root only starts it with the user's rights (runuser), it never
+# runs a file from a home directory as root.
+# When the user has a Wayland session, the check gets it too (the Quickshell panels need one).
+# Installed root-owned to /usr/local/lib/dotfiles-hyprland/. Never fails, so it can never
+# block a pacman transaction.
+
+mapfile -t targets 2>/dev/null || targets=()
+
+for home in /home/*; do
+    check="$home/.local/bin/dotfiles-verify"
+    [ -x "$check" ] || continue
+    user=$(stat -c %U "$home")
+    uid=$(id -u "$user" 2>/dev/null) || continue
+    run="/run/user/$uid"
+    wl=""
+    for s in "$run"/wayland-*; do
+        case "$s" in *.lock) continue ;; esac
+        [ -S "$s" ] && { wl=$(basename "$s"); break; }
+    done
+    echo ":: Checking $user's dotfiles with the new versions (${targets[*]:-})"
+    cd / && timeout 300 runuser -u "$user" -- env -i HOME="$home" USER="$user" \
+        PATH="/usr/local/bin:/usr/bin:$home/.local/bin" XDG_RUNTIME_DIR="$run" \
+        ${wl:+WAYLAND_DISPLAY="$wl"} LANG="${LANG:-C.UTF-8}" \
+        "$check" "${targets[@]}" 2>&1 | sed 's/^/   /'
+done
+exit 0

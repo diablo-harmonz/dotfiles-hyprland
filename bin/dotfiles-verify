@@ -1,0 +1,194 @@
+#!/usr/bin/env bash
+# dotfiles-verify: check that this setup still loads with the installed versions of the
+# programs it relies on, so an update that breaks something shows up right away (in the
+# pacman output) instead of as a missing bar or a panel that does not open.
+#   dotfiles-verify            run every check (by hand, any time)
+#   dotfiles-verify PKG...     the same, run by the pacman hook with the upgraded packages;
+#                              the lock screen reminder only shows when hyprlock / hypridle
+#                              is among them
+# Checks (nothing is written, nothing visible opens):
+#   tokens        design tokens readable and valid (bin/tokens show)
+#   rofi          every ~/.config/rofi/config*.rasi parses
+#   waybar        config is valid JSON (with the theme pack's waybar.json merged) and the
+#                 filled style (waybar-launch --render-style) parses as GTK 3 CSS
+#   gtk4          Control Center and swaync styles, the screenshot preview CSS (GTK 4)
+#   python        bin/control-center and bin/screenshot-preview compile; the GTK 4 and
+#                 layer-shell libraries they need load
+#   kitty         kitty reads its config without complaints
+#   quickshell    Settings loads every section, the wallpaper picker loads (QS_SELFTEST=1,
+#                 no window); needs a running Wayland session, skipped without one
+#   hyprlock      its sourced files exist; it cannot be tested without locking, so after
+#                 a hyprlock / hypridle update it reminds you to press SUPER+L
+# Hyprland, Matugen and rmpc have their own hooks (setup/pacman-hooks). Exit 1 when a
+# check failed (the pacman hook ignores it, an update is never blocked).
+set -uo pipefail
+
+CONF="$HOME/.config"
+BIN="$HOME/.local/bin"
+problems=0
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+
+ok()   { echo ":: $1"; }
+warn() {   # $1 = title, stdin = details
+    problems=$((problems + 1))
+    echo "==> WARNING: $1"
+    sed 's/^/    /' | head -15
+}
+have() { command -v "$1" >/dev/null 2>&1; }
+
+# ---- tokens -------------------------------------------------------------------------------
+if have tokens || [ -x "$BIN/tokens" ]; then
+    if out=$("$BIN/tokens" show 2>&1); then
+        ok "design tokens OK"
+    else
+        warn "design tokens are not valid (themes/*/tokens.conf)" <<<"$out"
+    fi
+fi
+
+# ---- rofi ---------------------------------------------------------------------------------
+if have rofi; then
+    bad=""
+    for f in "$CONF"/rofi/config*.rasi; do
+        [ -f "$f" ] || continue
+        # -theme, not -config: loaded as a config, rofi skips a broken theme silently
+        out=$(rofi -theme "$f" -dump-theme 2>&1 >/dev/null)
+        grep -qE "Failed to parse|Rofi-WARNING|Rofi-CRITICAL" <<<"$out" \
+            && bad+="$(basename "$f"): $(grep -m1 -E "Failed|WARNING|CRITICAL" <<<"$out")"$'\n'
+    done
+    if [ -z "$bad" ]; then ok "rofi $(rofi -v | awk '{print $2}'): every menu theme parses"
+    else warn "rofi $(rofi -v | awk '{print $2}') cannot read some menu themes" <<<"$bad"; fi
+fi
+
+# ---- GTK CSS parse helper -----------------------------------------------------------------
+css_check() {   # $1 = gtk version (3 | 4), files...; prints "file:line: message" per error
+    local ver=$1; shift
+    python3 -I - "$ver" "$@" <<'PY'
+import sys, gi
+ver = sys.argv[1]
+gi.require_version("Gtk", "3.0" if ver == "3" else "4.0")
+from gi.repository import Gtk
+def line(sec):   # GTK 4: get_start_location().lines, GTK 3: get_start_line(); never raise,
+    try:          # an exception in the handler would swallow the error itself
+        return sec.get_start_location().lines + 1
+    except Exception:
+        try:
+            return sec.get_start_line() + 1
+        except Exception:
+            return "?"
+
+for path in sys.argv[2:]:
+    errs = []
+    p = Gtk.CssProvider()
+    p.connect("parsing-error", lambda _p, sec, err, path=path:
+              errs.append(f"{path}:{line(sec)}: {err.message}"))
+    try:
+        p.load_from_path(path)
+    except Exception as e:
+        errs.append(f"{path}: {e}")
+    for e in errs[:5]:
+        print(e)
+PY
+}
+
+# ---- waybar -------------------------------------------------------------------------------
+if have waybar; then
+    v=$(waybar --version 2>/dev/null | grep -oE 'v[0-9][0-9.]*' | head -1)
+    msgs=""
+    sed -E 's#^[[:space:]]*//.*$##' "$CONF/waybar/config" | jq empty 2>"$tmp/jq" \
+        || msgs+="config: $(head -1 "$tmp/jq")"$'\n'
+    if [ -f "$CONF/theme/waybar.json" ]; then
+        sed -E 's#^[[:space:]]*//.*$##' "$CONF/theme/waybar.json" | jq empty 2>"$tmp/jq" \
+            || msgs+="theme waybar.json: $(head -1 "$tmp/jq")"$'\n'
+    fi
+    if "$BIN/waybar-launch" --render-style "$tmp/waybar.css" 2>"$tmp/wl"; then
+        msgs+=$(css_check 3 "$tmp/waybar.css")
+    else
+        msgs+="style: $(cat "$tmp/wl")"
+    fi
+    if [ -z "$msgs" ]; then ok "waybar $v: config and style OK"
+    else warn "waybar $v: the bar may not start or look broken" <<<"$msgs"; fi
+fi
+
+# ---- GTK 4: Control Center, swaync, screenshot preview -------------------------------------
+if python3 -I -c 'import gi; gi.require_version("Gtk", "4.0")' 2>/dev/null; then
+    files=()
+    for f in "$CONF/control-center/style.css" "$CONF/swaync/style.css"; do [ -f "$f" ] && files+=("$f"); done
+    # the preview's CSS lives in the script: tokens.css + the CSS = b"""...""" string
+    if [ -f "$BIN/screenshot-preview" ]; then
+        { cat "$CONF/theme-tokens/tokens.css" 2>/dev/null
+          python3 -I -c 'import re,sys; s=open(sys.argv[1]).read(); m=re.search(r"CSS = b\"\"\"(.*?)\"\"\"", s, re.S); print(m.group(1) if m else "")' \
+              "$(readlink -f "$BIN/screenshot-preview")"; } > "$tmp/preview.css"
+        files+=("$tmp/preview.css")
+    fi
+    msgs=$(css_check 4 "${files[@]}")
+    if [ -z "$msgs" ]; then ok "GTK 4 styles OK (Control Center, swaync, screenshot preview)"
+    else warn "GTK 4 rejects parts of a style" <<<"$msgs"; fi
+fi
+
+# ---- Python GTK scripts -------------------------------------------------------------------
+msgs=""
+for s in control-center screenshot-preview; do
+    f=$(readlink -f "$BIN/$s" 2>/dev/null) || continue
+    [ -f "$f" ] || continue
+    python3 -I -c 'import ast,sys; ast.parse(open(sys.argv[1]).read())' "$f" 2>"$tmp/py" \
+        || msgs+="$s: $(tail -1 "$tmp/py")"$'\n'
+done
+python3 -I - 2>"$tmp/py" <<'PY' || msgs+="libraries: $(tail -1 "$tmp/py")"$'\n'
+import gi
+for name, ver in (("Gtk", "4.0"), ("Gdk", "4.0"), ("Gtk4LayerShell", "1.0")):
+    gi.require_version(name, ver)
+from gi.repository import Gtk, Gdk, Gtk4LayerShell, GLib, Gio  # noqa: F401
+PY
+[ -e /usr/lib/libgtk4-layer-shell.so ] || msgs+="/usr/lib/libgtk4-layer-shell.so is missing (LD_PRELOAD of the Control Center)"$'\n'
+if [ -z "$msgs" ]; then ok "Python GTK scripts OK (Control Center, screenshot preview)"
+else warn "the Control Center or the screenshot preview may not start" <<<"$msgs"; fi
+
+# ---- kitty --------------------------------------------------------------------------------
+if have kitty; then
+    out=$(kitty +runpy 'import os
+from kitty.config import load_config
+load_config(os.path.expanduser("~/.config/kitty/kitty.conf"))' 2>&1)
+    if [ -z "$out" ]; then ok "kitty $(kitty --version | awk '{print $2}'): config OK"
+    else warn "kitty $(kitty --version | awk '{print $2}') complains about its config" <<<"$out"; fi
+fi
+
+# ---- Quickshell (needs the Wayland session) -----------------------------------------------
+if have qs; then
+    if [ -n "${WAYLAND_DISPLAY:-}" ] && [ -S "${XDG_RUNTIME_DIR:-/nonexistent}/$WAYLAND_DISPLAY" ]; then
+        for c in settings wallpicker; do
+            [ -f "$CONF/quickshell/$c/shell.qml" ] || continue
+            out=$(QS_SELFTEST=1 timeout 120 qs -n -c "$c" 2>&1 | sed 's/\x1b\[[0-9;]*m//g')
+            # Noise that is not ours: accessibility bus, text input focus
+            errs=$(grep -E "WARN|ERROR|SELFTEST .* (error|timeout)|Failed to load" <<<"$out" \
+                   | grep -vE "atspi|textinput|QQmlEngine::quit|QML Image .*Cannot open")
+            # (a missing wallpaper image is not a code problem)
+            if grep -q "SELFTEST done" <<<"$out" && [ -z "$errs" ]; then
+                n=$(grep -c 'SELFTEST .* ok' <<<"$out")
+                ok "Quickshell $(qs --version 2>/dev/null | awk '{print $2}'): $c loads$([ "$n" -gt 0 ] && echo " ($n sections checked)")"
+            else
+                warn "Quickshell: $c has problems (SUPER+, / SUPER+W may not open)" \
+                    <<<"${errs:-it did not finish loading}"
+            fi
+        done
+    else
+        echo ":: Quickshell: no Wayland session here, skipped (run dotfiles-verify after logging in)"
+    fi
+fi
+
+# ---- hyprlock -----------------------------------------------------------------------------
+if have hyprlock; then
+    msgs=""
+    for f in "$CONF/hypr/hyprlock.conf" "$CONF/theme-tokens/tokens.conf" "$CONF/hypr/hyprlock-colors.conf" \
+             "$CONF/theme/hyprlock.conf"; do
+        [ -f "$f" ] || msgs+="missing: $f"$'\n'
+    done
+    if [ -z "$msgs" ]; then ok "hyprlock: its config files are there"
+    else warn "hyprlock may not draw the lock screen" <<<"$msgs"; fi
+    if [ $# -gt 0 ] && printf '%s\n' "$@" | grep -qxE 'hyprlock|hypridle'; then
+        echo "==> NOTE: hyprlock/hypridle was updated: press SUPER+L once to check the lock screen"
+    fi
+fi
+
+[ "$problems" -eq 0 ] || echo "==> $problems problem(s). Fix them, or roll back with a Timeshift snapshot."
+exit $(( problems > 0 ))
