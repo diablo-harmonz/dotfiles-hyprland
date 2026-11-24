@@ -17,17 +17,25 @@ popup() {   # $1 = tag, $2 = icon, $3 = text, $4 = value 0-100 (optional)
     notify-send "${args[@]}" "$3"
 }
 
-# The mic-mute LED (F4) uses the kernel trigger audio-micmute, which follows the ALSA
-# "Capture" switch of the Realtek codec (headset jack), not the built-in digital mic that
-# PipeWire uses. Copy the default source's mute state onto every card that has "Capture",
-# so the LED is lit exactly when the mic is muted. "osd mic sync" does it without toggling
-# (run at login).
+# Mic state -> two places:
+#  - the ALSA "Capture" switch of the Realtek codec (headset jack), which PipeWire's default
+#    source (the built-in digital mic) does not drive: copy the mute state onto every card
+#    that has "Capture", so both mics are muted or live together;
+#  - the mic LED (F4), inverted on purpose: lit while the mic is LIVE, off when muted. The
+#    kernel's audio-micmute trigger lights it on mute, so the first write of 0 detaches that
+#    trigger and the LED is set here instead (brightnessctl writes it through logind, no root).
+# "osd mic sync" does it without toggling (login; Settings > Sound after a mute change).
+MIC_LED=platform::micmute
 sync_mic_led() {
-    local state=cap card
-    [[ $(wpctl get-volume @DEFAULT_AUDIO_SOURCE@) == *MUTED* ]] && state=nocap
+    local state=cap card muted=0
+    [[ $(wpctl get-volume @DEFAULT_AUDIO_SOURCE@) == *MUTED* ]] && { state=nocap; muted=1; }
     for card in /proc/asound/card[0-9]*; do
         amixer -q -c "${card##*card}" sset Capture "$state" 2>/dev/null
     done
+    [ -e "/sys/class/leds/$MIC_LED" ] || return 0
+    grep -q '\[audio-micmute\]' "/sys/class/leds/$MIC_LED/trigger" 2>/dev/null \
+        && brightnessctl -q -d "$MIC_LED" set 0
+    brightnessctl -q -d "$MIC_LED" set "$((1 - muted))"
 }
 
 # "Volume: 0.75 [MUTED]" -> percent and mute flag

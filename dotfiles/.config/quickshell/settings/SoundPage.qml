@@ -28,6 +28,14 @@ Page {
     PwObjectTracker { objects: [p.sink, p.source].concat(p.sinks, p.sources, p.apps) }
     PwNodeLinkTracker { id: links; node: p.sink }
     PwNodePeakMonitor { id: mic; node: p.source; enabled: p.source !== null }
+    // A mute change (the Mute button here, or anything else) also sets the mic LED and the
+    // headset jack's capture switch (bin/osd mic sync)
+    Connections {
+        target: p.source && p.source.audio ? p.source.audio : null
+        function onMutedChanged() {
+            Quickshell.execDetached(["sh", "-c", "exec \"$HOME/.local/bin/osd\" mic sync"])
+        }
+    }
 
     component VolumeRow: SRow {
         id: vr
