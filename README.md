@@ -102,7 +102,7 @@ to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#
 | Role | Program |
 |---|---|
 | Compositor | Hyprland (Lua config in `~/.config/hypr/hyprland.lua` + `conf/*.lua`) |
-| Bar | Waybar, minimal like macOS: launcher, app name, CPU / RAM, workspaces (Roman numerals), tray, Wi-Fi, battery, the Control Center icon, notification bell (right click: Do Not Disturb), clock (click: notifications), timer countdown while one runs, power button |
+| Bar | Waybar, minimal like macOS: launcher, app name, CPU / RAM, workspaces (Roman numerals), tray, Wi-Fi, battery, the Settings gear and the Control Center icon, notification bell (right click: Do Not Disturb), clock (click: notifications), timer countdown while one runs, power button |
 | Launcher, menus | rofi 2.0 (Wayland), Spotlight-style: one search line over one list, no picture |
 | Terminal | kitty (its image protocol keeps transparency for pictures in terminal apps) |
 | Shell | zsh with powerlevel10k, autosuggestions, syntax highlighting, history substring search |
@@ -143,6 +143,7 @@ Defined in `dotfiles/.config/hypr/conf/binds.lua`.
 | SUPER + C | Pick the theme pack and the colors (from the wallpaper or a fixed one, and the style) |
 | SUPER + A | Audio visualizer (cava) on/off |
 | SUPER + SHIFT + C | Caffeine: no idle lock or suspend |
+| SUPER + , | Settings panel (macOS style): General (you, quick status), Wi-Fi, Bluetooth, Sound, Displays, Battery, Storage, About, Appearance, Configs (also the gear icon in Waybar) |
 | SUPER + Escape | Power menu: Lock, Suspend, Hibernate, Shutdown, Force quit, Logout, Reboot, BIOS (again closes it) |
 | SUPER + L | Lock the screen |
 | SUPER + CTRL + L | Black lock screen: turn the screens on and restart hyprlock (works while locked) |
@@ -197,7 +198,7 @@ that repo (linked to `~/Pictures/fastfetch`) and fastfetch shows it in kitty ins
 distro logo; without one it keeps the small distro logo.
 
 After each change Matugen (`dotfiles/.config/matugen`) generates matching colors for
-rofi, Waybar, kitty, the Control Center, the Hyprland borders, hyprlock, GTK 3, GTK 4, swaync, Qt (qt6ct), KDE apps,
+rofi, Waybar, kitty, the Control Center, the Settings panel, the Hyprland borders, hyprlock, GTK 3, GTK 4, swaync, Qt (qt6ct), KDE apps,
 Firefox, yazi, cava, btop, rmpc, yt-x, navi and the zsh command colors (syntax highlighting). The generated files are git-ignored; run `wallpaper restore` once
 after linking (Hyprland also runs it at login). The colors are made after the 1.2 s wallpaper
 transition so it stays smooth. Waybar picks up its new colors by itself
@@ -271,6 +272,7 @@ installs from `setup/system/`:
 | `capture-menu` | macOS-style screenshot / recording toolbar (rofi) |
 | `control-center` | macOS-style Control Center from the Waybar icon: Wi-Fi, Bluetooth, Do Not Disturb, Caffeine, now playing, brightness and volume sliders, charge limit, power mode, record, screenshot, wallpaper, lock, notifications, power menu; x on the player stops it |
 | `tui-popup` | Toggle wiremix / bluetui / nmtui as a floating terminal under the bar |
+| `settings` | Settings panel (Quickshell, `~/.config/quickshell/settings`): starts on demand, quits when closed, shows only once fully built; `settings SECTION` opens a section directly |
 | `power-menu` | rofi 4 x 2 tile grid centred on the focused screen: one highlighted tile for mouse and keys, one click runs it, letter keys l u h s f e r b |
 | `force-quit` | Power menu "Force quit": after a rofi confirmation, close every window outside workspace 1 (kill what does not close within 5 s) |
 | `yt-music` | Download songs as best-quality audio into ~/Music/<artist>/<title>/ and make their record picture |

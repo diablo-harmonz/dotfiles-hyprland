@@ -27,6 +27,7 @@ hl.bind(mainMod .. " + L",              exec("loginctl lock-session"))          
 -- Black lock screen (screen stayed off after resume): works while locked, turns the screens
 -- on and restarts hyprlock; the session stays locked
 hl.bind(mainMod .. " + CTRL + L",       exec("~/.local/bin/lock-recover --if-locked"), { locked = true })
+hl.bind(mainMod .. " + comma",          exec("~/.local/bin/settings"))                                     -- Settings panel (Wi-Fi, Bluetooth, Sound, ...); again closes it
 hl.bind(mainMod .. " + Escape",         exec("~/.local/bin/power-menu"))                                   -- Power menu (lock, suspend, hibernate, force quit, ...); again closes it
 
 -- Way out of an app that holds the keyboard (virt-manager / remote desktop in fullscreen send

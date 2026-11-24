@@ -51,6 +51,7 @@ tooltip label {
 #custom-sysinfo,
 #workspaces,
 #status,
+#custom-settings,
 #custom-control,
 #custom-notification,
 #clock,
@@ -76,12 +77,14 @@ window#waybar > box {
     color: @primary;
 }
 
-/* Control Center icon: a slightly larger glyph */
+/* Settings and Control Center icons: a slightly larger glyph */
+#custom-settings,
 #custom-control {
     padding: 0 13px;
     font-size: 15px;
 }
 
+#custom-settings:hover,
 #custom-control:hover {
     color: @primary;
 }

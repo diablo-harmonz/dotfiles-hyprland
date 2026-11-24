@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# settings: the macOS-style Settings panel (Quickshell, ~/.config/quickshell/settings).
+#   settings            open it on the focused screen (General first); run again to close it
+#   settings SECTION    open at a section: general, network, bluetooth, sound, display,
+#                       power, storage, system (About), appearance, configs
+# SUPER+comma and the gear icon in Waybar run it. It starts on demand and quits when closed,
+# so it uses nothing in between; it only shows once fully built (see settings/shell.qml).
+set -euo pipefail
+
+command -v qs >/dev/null && [ -f "$HOME/.config/quickshell/settings/shell.qml" ] || {
+    notify-send -a settings "Settings" "Needs quickshell and ~/.config/quickshell/settings"
+    exit 1
+}
+
+# Already open: close it (it plays its close animation, then quits)
+qs ipc -c settings call settings close >/dev/null 2>&1 && exit 0
+
+SETTINGS_PAGE="${1:-}" \
+SETTINGS_SCREEN=$(hyprctl monitors -j 2>/dev/null | jq -r '.[] | select(.focused) | .name') \
+    setsid -f qs -n -c settings >/dev/null 2>&1
