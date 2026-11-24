@@ -15,10 +15,16 @@ import Quickshell.Wayland
 ShellRoot {
     id: root
 
+    // Self-test (QS_SELFTEST=1, bin/dotfiles-verify): the config loaded, so quit at once, no window
+    readonly property bool selftest: (Quickshell.env("QS_SELFTEST") || "") !== ""
+    // (quit from a timer: quitting from Component.onCompleted is too early, nothing handles it)
+    Timer { running: root.selftest; interval: 50; onTriggered: { console.info("SELFTEST done"); Qt.quit() } }
+
     readonly property string accent: "#" + (Quickshell.env("WALLPICKER_ACCENT") || "94cdf7")
 
     PanelWindow {
         id: win
+        visible: !root.selftest
         screen: {
             const want = Quickshell.env("WALLPICKER_SCREEN")
             const list = Quickshell.screens

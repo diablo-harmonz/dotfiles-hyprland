@@ -50,8 +50,30 @@ ShellRoot {
         page = keys[(i + d + keys.length) % keys.length]
     }
 
+    // ---- self-test (QS_SELFTEST=1, run by bin/dotfiles-verify after updates) -----------------
+    // No window is shown and nothing is scanned: every section is loaded once, each result is
+    // logged as "SELFTEST <section> ok|error|timeout", then "SELFTEST done" and quit. QML errors
+    // of a section show up in the log right before its line.
+    readonly property bool selftest: (Quickshell.env("QS_SELFTEST") || "") !== ""
+    property int testIndex: 0
+    Timer {
+        id: testTimer
+        running: root.selftest
+        interval: 100; repeat: true
+        property int waited: 0
+        onTriggered: {
+            const st = content.status
+            if (st === Loader.Loading && ++waited < 50) return     // 5 s at most per section
+            console.info("SELFTEST", root.page, st === Loader.Ready ? "ok" : st === Loader.Error ? "error" : "timeout")
+            waited = 0
+            if (++root.testIndex >= root.keys.length) { console.info("SELFTEST done"); Qt.quit(); return }
+            root.page = root.keys[root.testIndex]
+        }
+    }
+    Component.onCompleted: if (selftest) page = keys[0]
+
     // ---- lifecycle: open at start, quit after the close animation ----------------------------
-    property bool showing: true
+    property bool showing: !selftest
     property bool revealed: false     // the window is ready: the open animation may run
     function close() { showing = false }
     Binding { target: Pal; property: "open"; value: root.showing }
@@ -84,7 +106,8 @@ ShellRoot {
         exclusionMode: ExclusionMode.Ignore
         WlrLayershell.namespace: "settings"
         WlrLayershell.layer: WlrLayer.Overlay
-        WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+        WlrLayershell.keyboardFocus: root.selftest ? WlrKeyboardFocus.None : WlrKeyboardFocus.Exclusive
+        visible: !root.selftest
 
         readonly property real ui: Math.max(0.75, Math.min(1.25, height / 1200))
         Component.onCompleted: Pal.ui = ui
