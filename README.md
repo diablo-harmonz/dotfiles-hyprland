@@ -118,7 +118,6 @@ to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#
 | Screenshots, recording | grim, slurp, satty, wf-recorder |
 | Polkit, secrets | hyprpolkitagent, gnome-keyring |
 | Audio, Bluetooth, Wi-Fi | Settings sections (Sound, Bluetooth, Wi-Fi), opened from the Control Center and the Waybar Wi-Fi icon; wiremix, bluetui and nmtui stay installed for the terminal |
-| Bluetooth on the bar | `bin/bt-status`: devices and battery levels from UPower |
 | Browser | Firefox (FF Ultima theme) |
 | Media | mpv (video, also for yt-x; resumes where you left off, but a video played to the end starts over), yt-dlp (downloads to `~/Videos/YouTube`), yt-x (YouTube in the terminal; videos open as a small window in the bottom-right corner, pinned to every workspace), MPD + rmpc (music in `~/Music`; player view with the record picture, queue and library as icon tabs, a keys tab); media keys and Waybar control mpv and MPD through MPRIS |
 
@@ -292,8 +291,6 @@ installs from `setup/system/`:
 | `battery-mode` | Charge limit 75–80 % or 100 % |
 | `powermode-notify` | Notification when the power profile changes (Fn+F8) |
 | `media-clear` | Stop every player (swaync panel: MEDIA … CLEAR): mpv quits, Firefox and mpd stop, orphaned mpv is ended |
-| `media-status` | Waybar play/pause button for the active player (playerctld): left click play/pause, right click pause every player, middle click next player |
-| `bt-status` | Waybar Bluetooth module: icon on the bar, connected devices and their batteries in the tooltip |
 | `waybar-launch` | Starts Waybar with one bar per screen, each 77 % of that screen's width (login, SUPER+SHIFT+B, screen plugged in or removed) |
 | `sysinfo-bar`, `sysmetrics`, `syslive` | CPU/RAM on Waybar, metrics, live status view |
 | `sysreport` | One-shot machine health report |

@@ -14,9 +14,6 @@
 #   colors apply                  recolor from the saved choice (bin/wallpaper runs it
 #                                 after every wallpaper change)
 #   colors candidates [IMAGE]     the colors found in the wallpaper (or IMAGE), one per line
-#   colors preview SOURCE SCHEME [IMAGE]
-#                                 the main colors as one JSON line, nothing written
-#                                 (IMAGE = the wallpaper a theme pack would show)
 # The choice is kept in ~/.local/state/colors/choice, so a fixed color stays when the
 # wallpaper changes. When the wallpaper has fewer colors than N, its first one is used.
 set -uo pipefail
@@ -24,7 +21,7 @@ set -uo pipefail
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}/colors"
 CHOICE="$STATE/choice"
 CURRENT="$HOME/.cache/wallpaper/current"
-IMAGE=""   # set by candidates / preview to look at another wallpaper than the current one
+IMAGE=""   # set by candidates to look at another wallpaper than the current one
 MODE=dark
 SCHEMES="tonal-spot vibrant expressive neutral monochrome fidelity content rainbow fruit-salad"
 DEFAULT_SOURCE=wallpaper:0
@@ -85,14 +82,6 @@ candidates() {   # one per index until matugen runs out (a wallpaper gives 1 to 
     done
 }
 
-preview() {   # $1 = source, $2 = scheme
-    run_matugen "$1" "$2" --dry-run --json hex 2>/dev/null | jq -c '.colors | with_entries(
-        select(.key | IN("primary", "on_primary", "secondary", "tertiary", "primary_container",
-                         "surface", "surface_container", "surface_container_high",
-                         "on_surface", "on_surface_variant", "outline_variant", "error"))
-        | .value = .value.dark.color)'
-}
-
 case "${1:-ui}" in
     ui)
         # The picker is the Appearance page of the Settings panel
@@ -115,11 +104,7 @@ case "${1:-ui}" in
     candidates)
         IMAGE=${2:-}
         candidates ;;
-    preview)
-        check "${2:?usage: colors preview SOURCE SCHEME [IMAGE]}" "${3:?usage: colors preview SOURCE SCHEME [IMAGE]}"
-        IMAGE=${4:-}
-        preview "$2" "$3" ;;
     *)
-        echo "usage: colors [ui | status | set|save SOURCE [SCHEME] | auto | apply | candidates [IMAGE] | preview SOURCE SCHEME [IMAGE]]" >&2
+        echo "usage: colors [ui | status | set|save SOURCE [SCHEME] | auto | apply | candidates [IMAGE]]" >&2
         exit 2 ;;
 esac

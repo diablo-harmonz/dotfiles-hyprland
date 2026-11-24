@@ -70,8 +70,8 @@ def log(msg):
         pass
 
 
-# Child processes must not inherit LD_PRELOAD=gtk4-layer-shell: GTK 3 apps such as
-# wlogout (power menu) break with it ("cannot register existing type 'GdkDisplay'")
+# Child processes must not inherit LD_PRELOAD=gtk4-layer-shell: GTK 3 apps started from here
+# break with it ("cannot register existing type 'GdkDisplay'"; seen with the old wlogout menu)
 CHILD_ENV = {k: v for k, v in os.environ.items() if k != "LD_PRELOAD"}
 
 
