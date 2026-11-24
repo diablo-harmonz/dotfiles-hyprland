@@ -6,6 +6,16 @@ Item {
     property real value: 0
     property bool dim: false          // e.g. muted
     signal moved(real v)
+    readonly property real radius: height / 2   // for the focus ring
+
+    // Keyboard: Tab / ↑ ↓ move between controls, Esc back to the sidebar
+    activeFocusOnTab: true
+    Keys.onUpPressed: Pal.focusStep(s, false)
+    Keys.onDownPressed: Pal.focusStep(s, true)
+    Keys.onEscapePressed: Pal.sidebarRequested()
+    // ← → change it by 5 %
+    Keys.onLeftPressed: s.moved(Math.max(0, Math.round((s.value - 0.05) * 100) / 100))
+    Keys.onRightPressed: s.moved(Math.min(1, Math.round((s.value + 0.05) * 100) / 100))
 
     width: 200 * Pal.ui
     height: 22 * Pal.ui
@@ -35,6 +45,7 @@ Item {
         color: "#ffffff"
         border.color: Qt.rgba(0, 0, 0, 0.15)
     }
+    FocusRing {}
     MouseArea {
         id: area
         anchors.fill: parent

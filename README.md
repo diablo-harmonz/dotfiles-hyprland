@@ -404,6 +404,22 @@ system (About), appearance, configs.
 | Appearance | `AppearancePage.qml` | wallpaper, colors (wallpaper colors, presets, `#rrggbb`, style), theme pack |
 | Configs | `ConfigsPage.qml` | open config files in nvim, reload Hyprland (verified first), restart Waybar |
 
+Keyboard (everything works without the mouse; hints at the bottom of the sidebar):
+
+| Keys | In the sidebar | In a page |
+|---|---|---|
+| ↑ ↓ | previous / next section | previous / next control |
+| → / Enter / Tab | into the page (its first control) | Tab: next control |
+| Enter / Space | | press the button, flip the switch, open the row, pick the colour |
+| ← → | | slider by 5 %, segmented option; ← on a button or row: back to the sidebar |
+| 1 … 9, 0 | jump to section 1–10 (also from a page, except while typing) | |
+| Esc | close Settings | back to the sidebar |
+
+The focused control has an accent ring and the page scrolls to keep it in view. Controls
+get this from the shared parts (`Btn`, `Toggle`, `Sld`, `Seg`, clickable `SRow`,
+`FocusRing.qml`, `Pal.focusStep()` / `Pal.sidebarRequested()`); a new control only needs
+`activeFocusOnTab: true` and the same key handlers.
+
 How it is built:
 
 - `shell.qml`: the window, sidebar (`sections` list: key, label, glyph) and the content
@@ -416,7 +432,8 @@ How it is built:
 - Shared parts: `Pal.qml` (palette from `rofi/colors.rasi`, sizes, `hud` flag, `label()`),
   `Page.qml` (title + scrolling column), `Group.qml` (a card of rows), `SRow.qml` (one row:
   icon, title, subtitle, controls on the right), `Toggle.qml`, `Sld.qml` (slider),
-  `Btn.qml`, `Seg.qml` (segmented control), `Tokens.qml` (link to `../shared/Tokens.qml`).
+  `Btn.qml`, `Seg.qml` (segmented control), `FocusRing.qml` (keyboard focus outline),
+  `Tokens.qml` (link to `../shared/Tokens.qml`).
 - Icons are flat Nerd Font glyphs in the text colour; only the warning colour (low
   battery, muted mic) and the Wi-Fi signal opacity carry meaning. The accent colour is
   kept for what is chosen.
@@ -483,7 +500,7 @@ SUPER).
 | SUPER + W / SUPER + SHIFT + W | Pick a wallpaper / random wallpaper |
 | SUPER + A | Audio visualizer (cava) on/off |
 | SUPER + SHIFT + C | Caffeine: no idle lock or suspend |
-| SUPER + , | Settings panel (also the gear icon in Waybar); again closes it |
+| SUPER + , | Settings panel (also the gear icon in Waybar); again closes it. Fully usable from the keyboard: ↑↓ sections, → into a page, Tab / ↑↓ controls, Enter / Space, Esc |
 | SUPER + Escape | Power menu; again closes it |
 | SUPER + L | Lock the screen |
 | SUPER + CTRL + L | Black lock screen: turn the screens on and restart hyprlock (works while locked) |

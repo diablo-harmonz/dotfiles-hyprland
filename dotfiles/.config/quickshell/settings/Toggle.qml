@@ -7,6 +7,17 @@ Rectangle {
     property bool busy: false
     signal toggled(bool value)
 
+    // Keyboard: Tab / ↑ ↓ move between controls, Esc back to the sidebar
+    activeFocusOnTab: true
+    Keys.onUpPressed: Pal.focusStep(sw, false)
+    Keys.onDownPressed: Pal.focusStep(sw, true)
+    Keys.onEscapePressed: Pal.sidebarRequested()
+    // Enter / Space flip it, ← back to the sidebar
+    Keys.onReturnPressed: if (!sw.busy) sw.toggled(!sw.checked)
+    Keys.onEnterPressed: if (!sw.busy) sw.toggled(!sw.checked)
+    Keys.onSpacePressed: if (!sw.busy) sw.toggled(!sw.checked)
+    Keys.onLeftPressed: Pal.sidebarRequested()
+
     width: 38 * Pal.ui
     height: 22 * Pal.ui
     radius: height / 2
@@ -23,6 +34,7 @@ Rectangle {
         color: "#ffffff"
         Behavior on x { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
     }
+    FocusRing {}
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor

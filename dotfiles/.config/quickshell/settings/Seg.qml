@@ -8,6 +8,20 @@ Rectangle {
     property string current: ""
     signal picked(string key)
 
+    // Keyboard: Tab / ↑ ↓ move between controls, Esc back to the sidebar
+    activeFocusOnTab: true
+    Keys.onUpPressed: Pal.focusStep(seg, false)
+    Keys.onDownPressed: Pal.focusStep(seg, true)
+    Keys.onEscapePressed: Pal.sidebarRequested()
+    // ← → pick the previous / next option
+    function pickStep(d) {
+        let i = options.findIndex(o => o.key === current)
+        i = Math.max(0, Math.min(options.length - 1, (i < 0 ? 0 : i + d)))
+        if (options.length > 0 && options[i].key !== current) picked(options[i].key)
+    }
+    Keys.onLeftPressed: pickStep(-1)
+    Keys.onRightPressed: pickStep(1)
+
     width: row.implicitWidth + 4 * Pal.ui
     height: 26 * Pal.ui
     radius: Pal.radiusMd
@@ -15,6 +29,7 @@ Rectangle {
     border.width: Pal.hud ? 1 : 0
     border.color: Pal.outline
 
+    FocusRing {}
     Row {
         id: row
         x: 2 * Pal.ui; y: 2 * Pal.ui

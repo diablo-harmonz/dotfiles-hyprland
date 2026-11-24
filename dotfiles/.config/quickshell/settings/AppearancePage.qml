@@ -138,6 +138,17 @@ Page {
             cursorShape: Qt.PointingHandCursor
             onClicked: p.setColors(parent.src, p.colorScheme || "tonal-spot")
         }
+        // Keyboard: Tab / arrows move between colours, Enter / Space pick, Esc sidebar
+        id: sw
+        activeFocusOnTab: true
+        Keys.onLeftPressed: Pal.focusStep(sw, false)
+        Keys.onRightPressed: Pal.focusStep(sw, true)
+        Keys.onUpPressed: Pal.focusStep(sw, false)
+        Keys.onDownPressed: Pal.focusStep(sw, true)
+        Keys.onReturnPressed: p.setColors(src, p.colorScheme || "tonal-spot")
+        Keys.onSpacePressed: p.setColors(src, p.colorScheme || "tonal-spot")
+        Keys.onEscapePressed: Pal.sidebarRequested()
+        FocusRing {}
     }
 
     Group {
@@ -197,6 +208,10 @@ Page {
                             font.family: Pal.icons; font.pixelSize: Pal.fs
                             readonly property bool valid: /^#?[0-9a-fA-F]{6}$/.test(text)
                             Keys.onReturnPressed: useHex.clicked()
+                            Keys.onEscapePressed: Pal.sidebarRequested()
+                            activeFocusOnTab: true
+                            Keys.onUpPressed: Pal.focusStep(hex, false)
+                            Keys.onDownPressed: Pal.focusStep(hex, true)
                             Text {
                                 visible: hex.text === ""
                                 anchors.verticalCenter: parent.verticalCenter

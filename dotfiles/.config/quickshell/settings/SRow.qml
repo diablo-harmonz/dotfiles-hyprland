@@ -15,6 +15,17 @@ Item {
     default property alias controls: right.data
     signal clicked()
 
+    // Keyboard (clickable rows only): Tab / ↑ ↓ move, Enter / Space open, Esc / ← sidebar
+    activeFocusOnTab: clickable
+    Keys.onUpPressed: Pal.focusStep(row, false)
+    Keys.onDownPressed: Pal.focusStep(row, true)
+    Keys.onEscapePressed: Pal.sidebarRequested()
+    Keys.onLeftPressed: Pal.sidebarRequested()
+    Keys.onReturnPressed: if (clickable) row.clicked()
+    Keys.onEnterPressed: if (clickable) row.clicked()
+    Keys.onSpacePressed: if (clickable) row.clicked()
+    readonly property real radius: Pal.hud ? Pal.radiusMd : Pal.radiusSm   // for the focus ring
+
     width: parent ? parent.width : 0
     height: Math.max(Pal.rowH, texts.implicitHeight + 16 * Pal.ui)
 
@@ -32,6 +43,7 @@ Item {
         border.width: Pal.hud ? 1 : 0
         border.color: area.containsMouse && row.clickable ? Pal.outlineHot : Pal.outline
     }
+    FocusRing { gap: -2 * Pal.ui }
     MouseArea {
         id: area
         anchors.fill: parent

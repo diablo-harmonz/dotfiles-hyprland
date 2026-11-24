@@ -14,6 +14,13 @@ Singleton {
     signal closeRequested()
     // Pages ask shell.qml to switch to another section (e.g. the General page's rows)
     signal navigate(string key)
+    // Keyboard: controls ask shell.qml to give the focus back to the sidebar (Esc, ←)
+    signal sidebarRequested()
+    // Move the keyboard focus to the next / previous control of the page (↑ ↓ in controls)
+    function focusStep(item, forward) {
+        const next = item.nextItemInFocusChain(forward)
+        if (next && next !== item) next.forceActiveFocus(forward ? Qt.TabFocusReason : Qt.BacktabFocusReason)
+    }
     // True while the panel is on screen (set by shell.qml); pages poll and scan only then
     property bool open: false
 

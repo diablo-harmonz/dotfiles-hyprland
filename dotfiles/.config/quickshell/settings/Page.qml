@@ -12,6 +12,25 @@ Flickable {
         function onOpenChanged() { if (Pal.open) page.reopened() }
     }
     contentHeight: body.implicitHeight + 48 * Pal.ui
+
+    // Keyboard: keep the focused control in view (scroll only as far as needed)
+    function reveal(item) {
+        let it = item
+        while (it && it !== body) it = it.parent
+        if (!it) return                                   // not on this page
+        const p = item.mapToItem(body, 0, 0)
+        const top = body.y + p.y - 12 * Pal.ui, bottom = body.y + p.y + item.height + 12 * Pal.ui
+        if (top < contentY) contentY = Math.max(0, top)
+        else if (bottom > contentY + height) contentY = Math.min(contentHeight - height, bottom - height)
+    }
+    Connections {
+        target: page.Window.window
+        ignoreUnknownSignals: true
+        function onActiveFocusItemChanged() {
+            const w = page.Window.window
+            if (w && w.activeFocusItem) page.reveal(w.activeFocusItem)
+        }
+    }
     clip: true
     boundsBehavior: Flickable.StopAtBounds
 

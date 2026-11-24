@@ -10,6 +10,17 @@ Rectangle {
     property bool enabled: true
     signal clicked()
 
+    // Keyboard: Tab / ↑ ↓ move between controls, Esc back to the sidebar
+    activeFocusOnTab: true
+    Keys.onUpPressed: Pal.focusStep(b, false)
+    Keys.onDownPressed: Pal.focusStep(b, true)
+    Keys.onEscapePressed: Pal.sidebarRequested()
+    // Enter / Space press it, ← back to the sidebar
+    Keys.onReturnPressed: if (b.enabled) b.clicked()
+    Keys.onEnterPressed: if (b.enabled) b.clicked()
+    Keys.onSpacePressed: if (b.enabled) b.clicked()
+    Keys.onLeftPressed: Pal.sidebarRequested()
+
     implicitWidth: label.implicitWidth + 24 * Pal.ui
     width: implicitWidth
     height: 26 * Pal.ui
@@ -30,6 +41,7 @@ Rectangle {
         font.family: Pal.font; font.pixelSize: Pal.fsSmall; font.weight: Font.Medium
         font.letterSpacing: Pal.tracking
     }
+    FocusRing {}
     MouseArea {
         id: area
         anchors.fill: parent

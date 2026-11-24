@@ -189,6 +189,9 @@ Page {
                             onVisibleChanged: if (visible) { text = ""; forceActiveFocus() }
                             Keys.onReturnPressed: join.clicked()
                             Keys.onEscapePressed: p.askFor = ""
+                            activeFocusOnTab: true
+                            Keys.onUpPressed: Pal.focusStep(psk, false)
+                            Keys.onDownPressed: Pal.focusStep(psk, true)
                             Text {
                                 visible: psk.text === ""
                                 anchors.verticalCenter: parent.verticalCenter

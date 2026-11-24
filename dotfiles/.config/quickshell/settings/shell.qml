@@ -49,6 +49,15 @@ ShellRoot {
         const i = keys.indexOf(page)
         page = keys[(i + d + keys.length) % keys.length]
     }
+    // Keyboard: a new page destroys the focused control of the old one, so the sidebar takes
+    // the focus (otherwise no item would have it and every key would be lost)
+    onPageChanged: if (!selftest) Qt.callLater(() => { if (cardRef) cardRef.forceActiveFocus() })
+    property Item cardRef: null
+    // Keyboard: from the sidebar into the first control of the page (→, Enter, Tab)
+    function enterContent() {
+        const first = card.nextItemInFocusChain(true)
+        if (first && first !== card) first.forceActiveFocus(Qt.TabFocusReason)
+    }
 
     // ---- self-test (QS_SELFTEST=1, run by bin/dotfiles-verify after updates) -----------------
     // No window is shown and nothing is scanned: every section is loaded once, each result is
@@ -81,6 +90,7 @@ ShellRoot {
         target: Pal
         function onCloseRequested() { root.close() }
         function onNavigate(key) { if (root.keys.indexOf(key) >= 0) root.page = key }
+        function onSidebarRequested() { card.forceActiveFocus() }
     }
     // bin/settings: a second SUPER+comma closes the running panel
     IpcHandler {
@@ -151,6 +161,7 @@ ShellRoot {
 
         Rectangle {
             id: card
+            Component.onCompleted: root.cardRef = card
             width: 920 * win.ui
             height: 640 * win.ui
             anchors.centerIn: parent
@@ -167,9 +178,20 @@ ShellRoot {
 
             focus: true
             Keys.onPressed: event => {
-                if (event.key === Qt.Key_Escape) { root.close(); event.accepted = true }
-                else if (event.key === Qt.Key_Down) { root.step(1); event.accepted = true }
-                else if (event.key === Qt.Key_Up) { root.step(-1); event.accepted = true }
+                // The card itself has focus = the sidebar; keys a control did not use also
+                // arrive here (Esc from a control: back to the sidebar)
+                const inSidebar = card.activeFocus, k = event.key
+                if (k === Qt.Key_Escape) {
+                    if (inSidebar) root.close(); else card.forceActiveFocus()
+                } else if (inSidebar && k === Qt.Key_Down) root.step(1)
+                else if (inSidebar && k === Qt.Key_Up) root.step(-1)
+                else if (inSidebar && (k === Qt.Key_Right || k === Qt.Key_Return || k === Qt.Key_Enter))
+                    root.enterContent()
+                else if (k >= Qt.Key_0 && k <= Qt.Key_9 && event.modifiers === Qt.NoModifier) {
+                    const i = k === Qt.Key_0 ? 9 : k - Qt.Key_1     // 1..9, 0 = 10th section
+                    if (i < root.keys.length) { root.page = root.keys[i]; card.forceActiveFocus() }
+                } else return
+                event.accepted = true
             }
 
             // ---- sidebar -------------------------------------------------------------------
@@ -178,6 +200,19 @@ ShellRoot {
                 width: 220 * win.ui
                 height: parent.height
                 color: Pal.hud ? "transparent" : Pal.sidebar
+
+                // Keyboard hints at the bottom of the sidebar
+                Text {
+                    anchors.left: parent.left; anchors.leftMargin: (Pal.hud ? 26 : 18) * win.ui
+                    anchors.bottom: parent.bottom; anchors.bottomMargin: (Pal.hud ? 30 : 16) * win.ui
+                    width: parent.width - 2 * anchors.leftMargin
+                    text: card.activeFocus ? "↑↓ section · 1–0 jump\n→ Enter Tab: into the page\nEsc: close"
+                                           : "↑↓ Tab: next control\nEnter Space: press · ←→ adjust\nEsc: back to the sidebar"
+                    lineHeight: 1.3
+                    color: Pal.muted
+                    opacity: 0.7
+                    font.family: Pal.icons; font.pixelSize: 10 * win.ui
+                }
                 Rectangle {   // divider (HUD: inset, brighter)
                     anchors.right: parent.right
                     y: Pal.hud ? 24 * win.ui : 0
@@ -215,8 +250,9 @@ ShellRoot {
                                 anchors.fill: parent
                                 radius: Pal.radiusMd
                                 color: parent.on && !Pal.hud ? Pal.primary : (a.containsMouse ? Pal.hover : "transparent")
-                                border.width: parent.on && Pal.hud ? 1 : 0
-                                border.color: Pal.outlineHot
+                                // keyboard in the sidebar: a ring on the chosen section
+                                border.width: parent.on && card.activeFocus ? 2 : (parent.on && Pal.hud ? 1 : 0)
+                                border.color: parent.on && card.activeFocus ? Pal.text : Pal.outlineHot
                             }
                             Rectangle {   // HUD: a line from the chosen section across to the content
                                 visible: Pal.hud && parent.on
