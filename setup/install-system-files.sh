@@ -178,13 +178,25 @@ if grep -qE '^GRUB_CMDLINE_LINUX_DEFAULT=.*resume=' /etc/default/grub; then
     # HUP = reload logind's config; a restart would end the running session
     [ "$changed" = 0 ] || sudo systemctl kill -s HUP systemd-logind
     echo ":: Lid: $(grep -m1 '^HandleLidSwitch=' "$DIR/system/logind.conf.d/lid.conf")"
-    # zram off before hibernate, back on after (docs/sleep.md). /usr/lib, not /etc: this
-    # systemd only reads /usr/lib/systemd/system-sleep. No package owns this file.
-    hook=/usr/lib/systemd/system-sleep/zram-hibernate
-    if ! cmp -s "$DIR/system/system-sleep/zram-hibernate" "$hook"; then
-        sudo install -D -m 755 "$DIR/system/system-sleep/zram-hibernate" "$hook"
-    fi
-    echo ":: Sleep hook: $hook"
+    # zram off before a plain hibernate, back on after (docs/sleep.md): a script plus a drop-in
+    # on systemd-hibernate / -hybrid-sleep. Not on suspend-then-hibernate: turning zram off
+    # there (old systemd-sleep hook, then this drop-in) made every resume fail, with zram left
+    # on it resumed fine. Removes those older versions.
+    zdir="$DIR/system/zram-hibernate"
+    cmp -s "$zdir/zram-hibernate" /usr/local/lib/zram-hibernate ||
+        sudo install -D -m 755 "$zdir/zram-hibernate" /usr/local/lib/zram-hibernate
+    zchanged=0
+    for u in systemd-hibernate systemd-hybrid-sleep; do
+        if ! cmp -s "$zdir/zram.conf" "/etc/systemd/system/$u.service.d/zram.conf"; then
+            sudo install -D -m 644 "$zdir/zram.conf" "/etc/systemd/system/$u.service.d/zram.conf"
+            zchanged=1
+        fi
+    done
+    [ ! -e /usr/lib/systemd/system-sleep/zram-hibernate ] || sudo rm -f /usr/lib/systemd/system-sleep/zram-hibernate
+    s2h=/etc/systemd/system/systemd-suspend-then-hibernate.service.d
+    [ ! -e "$s2h/zram.conf" ] || { sudo rm -f "$s2h/zram.conf"; sudo rmdir "$s2h" 2>/dev/null; zchanged=1; }
+    [ "$zchanged" = 0 ] || sudo systemctl daemon-reload
+    echo ":: zram off around hibernate: /etc/systemd/system/systemd-{hibernate,hybrid-sleep}.service.d/zram.conf"
 else
     echo ":: No resume= on the kernel command line, lid hibernate skipped (setup/enable-hibernate.sh)"
 fi

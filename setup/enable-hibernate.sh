@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # enable-hibernate.sh: "suspend-then-hibernate" in docs/plan.md (steps 1-3 and 5), plus the
-# zram sleep hook (setup/system/system-sleep/zram-hibernate).
+# zram switch around hibernate (setup/system/zram-hibernate/).
 # Adds a btrfs swapfile in its own @swap subvolume (zram stays the main swap), points the
 # kernel at it (resume= / resume_offset=), adds the resume hook to the initramfs, and
 # installs the lid config: lid closed -> suspend, hibernate after 30 min
@@ -106,11 +106,17 @@ done
 systemctl kill -s HUP systemd-logind
 echo "==> Lid: suspend, then hibernate after 30 min"
 
-# 6. zram off before hibernate, back on after: zram lives in RAM, so a busy RAM made the
-#    hibernate abort (Error -12) and the next one left the GPU unable to resume
-#    (docs/sleep.md). /usr/lib, not /etc: this systemd only reads /usr/lib/systemd/system-sleep.
-install -D -m 755 "$SYSTEM_DIR/system-sleep/zram-hibernate" /usr/lib/systemd/system-sleep/zram-hibernate
-echo "==> Sleep hook: /usr/lib/systemd/system-sleep/zram-hibernate"
+# 6. zram off before a plain hibernate, back on after: zram lives in RAM, so a busy RAM made
+#    the hibernate abort (Error -12) (docs/sleep.md). Not for suspend-then-hibernate: zram
+#    off there (systemd-sleep hook, then a drop-in) made every resume fail.
+install -D -m 755 "$SYSTEM_DIR/zram-hibernate/zram-hibernate" /usr/local/lib/zram-hibernate
+for u in systemd-hibernate systemd-hybrid-sleep; do
+    install -D -m 644 "$SYSTEM_DIR/zram-hibernate/zram.conf" "/etc/systemd/system/$u.service.d/zram.conf"
+done
+rm -f /usr/lib/systemd/system-sleep/zram-hibernate   # old hook, broke suspend-then-hibernate
+rm -rf /etc/systemd/system/systemd-suspend-then-hibernate.service.d/zram.conf
+systemctl daemon-reload
+echo "==> zram off around hibernate: /etc/systemd/system/systemd-{hibernate,hybrid-sleep}.service.d/zram.conf"
 
 echo
 echo "==> Result"

@@ -1,0 +1,51 @@
+#!/bin/sh
+# zram-hibernate: turn zram swap off before a hibernate and back on after.
+# Installed to /usr/local/lib/zram-hibernate and run by the drop-in zram.conf (same folder)
+# for systemd-hibernate and systemd-hybrid-sleep.service:
+#   ExecStartPre  -> "pre"  before the sleep starts
+#   ExecStartPost -> "post" after it has finished
+#
+# Why: zram swap lives in RAM. Before a hibernate the kernel frees RAM by swapping out, and
+# with zram (priority 100) first in line that frees nothing: on 2026-11-24 the image could
+# not be created ("Error -12 creating image").
+#
+# Not used for suspend-then-hibernate (lid, sleep-now on battery, hypridle). Tested
+# 2026-11-25/26 with a 2-minute HibernateDelaySec: zram off as a systemd-sleep hook (post ran
+# between the suspend and the hibernate) and zram off as this drop-in both failed to resume
+# (LUKS asked twice, "PM: Image not found", session lost); with zram left on it resumed. There
+# a busy zram can still make the hibernate abort with Error -12; systemd then goes back to
+# suspend, so nothing is lost. Plain hibernates with this script resumed fine.
+# Output goes to the journal: journalctl -b -t zram-hibernate
+
+DEV=/dev/zram0
+log() { echo "$*" | systemd-cat -t zram-hibernate; }
+
+case "$1" in
+    pre)
+        if grep -q "^$DEV " /proc/swaps; then
+            used=$(awk -v d="$DEV" '$1 == d { print $4 }' /proc/swaps)
+            if swapoff "$DEV"; then
+                log "pre: zram off (had ${used} KiB)"
+            else
+                log "pre: swapoff $DEV FAILED, hibernate may fail with Error -12"
+            fi
+        fi
+        ;;
+    post)
+        # swapoff makes systemd stop systemd-zram-setup@zram0, which resets the device (size
+        # 0), so a plain swapon fails. Starting the swap unit recreates zram with the
+        # zram-generator settings. --no-block: the sleep unit is still finishing.
+        if ! grep -q "^$DEV " /proc/swaps; then
+            if systemctl --no-block start dev-zram0.swap; then
+                log "post: zram start queued (dev-zram0.swap)"
+            else
+                log "post: starting dev-zram0.swap FAILED (sudo systemctl start dev-zram0.swap)"
+            fi
+        fi
+        ;;
+    *)
+        echo "usage: zram-hibernate pre|post" >&2
+        exit 2
+        ;;
+esac
+exit 0

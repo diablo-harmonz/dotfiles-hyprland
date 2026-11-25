@@ -5,8 +5,8 @@ Ghi chú cho ThinkPad T14 Gen 6 (AMD). Gập máy là máy **ngủ nhẹ** (`s2i
 vậy) thì máy tự **ngủ đông**: lưu RAM xuống `/swap/swapfile` rồi tắt hẳn. Bật lại bằng nút
 nguồn, nhập mật khẩu LUKS ở GRUB, máy về màn khoá với các cửa sổ cũ. Có từ 2026-11-24:
 `setup/enable-hibernate.sh` (swapfile 20 GB, `resume=`), `setup/system/logind.conf.d/lid.conf`,
-`sleep.conf.d/hibernate.conf` và hook zram `setup/system/system-sleep/zram-hibernate` (cài
-bằng `setup/install-system-files.sh`). Gập máy khi đang cắm màn hình ngoài thì không ngủ
+`sleep.conf.d/hibernate.conf` và phần tắt zram quanh lúc ngủ đông `setup/system/zram-hibernate/`
+(cài bằng `setup/install-system-files.sh`). Gập máy khi đang cắm màn hình ngoài thì không ngủ
 (xem `bin/display-toggle`). Menu nguồn có nút Hibernate để ngủ đông ngay.
 
 ---
@@ -50,25 +50,43 @@ Chỉ có một lần lỗi GPU nên chưa chứng minh chắc chắn được �
 `systemctl suspend`, và chờ `linux`/`linux-firmware` mới (đọc changelog tìm `MES`,
 `gfx_v11`, `S4`, `pci_pm_restore`).
 
-### Cách sửa: hook tắt zram trước khi ngủ đông
+### Cách sửa: tắt zram trước khi ngủ đông, bật lại sau
 
-`setup/system/system-sleep/zram-hibernate`, cài vào `/usr/lib/systemd/system-sleep/`:
-- Trước khi ngủ đông (`pre`, với `hibernate`, `hybrid-sleep`, `suspend-then-hibernate`):
-  `swapoff /dev/zram0`. Dữ liệu trong zram về RAM hoặc xuống swapfile, kernel giải phóng được
-  RAM thật.
-- Sau khi thức dậy (`post`): `systemctl --no-block start dev-zram0.swap`. Không dùng `swapon`:
-  khi zram tắt, systemd dừng luôn `systemd-zram-setup@zram0` và **xoá thiết bị** (kích thước 0),
-  nên phải để systemd tạo lại.
-- Log: `journalctl -b -t zram-hibernate`.
+`setup/system/zram-hibernate/zram-hibernate` (cài vào `/usr/local/lib/zram-hibernate`) chạy từ
+drop-in `zram.conf` (cài vào `/etc/systemd/system/<unit>.service.d/zram.conf` cho
+`systemd-hibernate`, `systemd-hybrid-sleep`; **không** gắn cho `systemd-suspend-then-hibernate`, xem
+mục dưới):
+- `ExecStartPre` → `pre`: `swapoff /dev/zram0`. Dữ liệu trong zram về RAM hoặc xuống swapfile,
+  kernel giải phóng được RAM thật.
+- `ExecStartPost` → `post`, chạy khi **cả lần ngủ đã xong**:
+  `systemctl --no-block start dev-zram0.swap`. Không dùng `swapon`: khi zram tắt, systemd dừng
+  luôn `systemd-zram-setup@zram0` và **xoá thiết bị** (kích thước 0), nên phải để systemd tạo lại.
+- Log: `journalctl -b -t zram-hibernate`. Thử mà không ngủ:
+  `sudo /usr/local/lib/zram-hibernate pre`, xem `swapon --show`, rồi `... post`.
 
-Hai điều dễ sai:
-- **Hook phải nằm trong `/usr/lib/systemd/system-sleep/`.** systemd 262 trên máy này không đọc
-  `/etc/systemd/system-sleep/` (kiểm tra:
-  `strings /usr/lib/systemd/systemd-sleep | grep system-sleep`). Lần đầu đặt ở `/etc` nên hook
-  không hề chạy. Thư mục `/usr/lib/...` thuộc gói systemd nhưng không gói nào sở hữu file này.
-- Thử hook mà không ngủ đông:
-  `sudo /usr/lib/systemd/system-sleep/zram-hibernate pre hibernate`, xem `swapon --show`, rồi
-  `... post hibernate`.
+### Gập máy (suspend-then-hibernate): để zram bật (2026-11-26)
+
+Bản đầu là hook trong `/usr/lib/systemd/system-sleep/` (systemd 262 ở đây không đọc
+`/etc/systemd/system-sleep/`). Với `suspend-then-hibernate`, systemd chạy `pre` lúc bắt đầu ngủ
+nhẹ và `post` **sau phần ngủ nhẹ, ngay trước khi ngủ đông**. Mọi lần tắt zram ở kiểu ngủ này
+đều hỏng: bật máy phải nhập LUKS **hai lần** (lần đầu kernel đọc ảnh nhưng khôi phục thất bại,
+máy tự khởi động lại), rồi `PM: Image not found (code -22)`, mất phiên.
+
+| Lần | zram | Kết quả |
+|---|---|---|
+| 24/11 17:15, gập máy | bật (chưa có hook) | ✅ |
+| 25/11 18:14, gập máy | hook: tắt khi ngủ nhẹ, `post` bật lại ngay trước ngủ đông | ❌ |
+| 26/11 04:50, sleep bằng lệnh | hook: tắt, `post` hẹn bật sau (`systemd-run` xếp sau unit ngủ) | ❌ |
+| 26/11 05:57, thử 2 phút | bật (hook thay bằng script rỗng qua bind mount trong `/run`) | ✅ |
+| 26/11 06:06, thử 2 phút | drop-in: tắt trước khi ngủ nhẹ, không làm gì giữa chừng | ❌ |
+
+Cách thử: `HibernateDelaySec=2min` trong `/run/systemd/sleep.conf.d/zz-s2h-test.conf` (mất khi
+khởi động lại, nên hỏng cũng tự về như cũ), rồi `systemctl suspend-then-hibernate`.
+Kết luận theo các lần trên: ở kiểu ngủ này **không tắt zram**. Vì sao tắt zram (thiết bị bị
+`systemd-zram-setup` reset về 0) rồi ngủ nhẹ làm hỏng lần khôi phục sau đó thì chưa rõ. Cái giá:
+nếu zram đang chứa nhiều, lần ngủ đông có thể bỏ dở với `Error -12`; khi đó systemd quay lại
+ngủ nhẹ (như 24/11 22:32), không mất gì, chỉ tốn pin. Ngủ đông bằng tay vẫn tắt zram trước
+(25/11 12:10, 12:16 đều ổn).
 
 ### Thử lại sau khi sửa (2026-11-25, khởi động lại sạch trước khi thử)
 

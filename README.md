@@ -565,11 +565,12 @@ Hibernate is set up by `setup/enable-hibernate.sh` (asked by `setup-arch.sh`; ru
 `@swap` subvolume mounted at `/swap` (size = RAM + 5 GB, low priority so zram stays the
 main swap), `resume=UUID=… resume_offset=…` in `/etc/default/grub`, the `resume` hook after
 `encrypt` in `/etc/mkinitcpio.conf` (not needed with a systemd initramfs), the two
-systemd files above, and the sleep hook `/usr/lib/systemd/system-sleep/zram-hibernate`
-(source `setup/system/system-sleep/`). The hook turns zram off before a hibernate and back on
-after: zram lives in RAM, so with it on a busy RAM made the hibernate abort ("Error -12"), and
-on 2026-11-25 the next hibernate after such an abort left the GPU unable to resume. This
-systemd only reads hooks from `/usr/lib/systemd/system-sleep`, not `/etc`. It takes a
+systemd files above, and zram off around a plain hibernate: `/usr/local/lib/zram-hibernate`
+run by a drop-in `zram.conf` on `systemd-hibernate` and `systemd-hybrid-sleep.service`
+(sources in `setup/system/zram-hibernate/`). zram lives in RAM, so with it on a busy RAM can
+make the hibernate abort ("Error -12"). Not on suspend-then-hibernate (lid, sleep on
+battery): turning zram off there, as a systemd-sleep hook and then as a drop-in, made every
+resume fail (session lost), while with zram left on it resumed (docs/sleep.md). It takes a
 Timeshift snapshot and backs up fstab, grub and
 mkinitcpio.conf (`*.bak-hibernate-<time>`) first. After RAM upgrades: `swapoff
 /swap/swapfile`, delete it, run the script again. Test with `systemctl hibernate`: the
