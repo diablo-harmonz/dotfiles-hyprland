@@ -23,6 +23,7 @@ packages=(
     "ttf-liberation"            # same metrics as Times New Roman, Arial, Courier New
     "ttf-carlito"               # same metrics as Calibri
     "ttf-caladea"               # same metrics as Cambria
+    "keepassxc"                 # password manager, starts in the tray (hypr/conf/autostart.lua)
     "qt6ct"
     "cliphist"
     "rofi-calc"                 # calculator in rofi (SUPER+=), pulls libqalculate (qalc)
@@ -312,6 +313,12 @@ gsettings set org.gnome.nautilus.list-view default-zoom-level small
 gsettings set org.gnome.nautilus.list-view default-visible-columns "['name', 'size', 'date_modified']"
 gsettings set org.gnome.nautilus.list-view use-tree-view true
 gsettings set org.gtk.gtk4.Settings.FileChooser sort-directories-first true
+
+# Startup apps (Settings > Startup apps, bin/autostart): KeePassXC in the tray, so
+# KeePassXC-Browser can fill logins. Added only when missing, so switching it off in
+# Settings sticks (the entry stays with Hidden=true); Remove brings it back on a rerun.
+[ -e "$HOME/.config/autostart/org.keepassxc.KeePassXC.desktop" ] ||
+    "$(dirname "$(realpath "$0")")/../bin/autostart" add org.keepassxc.KeePassXC --minimized
 
 # Firefox is the default browser (links from other apps)
 xdg-settings set default-web-browser firefox.desktop

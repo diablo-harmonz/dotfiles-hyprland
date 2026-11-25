@@ -25,6 +25,9 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("sleep 3; ~/.local/bin/osd mic sync")
     -- Vietnamese input method
     hl.exec_cmd("fcitx5 -d")
+    -- Apps chosen in Settings > Startup apps (XDG entries in ~/.config/autostart, bin/autostart),
+    -- e.g. KeePassXC in the tray so KeePassXC-Browser can fill logins
+    hl.exec_cmd("~/.local/bin/autostart run")
     -- Floating widgets on workspace 1: welcome terminal, ... (startup-layout.lua)
     require("conf.startup-layout").start()
 end)

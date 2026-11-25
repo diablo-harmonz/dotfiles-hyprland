@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+# autostart: apps started at login, managed as standard XDG autostart entries
+# (~/.config/autostart/<id>.desktop, the files apps write themselves for "start at login").
+# Hyprland does not read that folder, so hypr/conf/autostart.lua runs `autostart run`.
+# The desktop services (Waybar, notifications, polkit, input method, idle) stay in
+# autostart.lua and are not listed here. Only the user folder is read, not /etc/xdg/autostart.
+#   autostart run              start every enabled entry (at login)
+#   autostart list             one line per entry: id<TAB>enabled|disabled<TAB>name<TAB>command
+#   autostart enable|disable ID   switch an entry on or off (Hidden=, the file stays)
+#   autostart add APP [ARGS…]  copy the app's .desktop file in (APP = its id, e.g.
+#                              org.keepassxc.KeePassXC), ARGS appended to its command
+#   autostart remove ID        delete the entry
+#   autostart pick             choose an installed app with rofi and add it, then reopen
+#                              Settings at Startup apps (the Add button there)
+# The Settings panel (Startup apps section) uses list / enable / disable / remove / pick.
+set -uo pipefail
+
+DIR="${XDG_CONFIG_HOME:-$HOME/.config}/autostart"
+APPDIRS=("${XDG_DATA_HOME:-$HOME/.local/share}/applications" /usr/local/share/applications
+         /usr/share/applications /var/lib/flatpak/exports/share/applications
+         "$HOME/.local/share/flatpak/exports/share/applications")
+
+# Value of KEY in the [Desktop Entry] group of FILE (unlocalized)
+get() {
+    awk -F= -v k="$2" '
+        /^\[/ { inside = ($0 == "[Desktop Entry]") }
+        inside && $1 == k { sub(/^[^=]*=/, ""); print; exit }' "$1"
+}
+
+# Set KEY=VALUE in the [Desktop Entry] group (replace, or add after the group header)
+set_key() {
+    local f=$1 k=$2 v=$3
+    if awk -F= -v k="$k" '/^\[/ { i = ($0 == "[Desktop Entry]") } i && $1 == k { f = 1 } END { exit !f }' "$f"; then
+        awk -F= -v k="$k" -v v="$v" '
+            /^\[/ { i = ($0 == "[Desktop Entry]") }
+            i && $1 == k { print k "=" v; next } { print }' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+    else
+        sed -i "0,/^\[Desktop Entry\]/s//[Desktop Entry]\n$k=$v/" "$f"
+    fi
+}
+
+enabled() {
+    [ "$(get "$1" Hidden)" != true ] && [ "$(get "$1" X-GNOME-Autostart-enabled)" != false ]
+}
+
+# Desktop names this session matches for OnlyShowIn / NotShowIn
+shows_here() {
+    local only not d
+    only=$(get "$1" OnlyShowIn); not=$(get "$1" NotShowIn)
+    for d in ${XDG_CURRENT_DESKTOP//:/ }; do
+        [[ ";$not;" == *";$d;"* ]] && return 1
+    done
+    [ -z "$only" ] && return 0
+    for d in ${XDG_CURRENT_DESKTOP//:/ }; do
+        [[ ";$only;" == *";$d;"* ]] && return 0
+    done
+    return 1
+}
+
+find_app() {
+    local d
+    for d in "${APPDIRS[@]}"; do
+        [ -f "$d/$1.desktop" ] && { echo "$d/$1.desktop"; return 0; }
+    done
+    return 1
+}
+
+case "${1:-}" in
+    run)
+        for f in "$DIR"/*.desktop; do
+            [ -f "$f" ] || continue
+            enabled "$f" && shows_here "$f" || continue
+            try=$(get "$f" TryExec)
+            [ -z "$try" ] || command -v "$try" >/dev/null || continue
+            # Drop the field codes (%u, %F, …): nothing is passed at login
+            cmd=$(get "$f" Exec | sed 's/ \?%[fFuUdDnNickvm]//g; s/%%/%/g')
+            [ -n "$cmd" ] || continue
+            echo "starting $(basename "$f" .desktop): $cmd" | systemd-cat -t autostart
+            setsid -f sh -c "exec $cmd" >/dev/null 2>&1
+        done
+        ;;
+    list)
+        for f in "$DIR"/*.desktop; do
+            [ -f "$f" ] || continue
+            state=disabled; enabled "$f" && state=enabled
+            name=$(get "$f" Name); cmd=$(get "$f" Exec)
+            printf '%s\t%s\t%s\t%s\n' "$(basename "$f" .desktop)" "$state" "${name:-$(basename "$f" .desktop)}" "$cmd"
+        done
+        ;;
+    enable|disable)
+        f="$DIR/${2:?id}.desktop"
+        [ -f "$f" ] || { echo "no entry: $2" >&2; exit 1; }
+        if [ "$1" = enable ]; then
+            set_key "$f" Hidden false
+            [ -z "$(get "$f" X-GNOME-Autostart-enabled)" ] || set_key "$f" X-GNOME-Autostart-enabled true
+        else
+            set_key "$f" Hidden true
+        fi
+        ;;
+    add)
+        src=$(find_app "${2:?app id}") || { echo "app not found: $2" >&2; exit 1; }
+        mkdir -p "$DIR"
+        dst="$DIR/$2.desktop"
+        cp -- "$src" "$dst"
+        shift 2
+        if [ $# -gt 0 ]; then
+            cmd=$(get "$dst" Exec | sed 's/ \?%[fFuUdDnNickvm]//g')
+            set_key "$dst" Exec "$cmd $*"
+        fi
+        set_key "$dst" Hidden false
+        ;;
+    remove)
+        rm -f -- "$DIR/${2:?id}.desktop"
+        ;;
+    pick)
+        sleep 0.4   # let the Settings panel close first (it holds the keyboard)
+        # Installed apps (shown in menus) that are not in the list yet: "Name<TAB>id"
+        choice=$(
+            for d in "${APPDIRS[@]}"; do
+                for f in "$d"/*.desktop; do
+                    [ -f "$f" ] || continue
+                    [ "$(get "$f" NoDisplay)" = true ] || [ "$(get "$f" Hidden)" = true ] && continue
+                    [ "$(get "$f" Type)" = Application ] || continue
+                    id=$(basename "$f" .desktop)
+                    [ -f "$DIR/$id.desktop" ] && continue
+                    printf '%s\t%s\n' "$(get "$f" Name)" "$id"
+                done
+            done | sort -u -t$'\t' -k2,2 | sort -f |
+            rofi -dmenu -i -p "Start at login" -display-columns 1 -display-column-separator $'\t'
+        )
+        if [ -n "$choice" ]; then
+            id=${choice##*$'\t'}
+            "$0" add "$id" && notify-send -a settings "Startup apps" "$(get "$DIR/$id.desktop" Name) starts at login"
+        fi
+        ~/.local/bin/settings startup
+        ;;
+    *)
+        sed -n '2,/^set -uo/p' "$0" | sed '$d; s/^# \{0,1\}//'
+        exit 1
+        ;;
+esac

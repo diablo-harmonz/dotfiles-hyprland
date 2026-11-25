@@ -403,6 +403,7 @@ system (About), appearance, configs.
 | Storage | `StoragePage.qml` | disk, biggest folders, swap, Timeshift and package cache shortcuts |
 | About | `SystemPage.qml` | model, CPU, GPU, versions, pending updates (`sysupdate`), tools |
 | Appearance | `AppearancePage.qml` | wallpaper, colors (wallpaper colors, presets, `#rrggbb`, style), theme pack |
+| Startup apps | `StartupPage.qml` | apps started at login (`bin/autostart`, XDG entries in `~/.config/autostart`): on/off, remove, add from the installed apps |
 | Configs | `ConfigsPage.qml` | open config files in nvim, reload Hyprland (verified first), restart Waybar |
 
 Keyboard (everything works without the mouse; hints at the bottom of the sidebar):
@@ -666,6 +667,7 @@ explains its usage; read it with `head -30 bin/<name>`.
 |---|---|
 | `launcher`, `web-search` | Spotlight-style launcher; its web part (`web-search "text"` opens it directly) |
 | `settings` | Settings panel (`settings SECTION`) |
+| `autostart` | Apps started at login: runs `~/.config/autostart` entries (Hyprland does not), list / enable / disable / add / remove for Settings > Startup apps |
 | `control-center` | Control Center panel |
 | `power-menu`, `force-quit` | Power menu; close everything outside workspace 1 |
 | `theme` | Switch theme packs (`theme apply NAME`, `theme grub`, `theme list-tsv`) |

@@ -1,7 +1,8 @@
 // settings: macOS-style System Settings panel (bin/settings, SUPER+comma, the gear icon in
 // Waybar). Started on demand and quits when closed, so it uses no memory or CPU otherwise.
 //   sidebar      General (you and a quick status) / Wi-Fi, Bluetooth / Sound, Displays,
-//                Battery / Storage, About / Appearance, Configs  (one file each: <Key>Page.qml)
+//                Battery / Storage, About / Appearance, Startup apps, Configs
+//                (one file each: <Key>Page.qml)
 //   ↑ ↓          previous / next section (while no text field has focus)
 //   Esc / click outside / SUPER+comma   close
 // Lazy: only the open section is loaded (Loader), so NetworkManager, BlueZ, PipeWire and
@@ -37,6 +38,7 @@ ShellRoot {
         { key: "System",     label: "About",      glyph: "" },
         { key: "" },
         { key: "Appearance", label: "Appearance", glyph: "󰏘" },
+        { key: "Startup",    label: "Startup apps", glyph: "\uf135" },
         { key: "Configs",    label: "Configs",    glyph: "" }
     ]
     readonly property var keys: sections.filter(s => s.key !== "").map(s => s.key)
