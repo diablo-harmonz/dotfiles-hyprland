@@ -1,71 +1,87 @@
 # Gập máy và chế độ ngủ
 
 Ghi chú cho ThinkPad T14 Gen 6 (AMD). Gập máy là máy **ngủ nhẹ** (`s2idle`, xem
-`cat /sys/power/mem_sleep`), mở ra dùng ngay. Gập máy khi đang cắm màn hình ngoài thì không
-ngủ (xem `bin/display-toggle`).
-
-**Ngủ đông đang tắt từ 2026-11-25** vì GPU không thức dậy được sau ngủ đông, xem mục
-**Ngủ đông: tạm tắt** ngay dưới. Phần cài đặt ngủ đông vẫn còn (swapfile 20 GB, `resume=`,
-`setup/enable-hibernate.sh`), chỉ không còn tự chuyển sang ngủ đông nữa.
+`cat /sys/power/mem_sleep`), mở ra dùng ngay. Gập quá **30 phút** (chạy pin hay cắm sạc đều
+vậy) thì máy tự **ngủ đông**: lưu RAM xuống `/swap/swapfile` rồi tắt hẳn. Bật lại bằng nút
+nguồn, nhập mật khẩu LUKS ở GRUB, máy về màn khoá với các cửa sổ cũ. Có từ 2026-11-24:
+`setup/enable-hibernate.sh` (swapfile 20 GB, `resume=`), `setup/system/logind.conf.d/lid.conf`,
+`sleep.conf.d/hibernate.conf` và hook zram `setup/system/system-sleep/zram-hibernate` (cài
+bằng `setup/install-system-files.sh`). Gập máy khi đang cắm màn hình ngoài thì không ngủ
+(xem `bin/display-toggle`). Menu nguồn có nút Hibernate để ngủ đông ngay.
 
 ---
 
-## Ngủ đông: tạm tắt (2026-11-25)
+## Ngủ đông: lỗi zram và lỗi GPU (2026-11-24 đến 2026-11-25)
 
-**Đừng dùng ngủ đông** (`systemctl hibernate`, nút Hibernate ở menu nguồn) cho tới khi có
-kernel hoặc `linux-firmware` sửa lỗi dưới đây.
+### Chuyện gì đã xảy ra
 
-### Lỗi 1: GPU AMD không khôi phục được sau ngủ đông (nghiêm trọng)
+Cùng một lần khởi động (từ 12:34 ngày 24/11), máy ngủ đông 4 lần:
 
-- 2026-11-24: thử tay `systemctl hibernate` một lần, thành công, cửa sổ còn nguyên.
-- 2026-11-25 06:16: thử lại `systemctl hibernate`. Ngủ đông và nạp lại RAM đều thành công,
-  nhưng GPU (`amdgpu`, PCI `c4:00.0`, device `0x1114`, khối `gfx_v11_0`) **không khởi động
-  lại được**:
-  ```
-  amdgpu: MES failed to respond to msg=SET_HW_RSRC_1
-  [drm:mes_v11_0_hw_init [amdgpu]] *ERROR* failed mes_v11_0_set_hw_resources_1, r=-110
-  amdgpu: resume of IP block <gfx_v11_0> failed -110
-  amdgpu: PM: dpm_run_callback(): pci_pm_restore returns -110
-  ```
-  Sau đó driver reset GPU nhiều lần (`ring sdma0 timeout`, `MODE2 reset`, `Ring comp_1.2.0
-  reset failed`), Hyprland hỏng, phải khởi động lại máy.
-- Lúc đó: kernel `linux 7.3.5.arch1-1`, `linux-firmware 20261019-1`, `mesa 26.3.1`,
-  `hyprland 0.57.2`. Không có bản cập nhật kernel hay firmware nào đang chờ.
-- Ngủ nhẹ (`s2idle`) **không** bị lỗi này: gập máy qua đêm 2026-11-24, mở ra bình thường.
-- Lỗi lúc được lúc không (11-24 thành công, 11-25 hỏng), nên một lần thử thành công chưa đủ
-  để bật lại.
+| Lúc | Cách gọi | Kết quả |
+|---|---|---|
+| 24/11 12:37 | `systemctl hibernate` | thành công |
+| 24/11 16:45 → 17:15 | gập máy, 30 phút sau tự ngủ đông | thành công |
+| 24/11 22:32 | gập máy, 30 phút sau tự ngủ đông | **bỏ dở**: `Error -12 creating image`, quay lại ngủ nhẹ tới sáng |
+| 25/11 06:16 | `systemctl hibernate` | nạp lại RAM được nhưng **GPU không khôi phục**, Hyprland hỏng, phải khởi động lại |
 
-Đã đổi (2026-11-25):
-- `setup/system/logind.conf.d/lid.conf`: `HandleLidSwitch=suspend` (trước là
-  `suspend-then-hibernate`). Cài lên máy bằng `sudo install -m 644` vào
-  `/etc/systemd/logind.conf.d/`, rồi `sudo systemctl kill -s HUP systemd-logind`.
-- `hypr/hypridle.conf`: bước 30 phút khi chạy pin gọi `systemctl suspend` (trước là
-  `suspend-then-hibernate`). Cần khởi động lại hypridle hoặc đăng nhập lại.
-- Giữ nguyên: swapfile, `resume=` trong GRUB, `sleep.conf.d/hibernate.conf`
-  (`HibernateDelaySec` chỉ có tác dụng với `suspend-then-hibernate`).
+Lỗi GPU lúc 06:16 (`amdgpu`, PCI `c4:00.0`, device `0x1114`, khối `gfx_v11_0`):
+```
+amdgpu: MES failed to respond to msg=SET_HW_RSRC_1
+[drm:mes_v11_0_hw_init [amdgpu]] *ERROR* failed mes_v11_0_set_hw_resources_1, r=-110
+amdgpu: resume of IP block <gfx_v11_0> failed -110
+amdgpu: PM: dpm_run_callback(): pci_pm_restore returns -110
+```
+rồi `ring sdma0 timeout`, `MODE2 reset`, `Ring comp_1.2.0 reset failed`. Lúc đó: kernel
+`linux 7.3.5.arch1-1`, `linux-firmware 20261019-1`, `mesa 26.3.1`, `hyprland 0.57.2`.
 
-Bật lại khi nào: khi có `linux` hoặc `linux-firmware` mới, đọc changelog tìm `MES`,
-`gfx11`/`gfx_v11`, `hibernate`/`S4`, `pci_pm_restore`. Nếu có, lưu hết việc đang làm rồi thử
-`systemctl hibernate` **vài lần**, mỗi lần xem
-`journalctl -b -1 -k | grep -iE 'amdgpu|hibernat'` (nếu không khởi động lại thì `-b 0`).
-Ổn thì đổi lại hai chỗ trên và nhớ sửa luôn Lỗi 2.
+### Nguyên nhân (giả thuyết, khớp với mọi lần thử)
 
-### Lỗi 2: zram làm ngủ đông thất bại khi RAM đầy
+1. **zram làm ngủ đông bỏ dở khi RAM bận.** Trước khi ngủ đông kernel phải giải phóng RAM
+   bằng cách đẩy ra swap. zram (`/dev/zram0`, ưu tiên 100) **nằm trong RAM**, nên đẩy vào đó
+   không giải phóng được gì; swapfile trên ổ (ưu tiên -1) không được dùng tới. Lúc 22:32:
+   `Normal pages needed: 1988125 + 1024, available pages: 1850339`.
+2. **Lần bỏ dở làm hỏng lần sau.** Khi bỏ dở, GPU bị đóng băng rồi đánh thức giữa chừng
+   (đường xử lý hiếm gặp). Lần ngủ đông kế tiếp trong cùng lần khởi động thì GPU (firmware MES)
+   không khôi phục được. Hai lần thành công trước đó đều không đi qua lần bỏ dở nào.
 
-- Đêm 2026-11-24 gập máy: 22:02 ngủ nhẹ, 22:32 thử ngủ đông thì lỗi
-  `PM: hibernation: Error -12 creating image` (`Normal pages needed: 1988125 + 1024,
-  available pages: 1850339`), máy quay lại ngủ nhẹ tới sáng.
-- Lý do: trước khi ngủ đông kernel phải giải phóng RAM bằng cách đẩy ra swap, nhưng zram
-  (`/dev/zram0`, ưu tiên 100) **nằm trong RAM**, nên đẩy vào đó không giải phóng được gì.
-  Swapfile trên ổ (`/swap/swapfile`, ưu tiên -1) không được dùng tới.
-- Sáng 2026-11-25 ngủ đông được vì lúc đó máy dùng ít RAM hơn, không phải vì đã sửa.
-- Cách sửa khi bật lại ngủ đông: hook tắt zram trước khi ngủ đông, bật lại sau khi thức dậy
-  (`systemctl stop dev-zram0.swap` / `start`). **Hook phải nằm trong
-  `/usr/lib/systemd/system-sleep/`**: systemd 262 trên máy này không đọc
-  `/etc/systemd/system-sleep/` (kiểm tra bằng
-  `strings /usr/lib/systemd/systemd-sleep | grep system-sleep`). Lần đầu đặt sai chỗ nên hook
-  không hề chạy. Thư mục trong `/usr/lib` thuộc gói, nên nếu đặt hook ở đó thì phải ghi nó vào
-  `setup/install-system-files.sh` để cài lại được.
+Chỉ có một lần lỗi GPU nên chưa chứng minh chắc chắn được ý 2. Nếu lỗi GPU xuất hiện lại mà
+**không** có lần bỏ dở nào trước đó trong cùng lần khởi động, thì GPU có lỗi riêng: khi đó đổi
+`lid.conf` về `HandleLidSwitch=suspend`, bước 30 phút trong `hypridle.conf` về
+`systemctl suspend`, và chờ `linux`/`linux-firmware` mới (đọc changelog tìm `MES`,
+`gfx_v11`, `S4`, `pci_pm_restore`).
+
+### Cách sửa: hook tắt zram trước khi ngủ đông
+
+`setup/system/system-sleep/zram-hibernate`, cài vào `/usr/lib/systemd/system-sleep/`:
+- Trước khi ngủ đông (`pre`, với `hibernate`, `hybrid-sleep`, `suspend-then-hibernate`):
+  `swapoff /dev/zram0`. Dữ liệu trong zram về RAM hoặc xuống swapfile, kernel giải phóng được
+  RAM thật.
+- Sau khi thức dậy (`post`): `systemctl --no-block start dev-zram0.swap`. Không dùng `swapon`:
+  khi zram tắt, systemd dừng luôn `systemd-zram-setup@zram0` và **xoá thiết bị** (kích thước 0),
+  nên phải để systemd tạo lại.
+- Log: `journalctl -b -t zram-hibernate`.
+
+Hai điều dễ sai:
+- **Hook phải nằm trong `/usr/lib/systemd/system-sleep/`.** systemd 262 trên máy này không đọc
+  `/etc/systemd/system-sleep/` (kiểm tra:
+  `strings /usr/lib/systemd/systemd-sleep | grep system-sleep`). Lần đầu đặt ở `/etc` nên hook
+  không hề chạy. Thư mục `/usr/lib/...` thuộc gói systemd nhưng không gói nào sở hữu file này.
+- Thử hook mà không ngủ đông:
+  `sudo /usr/lib/systemd/system-sleep/zram-hibernate pre hibernate`, xem `swapon --show`, rồi
+  `... post hibernate`.
+
+### Thử lại sau khi sửa (2026-11-25, khởi động lại sạch trước khi thử)
+
+| Lần | Tình trạng máy | Hook | Ảnh RAM | GPU |
+|---|---|---|---|---|
+| 12:10 | RAM 2,2 GB, zram trống | zram off (0 KiB) → bật lại | 3,5 GB, tạo trong 0,5 s | không lỗi |
+| 12:16 | RAM đầy (còn 224 MB trống), zram 2,9 GB | zram off (3,4 GB dồn ra) → bật lại | 6,2 GB; cần 1634628 trang, còn 2203698 | không lỗi |
+
+Lần 12:16 khắc nghiệt hơn lần gây `Error -12` mà vẫn thành công. Sau đó bật lại tự ngủ đông
+khi gập máy và khi để không 30 phút lúc chạy pin.
+
+Nếu vẫn thấy lỗi: `journalctl -b -k | grep -E 'hibernation|Error -12|MES failed|pci_pm_restore'`
+và `journalctl -b -t zram-hibernate`.
 
 ---
 

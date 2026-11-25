@@ -547,24 +547,21 @@ Workspaces 1–5 stay on the laptop screen and 6–10 on the first external moni
 | Idle 5 min | the laptop panel dims | `hypr/hypridle.conf` |
 | Idle 10 min | lock (hyprlock) | `hypr/hypridle.conf` |
 | Idle 11 min | screens off | `hypr/hypridle.conf` |
-| Idle 30 min, nothing playing | on battery: suspend; docked (lid closed, external monitor): suspend, so USB keys wake it; plugged in, lid open: stays awake | `hypr/hypridle.conf` |
-| Lid closed | suspend (battery and AC); with an external monitor plugged in: nothing, the monitor stays on | `/etc/systemd/logind.conf.d/lid.conf` (source in `setup/system/`) |
+| Idle 30 min, nothing playing | on battery: suspend, then hibernate 30 min later; docked (lid closed, external monitor): plain suspend so USB keys wake it; plugged in, lid open: stays awake | `hypr/hypridle.conf` |
+| Lid closed | suspend, hibernate after 30 min (battery and AC); with an external monitor plugged in: nothing, the monitor stays on | `/etc/systemd/logind.conf.d/lid.conf`, `/etc/systemd/sleep.conf.d/hibernate.conf` (sources in `setup/system/`) |
 | Caffeine on | none of the above (an inhibitor for idle, sleep and the lid) | `bin/caffeine` |
-
-**Hibernate is off since 2026-11-25.** The AMD GPU (amdgpu, `gfx_v11_0`) failed to resume
-from hibernate ("MES failed to respond", resume failed -110) and broke the Hyprland session,
-so the lid and the idle step use plain suspend again. Don't use `systemctl hibernate` or the
-power menu's Hibernate tile until a kernel or linux-firmware update fixes it. When turning
-it back on, zram also needs a sleep hook in `/usr/lib/systemd/system-sleep/` (systemd here
-does not read `/etc/systemd/system-sleep/`), otherwise hibernate fails with Error -12 when
-RAM is busy. Log lines, versions and the re-enable steps: `docs/sleep.md`.
 
 Hibernate is set up by `setup/enable-hibernate.sh` (asked by `setup-arch.sh`; run as
 `sudo bash setup/enable-hibernate.sh`, safe to run again): a btrfs swapfile in its own
 `@swap` subvolume mounted at `/swap` (size = RAM + 5 GB, low priority so zram stays the
 main swap), `resume=UUID=… resume_offset=…` in `/etc/default/grub`, the `resume` hook after
-`encrypt` in `/etc/mkinitcpio.conf` (not needed with a systemd initramfs), and the two
-systemd files above. It takes a Timeshift snapshot and backs up fstab, grub and
+`encrypt` in `/etc/mkinitcpio.conf` (not needed with a systemd initramfs), the two
+systemd files above, and the sleep hook `/usr/lib/systemd/system-sleep/zram-hibernate`
+(source `setup/system/system-sleep/`). The hook turns zram off before a hibernate and back on
+after: zram lives in RAM, so with it on a busy RAM made the hibernate abort ("Error -12"), and
+on 2026-11-25 the next hibernate after such an abort left the GPU unable to resume. This
+systemd only reads hooks from `/usr/lib/systemd/system-sleep`, not `/etc`. It takes a
+Timeshift snapshot and backs up fstab, grub and
 mkinitcpio.conf (`*.bak-hibernate-<time>`) first. After RAM upgrades: `swapoff
 /swap/swapfile`, delete it, run the script again. Test with `systemctl hibernate`: the
 laptop turns off; on power-on GRUB asks for the LUKS passphrase, then the session comes back

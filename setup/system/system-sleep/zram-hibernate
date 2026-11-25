@@ -1,0 +1,46 @@
+#!/bin/sh
+# zram-hibernate: systemd-sleep hook, installed to /usr/lib/systemd/system-sleep/ by
+# setup/install-system-files.sh (systemd here does not read /etc/systemd/system-sleep/).
+#
+# zram swap lives in RAM. Before a hibernate the kernel frees RAM by swapping out, and with
+# zram (priority 100) first in line that frees nothing: on 2026-11-24 the image could not be
+# created ("Error -12 creating image") and the half-done hibernate was likely what left the
+# GPU unable to resume the next time (docs/sleep.md). So: turn zram off before a hibernate
+# (its pages go back to RAM or to /swap/swapfile), turn it back on after resume.
+# Args from systemd-sleep: $1 = pre|post, $2 = suspend|hibernate|hybrid-sleep|suspend-then-hibernate
+# Output goes to the journal: journalctl -b -t zram-hibernate
+
+DEV=/dev/zram0
+log() { echo "$*" | systemd-cat -t zram-hibernate; }
+
+case "$2" in
+    hibernate|hybrid-sleep|suspend-then-hibernate) ;;
+    *) exit 0 ;;
+esac
+
+case "$1" in
+    pre)
+        if grep -q "^$DEV " /proc/swaps; then
+            used=$(awk -v d="$DEV" '$1 == d { print $4 }' /proc/swaps)
+            if swapoff "$DEV"; then
+                log "pre $2: zram off (had ${used} KiB)"
+            else
+                log "pre $2: swapoff $DEV FAILED, hibernate may fail with Error -12"
+            fi
+        fi
+        ;;
+    post)
+        # swapoff makes systemd stop systemd-zram-setup@zram0, which resets the device (size
+        # 0), so a plain swapon fails. Starting the swap unit recreates zram with the
+        # zram-generator settings. --no-block: don't wait on systemd while it finishes the
+        # sleep job.
+        if ! grep -q "^$DEV " /proc/swaps; then
+            if systemctl --no-block start dev-zram0.swap; then
+                log "post $2: zram start queued (dev-zram0.swap)"
+            else
+                log "post $2: starting dev-zram0.swap FAILED (sudo systemctl start dev-zram0.swap)"
+            fi
+        fi
+        ;;
+esac
+exit 0

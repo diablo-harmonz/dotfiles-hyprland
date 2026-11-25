@@ -163,8 +163,8 @@ if command -v timeshift >/dev/null; then
 fi
 
 # --- Lid config (only once enable-hibernate.sh has run; /etc/default/grub, not
-#     /proc/cmdline: resume= is only live after the next reboot). lid.conf is plain suspend
-#     since 2026-11-25: the AMD GPU failed to resume from hibernate (docs/sleep.md) ---
+#     /proc/cmdline: resume= is only live after the next reboot), plus the zram sleep hook
+#     that keeps hibernate from aborting (docs/sleep.md) ---
 if grep -qE '^GRUB_CMDLINE_LINUX_DEFAULT=.*resume=' /etc/default/grub; then
     changed=0
     for f in logind.conf.d/lid.conf sleep.conf.d/hibernate.conf; do
@@ -176,6 +176,13 @@ if grep -qE '^GRUB_CMDLINE_LINUX_DEFAULT=.*resume=' /etc/default/grub; then
     # HUP = reload logind's config; a restart would end the running session
     [ "$changed" = 0 ] || sudo systemctl kill -s HUP systemd-logind
     echo ":: Lid: $(grep -m1 '^HandleLidSwitch=' "$DIR/system/logind.conf.d/lid.conf")"
+    # zram off before hibernate, back on after (docs/sleep.md). /usr/lib, not /etc: this
+    # systemd only reads /usr/lib/systemd/system-sleep. No package owns this file.
+    hook=/usr/lib/systemd/system-sleep/zram-hibernate
+    if ! cmp -s "$DIR/system/system-sleep/zram-hibernate" "$hook"; then
+        sudo install -D -m 755 "$DIR/system/system-sleep/zram-hibernate" "$hook"
+    fi
+    echo ":: Sleep hook: $hook"
 else
     echo ":: No resume= on the kernel command line, lid hibernate skipped (setup/enable-hibernate.sh)"
 fi
