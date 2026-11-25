@@ -15,6 +15,7 @@ packages=(
     "kitty"
     "swaync"
     "hyprpolkitagent"
+    "fprintd"                   # fingerprint reader (polkit + hyprlock, install-system-files.sh)
     "qt6ct"
     "cliphist"
     "rofi-calc"                 # calculator in rofi (SUPER+=), pulls libqalculate (qalc)

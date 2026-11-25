@@ -1,0 +1,11 @@
+#%PAM-1.0
+# polkit prompts (hyprpolkitagent: KeePassXC Quick Unlock, pkexec...): fingerprint first,
+# then the password. Same as the stock /usr/lib/pam.d/polkit-1 plus the pam_fprintd line.
+# Installed to /etc/pam.d/polkit-1 by setup/install-system-files.sh only when fprintd sees
+# a reader; without a reader or an enrolled finger pam_fprintd steps aside at once.
+# Undo: sudo rm /etc/pam.d/polkit-1
+auth       sufficient   pam_fprintd.so
+auth       include      system-auth
+account    include      system-auth
+password   include      system-auth
+session    include      system-auth

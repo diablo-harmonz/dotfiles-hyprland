@@ -480,6 +480,12 @@ SUPER+L locks; SUPER+CTRL+L repairs a black lock screen (`bin/lock-recover`, the
 stays locked). After changing anything here, press SUPER+L once to check: hyprlock has no
 way to test a config without locking.
 
+Fingerprint: when fprintd finds a reader, `setup/install-system-files.sh` writes
+`hypr/hyprlock-fingerprint.conf` (git-ignored) with `enabled = true`, and hyprlock then takes
+the finger (the power button on the T14) or the password, whichever comes first. The
+packs show the prompt and failures (`$FPRINTPROMPT`, `$FPRINTFAIL`). Enroll fingers with
+`fprintd-enroll`, check with `fprintd-verify`.
+
 ---
 
 ## Key bindings
@@ -602,6 +608,9 @@ installs from `setup/system/`:
 - **faillock**: 5 wrong passwords (lock screen, sudo, login) within 15 minutes lock
   the account for 2 minutes instead of 3 for 10 minutes. hyprlock also ignores Enter on
   an empty field, so the key that wakes the laptop is not a failed attempt.
+- **Fingerprint** (only when fprintd finds a reader): `/etc/pam.d/polkit-1` from
+  `setup/system/pam.d/` tries the finger first, then the password, in polkit prompts
+  (KeePassXC Quick Unlock, pkexec). sudo and the console login keep the password only.
 - **Bluetooth**: bluetoothd runs without its GATT battery plugin, so headsets that report
   0 % over GATT but the real level over HFP (Marshall Major V) show the HFP level,
   forwarded by PipeWire. Logitech devices report through the kernel HID++ driver.
