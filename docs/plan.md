@@ -189,7 +189,7 @@ Thứ tự đã làm trên Manjaro ngày 2026-11-08: Git, Node, Python, Docker, 
 - Test frontend: Firefox (có sẵn) và Chromium (sudo pacman -S chromium)
 - lazygit: sudo pacman -S lazygit, chạy lazygit trong repo; dùng đúng danh tính theo thư mục và bí danh SSH; alias tùy chọn alias lg='lazygit'; push sẽ treo hỏi passphrase nếu chưa nạp khoá vào ssh-agent
 - Snapshot mốc sau bước này: sudo timeshift --create --comments "Đã cài VS Code, Telegram, lazygit" --tags O
-- LibreOffice (làm sau, khi cài Arch thuần): có trong repo chính thức, chạy được trên Hyprland. Cài sudo pacman -S libreoffice-fresh (bản mới nhất) hoặc libreoffice-still (ổn định hơn), chọn một. Giao diện tiếng Việt: libreoffice-fresh-vi; chính tả tiếng Việt: hunspell-vi (tên gói chưa kiểm chứng). Gõ tiếng Việt qua fcitx5 trong LibreOffice chưa thử, cần kiểm tra sau khi cài.
+- LibreOffice: **đã cài 2026-11-25** (libreoffice-still + -vi, hunspell-en_us, hyphen-en, font ttf-liberation/carlito/caladea), có trong setup-arch.sh. Gõ tiếng Việt bằng Lotus lúc đầu bị lỗi: qua Wayland text-input-v3 thì mất hết dấu ở mọi chế độ; chuyển LibreOffice sang module GTK của fcitx5 (GTK_IM_MODULE=fcitx, chỉ cho LibreOffice, bằng bin/libreoffice) thì dấu hiện nhưng Preedit làm mất dấu thanh trên chữ có mũ (ê, â), Surrounding Text làm dính chữ khi gõ dấu cách; Super Smooth (soffice=3, giống kitty) gõ đúng hết. Quy tắc Lotus phải dùng tên chương trình fcitx thấy (soffice), không phải tên tiến trình (soffice.bin): xem bằng busctl --user call org.fcitx.Fcitx5 /controller org.fcitx.Fcitx.Controller1 DebugInfo. Chưa có từ điển chính tả tiếng Việt trong repo chính thức.
 
 ## Công cụ cần cài trên Arch
 

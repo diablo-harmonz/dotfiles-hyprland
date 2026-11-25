@@ -1,0 +1,8 @@
+#!/bin/sh
+# libreoffice: start LibreOffice with fcitx5's GTK input module (D-Bus) instead of Wayland
+# text-input-v3. Over text-input-v3 Lotus could not rewrite what was typed, so Vietnamese
+# marks were lost (2026-11-25). Every LibreOffice launcher runs "libreoffice ...", and
+# ~/.local/bin comes first in PATH, so this covers rofi, Nautilus and the terminal.
+# Lotus mode for it: soffice=3 (Super Smooth) in dotfiles/.config/fcitx5/conf/lotus-app-rules.conf.
+export GTK_IM_MODULE=fcitx
+exec /usr/bin/libreoffice "$@"

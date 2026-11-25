@@ -16,6 +16,13 @@ packages=(
     "swaync"
     "hyprpolkitagent"
     "fprintd"                   # fingerprint reader (polkit + hyprlock, install-system-files.sh)
+    "libreoffice-still"         # office suite; bin/libreoffice fixes Vietnamese typing (Lotus)
+    "libreoffice-still-vi"      # Vietnamese UI
+    "hunspell-en_us"            # English spell check (no Vietnamese dictionary in the repos)
+    "hyphen-en"
+    "ttf-liberation"            # same metrics as Times New Roman, Arial, Courier New
+    "ttf-carlito"               # same metrics as Calibri
+    "ttf-caladea"               # same metrics as Cambria
     "qt6ct"
     "cliphist"
     "rofi-calc"                 # calculator in rofi (SUPER+=), pulls libqalculate (qalc)
