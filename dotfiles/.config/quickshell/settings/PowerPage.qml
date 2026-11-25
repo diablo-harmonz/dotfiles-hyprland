@@ -174,7 +174,7 @@ Page {
         SRow {
             title: "Now"
             Btn { text: "Lock"; onClicked: p.run("loginctl lock-session") }
-            Btn { text: "Sleep"; onClicked: p.run("systemctl suspend") }
+            Btn { text: "Sleep"; onClicked: p.run("\"" + p.bin + "sleep-now\"") }
             Btn { text: "Hibernate"; onClicked: p.run("systemctl hibernate") }
             Btn { text: "Power menu…"; onClicked: { p.run("\"" + p.bin + "power-menu\""); Pal.closeRequested() } }
         }

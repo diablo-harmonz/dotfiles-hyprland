@@ -14,7 +14,7 @@ ICONS="$HOME/.config/rofi/power-icons"
 # label | icon | key | command  (grid order, row by row)
 ITEMS=(
     "Lock|lock|l|loginctl lock-session"
-    "Suspend|suspend|u|systemctl suspend"
+    "Suspend|suspend|u|$HOME/.local/bin/sleep-now"
     "Hibernate|hibernate|h|systemctl hibernate"
     "Shutdown|shutdown|s|systemctl poweroff"
     "Force quit|forcequit|f|setsid -f $HOME/.local/bin/force-quit"

@@ -670,6 +670,7 @@ explains its usage; read it with `head -30 bin/<name>`.
 | `autostart` | Apps started at login: runs `~/.config/autostart` entries (Hyprland does not), list / enable / disable / add / remove for Settings > Startup apps |
 | `control-center` | Control Center panel |
 | `power-menu`, `force-quit` | Power menu; close everything outside workspace 1 |
+| `sleep-now` | Sleep like closing the lid: suspend-then-hibernate on battery (hibernates after 30 min), plain suspend on AC; power menu Suspend, Settings > Power Sleep |
 | `theme` | Switch theme packs (`theme apply NAME`, `theme grub`, `theme list-tsv`) |
 | `tokens` | Write the design tokens (`tokens show` lists them) |
 | `colors` | Where Matugen starts from (`status`, `set`, `auto`, `apply`, `candidates`; no argument: Settings > Appearance) |

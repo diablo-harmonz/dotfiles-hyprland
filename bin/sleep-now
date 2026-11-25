@@ -1,0 +1,9 @@
+#!/bin/sh
+# sleep-now: put the laptop to sleep the same way closing the lid does.
+# On battery: suspend-then-hibernate (hibernates after HibernateDelaySec, 30 min, see
+# /etc/systemd/sleep.conf.d/hibernate.conf), so a sleeping laptop does not drain the battery.
+# On AC: plain suspend. Used by the power menu (Suspend) and Settings > Power (Sleep).
+if [ "$(cat /sys/class/power_supply/AC/online 2>/dev/null)" = 0 ]; then
+    exec systemctl suspend-then-hibernate
+fi
+exec systemctl suspend
