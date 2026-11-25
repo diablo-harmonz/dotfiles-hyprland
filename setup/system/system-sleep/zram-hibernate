@@ -32,11 +32,18 @@ case "$1" in
     post)
         # swapoff makes systemd stop systemd-zram-setup@zram0, which resets the device (size
         # 0), so a plain swapon fails. Starting the swap unit recreates zram with the
-        # zram-generator settings. --no-block: don't wait on systemd while it finishes the
-        # sleep job.
+        # zram-generator settings.
+        # With suspend-then-hibernate, systemd 262 runs "post" after the suspend part and
+        # then goes straight on to hibernate, with no second "pre". On 2026-11-25 a plain
+        # `systemctl --no-block start` brought zram back up during the hibernate itself;
+        # that resume failed and the session was lost. So the start runs in a transient
+        # unit ordered after the sleep service: it waits until the whole sleep has finished.
         if ! grep -q "^$DEV " /proc/swaps; then
-            if systemctl --no-block start dev-zram0.swap; then
-                log "post $2: zram start queued (dev-zram0.swap)"
+            if systemd-run --no-block --quiet --unit="zram-after-sleep-$$" \
+                -p After=systemd-suspend-then-hibernate.service \
+                -p After=systemd-hibernate.service -p After=systemd-hybrid-sleep.service \
+                systemctl start dev-zram0.swap; then
+                log "post $2: zram start queued until the sleep has finished (dev-zram0.swap)"
             else
                 log "post $2: starting dev-zram0.swap FAILED (sudo systemctl start dev-zram0.swap)"
             fi
