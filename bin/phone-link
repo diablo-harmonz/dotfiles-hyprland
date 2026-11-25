@@ -1,0 +1,232 @@
+#!/usr/bin/env bash
+# phone-link: hand a file to the phone over Wi-Fi, no app or cloud in between (Fn+F11).
+#   phone-link          open the menu in a floating terminal (class "phone-link", size in
+#                       hypr/conf/windowrules.lua); pressed again it closes the window
+#   phone-link menu     the menu itself (runs inside that terminal)
+# Apps are registered as files in ~/.config/phone-link/apps/<id>.conf (see keepass.conf);
+# a new app is one more file there. On first use the menu asks for the file path and
+# keeps it in ~/.local/state/phone-link/<id>.path.
+# Sharing: a small web server on the Wi-Fi address, a random token in the URL, shown as a
+# QR code. The firewall (/etc/nftables.conf drops everything inbound) gets one rule for
+# the local subnet and this port only, added through pkexec (fingerprint) and removed
+# when sharing stops, also when the window is closed. Stops on Enter or after 10 minutes.
+set -uo pipefail
+
+APPS="$HOME/.config/phone-link/apps"
+STATE="$HOME/.local/state/phone-link"
+PORT="${PHONE_LINK_PORT:-8765}"
+TIMEOUT=600
+CLASS=phone-link
+
+die() { printf '\n  %s\n\n  Press Enter to close.' "$*"; read -r _; exit 1; }
+
+# --- Window -----------------------------------------------------------------------------
+if [ "${1:-}" != menu ]; then
+    if pgrep -f "kitty --class $CLASS" >/dev/null; then
+        pkill -f "kitty --class $CLASS"
+    else
+        setsid -f kitty --class "$CLASS" --title "Phone link" "$0" menu >/dev/null 2>&1
+    fi
+    exit 0
+fi
+
+# --- Menu -------------------------------------------------------------------------------
+mkdir -p "$STATE"
+
+# "id<TAB>label<TAB>path or (not set up)" for each registered app
+list_apps() {
+    local conf id label file
+    for conf in "$APPS"/*.conf; do
+        [ -f "$conf" ] || continue
+        id=$(basename "$conf" .conf)
+        label=$(label=""; . "$conf"; echo "$label")
+        if [ -f "$STATE/$id.path" ]; then
+            file=$(cat "$STATE/$id.path")
+            printf '%s\t%s\t%s\n' "$id" "$label" "${file/#$HOME/\~}"
+        else
+            printf '%s\t%s\t%s\n' "$id" "$label" "(first use: set up)"
+        fi
+    done
+}
+
+# First use: ask for the path (default from the conf), keep it
+setup_app() {
+    local id=$1 label="" file="" upload="" path
+    . "$APPS/$id.conf"
+    printf '\n  Set up: %s\n\n' "$label"
+    read -r -e -p "  File to share [${file/#$HOME/\~}]: " -i "" path
+    path=${path:-$file}
+    path=${path/#\~/$HOME}
+    [ -f "$path" ] || die "Not found: $path"
+    realpath -- "$path" > "$STATE/$id.path"
+    printf '  Saved. Next time it is shared right away.\n'
+}
+
+apps=$(list_apps)
+[ -n "$apps" ] || die "No apps registered in ${APPS/#$HOME/\~}"
+
+choice=$(printf '%s\n' "$apps" | fzf --delimiter='\t' --with-nth=2,3 --reverse \
+    --header='Share with the phone   Enter: share   Ctrl+E: change the file   Esc: close' \
+    --expect=ctrl-e --no-info --prompt='  ') || exit 0
+key=$(sed -n 1p <<<"$choice")
+id=$(sed -n 2p <<<"$choice" | cut -f1)
+[ -n "$id" ] || exit 0
+
+if [ "$key" = ctrl-e ] || [ ! -f "$STATE/$id.path" ]; then
+    setup_app "$id"
+fi
+
+label="" upload=""
+. "$APPS/$id.conf"
+file=$(cat "$STATE/$id.path")
+[ -f "$file" ] || die "The file is gone: $file (Ctrl+E in the menu to pick it again)"
+
+# --- Network ----------------------------------------------------------------------------
+read -r dev ip < <(ip -4 -o route get 1.1.1.1 2>/dev/null |
+    awk '{ for (i = 1; i < NF; i++) { if ($i == "dev") d = $(i+1); if ($i == "src") s = $(i+1) } } END { print d, s }')
+[ -n "${ip:-}" ] || die "No network: connect to the same Wi-Fi as the phone first."
+cidr=$(ip -4 -o addr show dev "$dev" | awk -v ip="$ip" '{ split($4, a, "/"); if (a[1] == ip) print $4 }')
+net=$(python3 -I -c 'import ipaddress, sys; print(ipaddress.ip_interface(sys.argv[1]).network)' "$cidr")
+token=$(python3 -I -c 'import secrets; print(secrets.token_urlsafe(12))')
+url="http://$ip:$PORT/$token/"
+
+# --- Firewall ---------------------------------------------------------------------------
+# One root shell holds the rule: it adds it, prints "open", then waits on its stdin. When
+# this script ends in any way (Enter, timeout, window closed, killed) the pipe closes and
+# it removes the rule. It ignores HUP/INT so closing the window cannot skip that.
+fw_script='
+trap "" HUP INT
+if ! nft list table inet firewall >/dev/null 2>&1; then echo nofw; cat >/dev/null; exit 0; fi
+h=$(nft --echo --handle insert rule inet firewall input ip saddr "$1" tcp dport "$2" accept comment "\"phone-link\"" |
+    sed -n "s/.*# handle \([0-9]*\).*/\1/p")
+[ -n "$h" ] || h=$(nft --handle list chain inet firewall input | sed -n "/phone-link/s/.*# handle \([0-9]*\).*/\1/p" | head -n1)
+[ -n "$h" ] || { echo fail; exit 1; }
+echo open
+cat >/dev/null
+nft delete rule inet firewall input handle "$h" && echo closed
+'
+printf '\n  Opening port %s for %s (touch the fingerprint reader or type your password)…\n' "$PORT" "$net"
+coproc FW { pkexec sh -c "$fw_script" sh "$net" "$PORT" 2>&1; }
+read -r fw_state <&"${FW[0]}"
+case "$fw_state" in
+    open) ;;
+    nofw) printf '  No firewall table loaded, nothing to open.\n' ;;
+    *)    die "Could not open the port (${fw_state:-cancelled})." ;;
+esac
+
+# --- Server -----------------------------------------------------------------------------
+server='
+import html, http.server, os, sys, time, urllib.parse
+
+ip, port, token, path, upload = sys.argv[1], int(sys.argv[2]), sys.argv[3], sys.argv[4], sys.argv[5] == "yes"
+name = os.path.basename(path)
+base = "/" + token + "/"
+MAX_UPLOAD = 200 * 1024 * 1024
+
+PAGE = """<!doctype html><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>Phone link</title>
+<style>body{font:17px system-ui;margin:2em auto;max-width:28em;padding:0 1em}
+a,button,label{display:block;padding:.9em;margin:.8em 0;border-radius:.6em;text-align:center;
+background:#2b6cb0;color:#fff;text-decoration:none;font-size:1em;border:0;width:100%%;box-sizing:border-box}
+label{background:#4a5568}small{color:#666}</style>
+<h2>%(label)s</h2>
+<a href="%(base)sfile" download="%(name)s">Download %(name)s</a>
+<small>%(size)s, changed %(mtime)s</small>
+%(upload)s"""
+
+UPLOAD = """<label>Send a copy back<input type=file id=f hidden></label>
+<small id=s>Saved next to the original as a new file; it is never replaced.</small>
+<script>
+f.onchange = async () => {
+  const file = f.files[0]; if (!file) return;
+  s.textContent = "Sending…";
+  const r = await fetch("%(base)supload/" + encodeURIComponent(file.name), {method: "PUT", body: file});
+  s.textContent = r.ok ? "Sent: " + await r.text() : "Failed: " + r.status;
+};
+</script>"""
+
+class H(http.server.BaseHTTPRequestHandler):
+    def log_message(self, fmt, *args):
+        print("  " + time.strftime("%H:%M:%S") + "  " + self.client_address[0] + "  " + (fmt % args), flush=True)
+
+    def send(self, code, body, ctype="text/plain; charset=utf-8", extra=()):
+        data = body.encode() if isinstance(body, str) else body
+        self.send_response(code)
+        self.send_header("Content-Type", ctype)
+        self.send_header("Content-Length", str(len(data)))
+        self.send_header("Cache-Control", "no-store")
+        for k, v in extra:
+            self.send_header(k, v)
+        self.end_headers()
+        self.wfile.write(data)
+
+    def do_GET(self):
+        if self.path == base:
+            st = os.stat(path)
+            self.send(200, PAGE % {
+                "label": html.escape(os.environ.get("LABEL", "")), "base": base,
+                "name": html.escape(name), "size": "%.1f MB" % (st.st_size / 1e6) if st.st_size > 1e5 else "%d KB" % (st.st_size // 1000),
+                "mtime": time.strftime("%Y-%m-%d %H:%M", time.localtime(st.st_mtime)),
+                "upload": UPLOAD % {"base": base} if upload else ""}, "text/html; charset=utf-8")
+        elif self.path == base + "file":
+            with open(path, "rb") as fh:
+                data = fh.read()
+            self.send(200, data, "application/octet-stream",
+                      [("Content-Disposition", "attachment; filename*=UTF-8\x27\x27" + urllib.parse.quote(name))])
+        else:
+            self.send(404, "Not found")
+
+    def do_PUT(self):
+        if not upload or not self.path.startswith(base + "upload/"):
+            return self.send(404, "Not found")
+        length = int(self.headers.get("Content-Length") or 0)
+        if not 0 < length <= MAX_UPLOAD:
+            return self.send(413, "Too large or empty")
+        stem, ext = os.path.splitext(name)
+        dest = os.path.join(os.path.dirname(path), "%s-phone-%s%s" % (stem, time.strftime("%Y%m%d-%H%M%S"), ext))
+        data = self.rfile.read(length)
+        with open(dest, "xb") as fh:
+            fh.write(data)
+        print("  received " + dest, flush=True)
+        self.send(200, os.path.basename(dest))
+
+class Server(http.server.ThreadingHTTPServer):
+    # Safari opens spare connections and drops them (reset by peer): not an error
+    def handle_error(self, request, client_address):
+        if not isinstance(sys.exc_info()[1], (ConnectionError, TimeoutError)):
+            super().handle_error(request, client_address)
+
+Server((ip, port), H).serve_forever()
+'
+LABEL="$label" python3 -I -c "$server" "$ip" "$PORT" "$token" "$file" "${upload:-no}" &
+srv=$!
+trap 'kill "$srv" 2>/dev/null' EXIT
+sleep 0.3
+kill -0 "$srv" 2>/dev/null || die "The server did not start (port $PORT busy?)."
+
+clear
+printf '\n  %s: %s\n\n' "$label" "${file/#$HOME/\~}"
+qrencode -t ansiutf8 -m 2 "$url" | sed 's/^/  /'
+printf '\n  Scan with the iPhone camera, or open %s\n' "$url"
+[ "${upload:-no}" = yes ] && printf '  Copies sent back from the phone land next to the file as *-phone-<date>.\n'
+printf '\n  Enter: stop sharing (stops by itself after %d minutes)\n\n' $((TIMEOUT / 60))
+read -r -t "$TIMEOUT" _
+
+# Stop the server, then close the root shell's stdin so it removes the rule, and wait for it
+kill "$srv" 2>/dev/null
+if [ "$fw_state" = open ]; then
+    fw_out=${FW[0]} fw_in=${FW[1]}
+    exec {fw_in}>&-
+    read -r -t 10 fw_done <&"$fw_out"
+    if [ "${fw_done:-}" = closed ]; then
+        printf '  Stopped, port %s closed.\n' "$PORT"
+    else
+        printf '  Stopped, but the port may still be open: sudo systemctl restart nftables\n'
+        read -r -p '  Press Enter to close.' _
+        exit 1
+    fi
+else
+    printf '  Stopped.\n'
+fi
+sleep 2

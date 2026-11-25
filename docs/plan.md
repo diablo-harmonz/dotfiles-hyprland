@@ -111,7 +111,7 @@ Thay SSD hoặc nâng RAM là tùy chọn, không bắt buộc để cài. Đã 
 | Fn+F8 (Mode) | Không gửi gì | Firmware tự đổi chế độ nguồn (low-power, balanced, performance); bin/powermode-notify hiện thông báo mỗi lần đổi |
 | Fn+F9 (PrtSc) | Print | Chụp toàn màn hình |
 | Fn+F10 | XF86SelectiveScreenshot | Chọn vùng rồi chụp |
-| Fn+F11 | code:248 (NoSymbol) | Phóng toàn màn hình cửa sổ đang dùng (giống Super+F); kernel báo unhandled HKEY 0x1320 nhưng bind theo keycode vẫn chạy |
+| Fn+F11 | code:248 (NoSymbol) | bin/phone-link: menu chia sẻ file sang điện thoại qua Wi-Fi bằng mã QR, KeePass là mục đầu tiên (2026-11-25; trước đó là toàn màn hình, nay chỉ còn Super+F); kernel báo unhandled HKEY 0x1320 nhưng bind theo keycode vẫn chạy |
 | Fn+F12 (ngôi sao) | XF86Favorites | Mở rofi |
 | Phím Fn | XF86WakeUp | Không bind |
 

@@ -60,10 +60,11 @@ hl.bind("XF86Refresh",           exec("wtype -k F5"))
 hl.bind("XF86SelectiveScreenshot", exec("~/.local/bin/screenshot area"))  -- Fn+F10: select a region -> file + clipboard
 hl.bind("XF86Favorites",         exec("~/.local/bin/launcher"))              -- Fn+F12 (star): launcher
 hl.bind("XF86Display",           exec("~/.local/bin/display-toggle"))        -- Fn+F7: cycle external monitor mirror -> extended -> off
--- F11 hotkey (phone icon): fullscreen the active window. Newer kernels send it as
--- KEY_LINK_PHONE (XF86LinkPhone); older ones had no keysym for it (keycode 248)
-hl.bind("XF86LinkPhone",         hl.dsp.window.fullscreen())
-hl.bind("code:248",              hl.dsp.window.fullscreen())
+-- F11 hotkey (phone icon): share a file with the phone over Wi-Fi (bin/phone-link, QR code);
+-- again closes it. Newer kernels send it as KEY_LINK_PHONE (XF86LinkPhone); older ones had
+-- no keysym for it (keycode 248)
+hl.bind("XF86LinkPhone",         exec("~/.local/bin/phone-link"))
+hl.bind("code:248",              exec("~/.local/bin/phone-link"))
 -- Media keys also work on the lock screen (hyprlock shows the song: bin/lock-media)
 hl.bind("XF86AudioPlay",         exec("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioNext",         exec("playerctl next"), { locked = true })

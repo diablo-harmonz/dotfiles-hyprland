@@ -52,6 +52,16 @@ hl.window_rule({
     center = true,
 })
 
+-- Phone link (bin/phone-link, Fn+F11): menu and QR code in a floating terminal
+hl.window_rule({
+    name  = "phone-link",
+    match = { class = "^(phone-link)$" },
+
+    float  = true,
+    size   = "640 720",
+    center = true,
+})
+
 -- yt-x videos (mpv started with --wayland-app-id=mpv-pip in yt-x/config): small floating
 -- window in the bottom-right corner, pinned to every workspace (picture-in-picture).
 -- SUPER+F for full screen, SUPER+O to unpin.

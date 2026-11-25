@@ -86,6 +86,7 @@ packages=(
     "ffmpegthumbnailer"
     "fd"
     "fzf"
+    "qrencode"
     "zoxide"
     "eza"
     "navi"

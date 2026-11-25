@@ -518,7 +518,8 @@ SUPER).
 | SUPER + M | Exit Hyprland |
 | SUPER + T | Toggle floating |
 | SUPER + O | Pin a floating window to every workspace (picture-in-picture), press again to unpin |
-| SUPER + F | Fullscreen (also Fn+F11) |
+| SUPER + F | Fullscreen |
+| Fn + F11 | Phone link: share a file (KeePass database) with the phone by QR code |
 | SUPER + P / SUPER + J | Pseudotile / toggle split (dwindle) |
 | SUPER + arrows | Move focus; two arrows together (e.g. up + right) focus the floating window in that screen corner |
 | SUPER + SHIFT + arrows | Move the window: floating glides while held, speeding up (two arrows: diagonal), tiled swaps with the neighbour |
