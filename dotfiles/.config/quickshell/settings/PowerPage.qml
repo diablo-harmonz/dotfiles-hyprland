@@ -1,6 +1,7 @@
-// Battery: charge, time left, health and power draw (UPower), power mode
-// (power-profiles-daemon), the charge limit (bin/battery-mode, asks for the password),
-// Caffeine, and what lid / idle do (lid -> sleep -> hibernate after HibernateDelaySec).
+// Battery: charge, time left and power draw (UPower), health and charge cycles (sysfs:
+// UPower reports no health on this ThinkPad), power mode (power-profiles-daemon), the charge
+// limit (bin/battery-mode, asks for the password), Caffeine, and what lid / idle do
+// (HandleLidSwitch from /etc/systemd/logind.conf.d; hibernate delay only when it is used).
 import QtQuick
 import Quickshell
 import Quickshell.Io
@@ -16,6 +17,11 @@ Page {
     property string chargeMode: ""        // care / full (bin/battery-mode)
     property bool caffeine: false
     property string hibernateDelay: ""
+    property string lidAction: ""         // HandleLidSwitch, e.g. suspend
+    property int cycles: -1               // /sys/class/power_supply/BAT*/cycle_count
+    property real energyFull: 0           // Wh now (energy_full)
+    property real energyDesign: 0         // Wh when new (energy_full_design)
+    readonly property int healthPct: energyDesign > 0 ? Math.min(100, Math.round(energyFull / energyDesign * 100)) : -1
     readonly property string bin: Quickshell.env("HOME") + "/.local/bin/"
 
     function run(cmd) { Quickshell.execDetached(["sh", "-c", cmd]) }
@@ -44,7 +50,10 @@ Page {
         command: ["sh", "-c",
             "printf 'C %s\\n' \"$(\"$HOME/.local/bin/battery-mode\" status | jq -r .class)\";" +
             "printf 'F %s\\n' \"$(\"$HOME/.local/bin/caffeine\" status | jq -r .class)\";" +
-            "printf 'H %s\\n' \"$(grep -hs '^HibernateDelaySec=' /etc/systemd/sleep.conf.d/*.conf | tail -1 | cut -d= -f2)\""]
+            "printf 'H %s\\n' \"$(grep -hs '^HibernateDelaySec=' /etc/systemd/sleep.conf.d/*.conf | tail -1 | cut -d= -f2)\";" +
+            "printf 'L %s\\n' \"$(grep -hs '^HandleLidSwitch=' /etc/systemd/logind.conf.d/*.conf | tail -1 | cut -d= -f2)\";" +
+            "b=$(ls -d /sys/class/power_supply/BAT* 2>/dev/null | head -1);" +
+            "[ -n \"$b\" ] && printf 'Y %s\\nE %s %s\\n' \"$(cat $b/cycle_count 2>/dev/null)\" \"$(cat $b/energy_full 2>/dev/null)\" \"$(cat $b/energy_full_design 2>/dev/null)\""]
         stdout: StdioCollector {
             onStreamFinished: {
                 for (const line of text.split("\n")) {
@@ -52,6 +61,13 @@ Page {
                     if (k === "C") p.chargeMode = v
                     else if (k === "F") p.caffeine = (v === "on")
                     else if (k === "H") p.hibernateDelay = v
+                    else if (k === "L") p.lidAction = v
+                    else if (k === "Y") p.cycles = /^\d+$/.test(v) ? parseInt(v) : -1
+                    else if (k === "E") {
+                        const e = v.split(" ")           // µWh
+                        p.energyFull = (parseInt(e[0]) || 0) / 1e6
+                        p.energyDesign = (parseInt(e[1]) || 0) / 1e6
+                    }
                 }
             }
         }
@@ -77,11 +93,20 @@ Page {
             }
         }
         SRow {
-            visible: p.bat !== null && p.bat.healthSupported
+            visible: p.healthPct >= 0
             icon: ""; title: "Battery health"
-            subtitle: "Capacity compared with when it was new"
+            subtitle: "Holds " + p.energyFull.toFixed(1) + " Wh, " + p.energyDesign.toFixed(1) + " Wh when new"
             Text {
-                text: p.bat ? Math.round(p.bat.healthPercentage) + " %" : ""
+                text: p.healthPct + " %"
+                color: Pal.text; font.family: Pal.font; font.pixelSize: Pal.fs
+            }
+        }
+        SRow {
+            visible: p.cycles >= 0
+            icon: ""; title: "Charge cycles"
+            subtitle: "One cycle = 100 % of the capacity used; partial charges add up"
+            Text {
+                text: p.cycles
                 color: Pal.text; font.family: Pal.font; font.pixelSize: Pal.fs
             }
         }
@@ -136,7 +161,11 @@ Page {
         footer: "Changing these needs editing hypridle.conf and /etc/systemd (see docs/sleep.md)."
         SRow {
             icon: ""; title: "Closing the lid"
-            subtitle: p.hibernateDelay ? "Sleeps, then hibernates after " + p.hibernateDelay : "Sleeps"
+            subtitle: p.lidAction === "suspend-then-hibernate" && p.hibernateDelay
+                      ? "Sleeps, then hibernates after " + p.hibernateDelay
+                      : p.lidAction === "hibernate" ? "Hibernates"
+                      : p.lidAction === "ignore" ? "Does nothing"
+                      : "Sleeps"
         }
         SRow {
             icon: ""; title: "When idle"
