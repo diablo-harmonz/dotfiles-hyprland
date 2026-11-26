@@ -167,10 +167,51 @@ battery-mode <mode>
 
 $ mode: echo -e "care\nfull"
 
-% network, firewall, docker
+% wifi, network, offline, internet
 
-# Wi-Fi networks (also the Wi-Fi icon on Waybar)
+# Wi-Fi in a menu: pick a network, type the password (also Settings > Wi-Fi)
 nmtui connect
+
+# Wi-Fi and network status (connected? which device?)
+nmcli device status
+
+# Scan and list the Wi-Fi networks around
+nmcli device wifi list --rescan yes
+
+# Connect to a Wi-Fi network (asks for the password; it is saved for next time)
+nmcli --ask device wifi connect "<ssid>"
+
+# Reconnect to a saved network
+nmcli connection up "<saved>"
+
+# Forget a saved network
+nmcli connection delete "<saved>"
+
+# Wi-Fi radio off and on again (first thing to try when it is stuck)
+nmcli radio wifi off; sleep 2; nmcli radio wifi on
+
+# Restart NetworkManager (when the radio off/on did not help)
+sudo systemctl restart NetworkManager
+
+# Reload the Wi-Fi driver (MediaTek mt7925e; e.g. stuck after sleep or hibernate)
+sudo modprobe -r mt7925e && sudo modprobe mt7925e
+
+# Is the internet up? (IP, then DNS)
+ping -c 3 1.1.1.1; getent hosts archlinux.org
+
+# My IP addresses
+ip -4 -br addr
+
+# Hotel / café login page that does not show up: open a plain http site
+xdg-open http://neverssl.com
+
+# Network logs since this boot (Wi-Fi problems)
+journalctl -b -u NetworkManager -u wpa_supplicant --no-pager | tail -50
+
+$ ssid: nmcli -t -f SSID device wifi list --rescan yes | grep -v '^$' | sort -u
+$ saved: nmcli -t -f NAME,TYPE connection show | awk -F: '$2 ~ /wireless/ { print $1 }'
+
+% network, firewall, docker
 
 # Firewall rules
 sudo nft list table inet firewall
