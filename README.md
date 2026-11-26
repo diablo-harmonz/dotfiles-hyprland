@@ -36,7 +36,7 @@ This README is meant to be enough to understand and change everything by hand. S
 
 | Path | Contents |
 |---|---|
-| `dotfiles/.config/<app>/` | One folder per app, each linked whole to `~/.config/<app>`: btop, cava, control-center, fastfetch, fcitx5, firefox-chrome, hypr, kitty, matugen, ml4w (two small helper scripts kept from upstream), mpd, mpv, navi, nvim, pacman, quickshell, rmpc, rofi, swaync, waybar, yazi, yt-dlp, yt-x, zsh |
+| `dotfiles/.config/<app>/` | One folder per app, each linked whole to `~/.config/<app>`: btop, cava, fastfetch, fcitx5, firefox-chrome, hypr, kitty, matugen, ml4w (two small helper scripts kept from upstream), mpd, mpv, navi, nvim, pacman, quickshell, rmpc, rofi, swaync, waybar, yazi, yt-dlp, yt-x, zsh |
 | `dotfiles/.zshrc`, `dotfiles/.zprofile` | zsh config; `.zprofile` starts Hyprland after a TTY1 login |
 | `dotfiles/icons/` | Dot-matrix icons of the volume / brightness / mic popup (`bin/osd`) |
 | `dotfiles/applications/` | Desktop entries for terminal apps (rmpc, yt-x) |
@@ -188,7 +188,7 @@ logo works the same way: put a picture named `logo.*` in `fastfetch/` of that re
 to `~/Pictures/fastfetch`) and fastfetch shows it in kitty instead of the distro logo.
 
 After each change Matugen (`dotfiles/.config/matugen/config.toml`, one `[templates.X]` block
-per app) writes matching colors for rofi, Waybar, kitty, the Control Center, the Settings
+per app) writes matching colors for rofi, Waybar, kitty, the Settings
 panel, the Hyprland borders, hyprlock, GTK 3, GTK 4, swaync, Qt (qt6ct), KDE apps, Firefox,
 yazi, cava, btop, rmpc, yt-x, navi and the zsh command colors. Some templates have a
 `post_hook` that reloads the app (kitty, swaync). Waybar picks up its new colors by itself
@@ -277,7 +277,7 @@ it comes from. Who reads what:
 | Output | Used by | How |
 |---|---|---|
 | `tokens.rasi` | every rofi menu | `@import` it, then `border-radius: @radius-lg; border: @border-w; font: @font-ui;` (`@border-w solid` does **not** parse in rofi) |
-| `tokens.css` | Control Center, swaync, screenshot preview (GTK 4) | `@import url("../theme-tokens/tokens.css");` then `var(--radius-lg)`, `alpha(@color, var(--panel-alpha))` |
+| `tokens.css` | swaync, screenshot preview (GTK 4) | `@import url("../theme-tokens/tokens.css");` then `var(--radius-lg)`, `alpha(@color, var(--panel-alpha))` |
 | `tokens.json` | Quickshell: Settings, wallpaper picker | `shared/Tokens.qml` reads it (each config has a `Tokens.qml` link to it) |
 | `tokens.env` | Waybar (GTK 3 has no CSS variables) | `waybar-launch` fills the double-braced keys in `waybar/style.in.css` |
 | `tokens.lua` | Hyprland | `hypr/conf/decoration.lua`: `rounding = tokens.radius_lg` |
@@ -315,7 +315,6 @@ tokens yet. Round things (`99px`, `width / 2`) are shapes, not radii.
 | Bar | Waybar, minimal like macOS (see [Waybar](#waybar)) |
 | Launcher, menus | rofi 2 (Wayland), Spotlight-style launcher with web search; power menu, Force quit dialog, clipboard, calculator, timer, capture toolbar |
 | Settings | Quickshell panel, macOS System Settings style (see [Settings panel](#settings-panel)) |
-| Control Center | GTK 4 + layer-shell panel from the Waybar icon (`bin/control-center`) |
 | Terminal | kitty (its image protocol keeps transparency for pictures in terminal apps) |
 | Shell | zsh with powerlevel10k, autosuggestions, syntax highlighting, history substring search |
 | Notifications, OSD | swaync: compact translucent cards; OSD popups for volume, mic and brightness (`bin/osd`) |
@@ -352,7 +351,7 @@ The full package list is the `packages` array in `setup/setup-arch.sh`.
 Modules, left to right: launcher (left click: launcher, middle click: wallpaper picker), the
 active app's name, CPU / RAM (`bin/sysinfo-bar`); workspaces; the recording stop button and
 timer countdown (only while one runs), tray + Wi-Fi + battery (`group/status`), the Settings
-gear, the Control Center icon, the notification bell (right click: Do Not Disturb), the
+gear, the notification bell (now playing and Do Not Disturb inside; right click: Do Not Disturb), the
 clock (click: notifications), the power button.
 
 Restart it with SUPER+SHIFT+B or `waybar-launch` (needed after editing `style.in.css` or
@@ -386,7 +385,7 @@ acts on the focused window instead).
 
 ### Settings panel
 
-`bin/settings` (SUPER+comma, the Waybar gear, rows in the Control Center): a Quickshell
+`bin/settings` (SUPER+comma, the Waybar gear): a Quickshell
 panel in `dotfiles/.config/quickshell/settings/`. It starts on demand and quits when
 closed; running `settings` again (or Esc, or a click outside) closes it. `settings
 SECTION` opens a section: general, network, bluetooth, sound, display, power, storage,
@@ -443,16 +442,6 @@ How it is built:
   `Pal.navigate(key)`; `Pal.open` is true while it is on screen (polling timers use it).
 - `QS_SELFTEST=1 qs -n -c settings` loads every section without a window and logs
   `SELFTEST <section> ok|error|timeout` (used by `dotfiles-verify`).
-
-### Control Center
-
-`bin/control-center` (Python, GTK 4 + gtk4-layer-shell; the Waybar icon): Wi-Fi and
-Bluetooth switches (their names open the Settings section), Do Not Disturb, Caffeine, now
-playing (x stops the player), brightness and volume sliders ("Sound" opens Settings >
-Sound), and small tiles: charge limit, power mode, record, screenshot, wallpaper, lock,
-notifications, power menu. Look: `dotfiles/.config/control-center/style.css` with
-`colors.css` (Matugen) and the tokens. It is started with `LD_PRELOAD` of the layer-shell
-library (the library must load before libwayland); its children do not inherit it.
 
 ### Notifications and OSD
 
@@ -646,8 +635,8 @@ execute a file inside `$HOME`. Each runs after the transaction, prints `:: … O
 - every rofi theme parses (as `-theme`: loaded as `-config`, rofi skips a broken theme silently);
 - the Waybar config (with the pack's `waybar.json`) is valid JSON and the filled style
   (`waybar-launch --render-style FILE`) parses as GTK 3 CSS;
-- the GTK 4 styles of the Control Center, swaync and the screenshot preview parse;
-- `bin/control-center` and `bin/screenshot-preview` compile and find GTK 4 and gtk4-layer-shell;
+- the GTK 4 styles of swaync and the screenshot preview parse;
+- `bin/screenshot-preview` compiles and finds GTK 4 and gtk4-layer-shell;
 - kitty reads its config without complaints;
 - Settings loads every section and the wallpaper picker loads (`QS_SELFTEST=1`, no window;
   needs the Wayland session, skipped from a TTY: run it after logging in);
@@ -669,7 +658,6 @@ explains its usage; read it with `head -30 bin/<name>`.
 | `launcher`, `web-search` | Spotlight-style launcher; its web part (`web-search "text"` opens it directly) |
 | `settings` | Settings panel (`settings SECTION`) |
 | `autostart` | Apps started at login: runs `~/.config/autostart` entries (Hyprland does not), list / enable / disable / add / remove for Settings > Startup apps |
-| `control-center` | Control Center panel |
 | `power-menu`, `force-quit` | Power menu; close everything outside workspace 1 |
 | `sleep-now` | Sleep like closing the lid: suspend-then-hibernate on battery (hibernates after 30 min), plain suspend on AC; power menu Suspend, Settings > Power Sleep |
 | `theme` | Switch theme packs (`theme apply NAME`, `theme grub`, `theme list-tsv`) |
@@ -716,7 +704,7 @@ change. Commit when it works.
    theme).
 2. `tokens` (writes `~/.config/theme-tokens/`), then apply: `waybar-launch` (bar), SUPER+CTRL+R
    (window corners), `colors apply` (swaync and the rest reload with new colors). rofi,
-   Settings, the Control Center and kitty read the tokens the next time they open.
+   Settings and kitty read the tokens the next time they open.
 3. `dotfiles-verify`.
 
 ### Make a new theme pack

@@ -14,7 +14,7 @@ các file liên quan và cách xử lý khi có sự cố.
 
 ## Quy tắc: cập nhật cuối tuần, trong tuần chỉ làm việc
 
-Phần tuỳ biến của máy này chủ yếu là **giao diện** (Waybar, Control Center, thông báo, màn
+Phần tuỳ biến của máy này chủ yếu là **giao diện** (Waybar, Settings, thông báo, màn
 khoá, menu nguồn, rmpc, màu Matugen…); phần lõi (kernel, mạng, âm thanh, ổ đĩa mã hoá) gần
 như mặc định. Hỏng giao diện thì xấu hoặc thiếu tiện ích, **không chặn công việc**, nên sửa
 cuối tuần là được.
@@ -34,9 +34,9 @@ Lỗi **chặn công việc** và cách tạm để làm việc tiếp:
 | Không khởi động được (kernel, GRUB) | Menu GRUB → "… Linux snapshots" → vào máy → `sudo timeshift --restore` |
 | Không gõ được tiếng Việt | Chuyển sang Bamboo (dự phòng), hoặc `systemctl restart fcitx5-lotus-server@$USER` |
 | Mất Wi-Fi / mạng | Bấm icon Wi-Fi (nmtui), hoặc cắm dây LAN |
-| Tai nghe Bluetooth không kết nối | Mở bluetui từ Control Center, hoặc dùng loa laptop |
+| Tai nghe Bluetooth không kết nối | Mở Settings → Bluetooth hoặc `bluetui`, hoặc dùng loa laptop |
 
-Để được tới cuối tuần: Waybar, Control Center, thông báo, màn khoá xấu đi (vẫn mở khoá
+Để được tới cuối tuần: Waybar, Settings, thông báo, màn khoá xấu đi (vẫn mở khoá
 được), màu không theo hình nền, rmpc / yt-x / cava / btop, thẻ xem trước ảnh chụp, đĩa than…
 
 ---
@@ -172,7 +172,7 @@ Ngay sau đó là câu hỏi cuối:
 - Chọn khởi động lại thì còn 5 giây để **Ctrl + C** huỷ. Không có bàn phím (chạy không qua
   terminal) thì không bao giờ tự khởi động lại.
 
-Cuối cùng thử nhanh: Waybar, Control Center, đổi hình nền một lần (SUPER + W, để tạo lại
+Cuối cùng thử nhanh: Waybar, Settings, đổi hình nền một lần (SUPER + W, để tạo lại
 màu), mở rmpc. Thêm tuỳ gói vừa cập nhật:
 
 - **fcitx5-lotus**: bộ gõ đang chạy vẫn là bản cũ trong bộ nhớ cho tới khi khởi động lại.

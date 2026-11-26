@@ -1,9 +1,8 @@
 // Waybar, one translucent bar with small pills (style of the Hyprlust bar).
 // Colors come from colors.css (Matugen, see bin/wallpaper). Workspaces show one
 // numeral per slot on each screen (laptop 1-5, external 6-10). Minimal right side like
-// macOS: tray, Wi-Fi, battery, the Control Center icon (everything else lives in that
-// panel, bin/control-center), the notification bell (swaync, right click: Do Not
-// Disturb), the clock (click: notifications, right click: date) and the power button.
+// macOS: tray, Wi-Fi, battery, the Settings gear (bin/settings), the notification bell
+// (swaync, now playing and Do Not Disturb inside; right click: Do Not Disturb), the clock (click: notifications, right click: date) and the power button.
 // Timer countdown and the recording button appear on the left of these when active.
 // This file is ONE bar, a template: bin/waybar-launch copies it once per screen, sets
 // "output" and a "width" of 77% of that screen (1480 px on the 1920 px laptop panel,
@@ -32,7 +31,6 @@
         "custom/timer",
         "group/status",
         "custom/settings",
-        "custom/control",
         "custom/notification",
         "clock",
         "custom/power"
@@ -134,9 +132,6 @@
         "interval": 5,
         "on-click": "kitty ~/.local/bin/syslive"
     },
-    // Control Center (bin/control-center): Bluetooth, Do Not Disturb, Caffeine, now
-    // playing, brightness, volume, charge limit, power mode, capture, wallpaper,
-    // CPU / RAM, notifications, power menu
     // Notification center (swaync): bell with a dot when there are notifications,
     // crossed bell in Do Not Disturb. Click: open/close, right click: DND on/off.
     "custom/notification": {
@@ -162,12 +157,6 @@
         "format": "",
         "tooltip-format": "Settings (SUPER+,)",
         "on-click": "~/.local/bin/settings"
-    },
-    "custom/control": {
-        "format": "󱕂",
-        "tooltip-format": "Control Center",
-        // LD_PRELOAD here saves the script a restart to load gtk4-layer-shell
-        "on-click": "LD_PRELOAD=/usr/lib/libgtk4-layer-shell.so ~/.local/bin/control-center"
     },
     "tray": {
         "icon-size": 15,

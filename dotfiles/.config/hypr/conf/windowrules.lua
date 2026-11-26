@@ -16,9 +16,8 @@ hl.layer_rule({ match = { namespace = "rofi" },   blur = true, ignore_alpha = 0.
 hl.layer_rule({ match = { namespace = "waybar" }, blur = true, ignore_alpha = 0.1 })
 hl.layer_rule({ match = { namespace = "swaync-notification-window" }, blur = true, ignore_alpha = 0.1 })
 hl.layer_rule({ match = { namespace = "swaync-control-center" },      blur = true, ignore_alpha = 0.1 })
-hl.layer_rule({ match = { namespace = "control-center" }, blur = true, ignore_alpha = 0.3 })
 -- Settings panel (quickshell/settings): only the panel is blurred, not its 0.30 dark backdrop
-hl.layer_rule({ match = { namespace = "settings" }, blur = true, ignore_alpha = 0.4 })   -- bin/control-center (the full-screen backdrop is transparent)
+hl.layer_rule({ match = { namespace = "settings" }, blur = true, ignore_alpha = 0.4 })
 
 -- Translucent apps: add a line to make an app see-through (blur shows the wallpaper behind).
 -- class   = the window class: focus the app, then run `hyprctl activewindow -j | jq -r .class`

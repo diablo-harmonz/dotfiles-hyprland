@@ -125,7 +125,7 @@ Page {
         title: "Power"
         SRow {
             icon: ""; title: "Power mode"
-            subtitle: "Also in the Control Center"
+            subtitle: "Fn+F8 switches it too"
             Seg {
                 options: PowerProfiles.hasPerformanceProfile
                     ? [{ key: "0", label: "Saver" }, { key: "1", label: "Balanced" }, { key: "2", label: "Performance" }]

@@ -39,10 +39,6 @@ output_path = '~/.config/rmpc/themes/matugen.ron'
 input_path = '~/.config/matugen/templates/yt-x.theme'
 output_path = '~/.config/yt-x/extensions/themes/default.theme'
 
-[templates.control-center]
-input_path = '~/.config/matugen/templates/control-center.css'
-output_path = '~/.config/control-center/colors.css'
-
 [templates.navi]
 input_path = '~/.config/matugen/templates/navi.yaml'
 output_path = '~/.config/navi/config.yaml'

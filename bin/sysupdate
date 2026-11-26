@@ -362,7 +362,7 @@ case "$mode" in
     repo) info "Not updated (AUR): ${aur_names[*]}. They come with the next sysupdate." ;;
     held) info "Held back (AUR): ${held[*]}. They come with the next sysupdate." ;;
 esac
-info "Quick check: Waybar, Control Center, change the wallpaper once (SUPER+W), open rmpc."
+info "Quick check: Waybar, Settings, change the wallpaper once (SUPER+W), open rmpc."
 info "Log of this update: $LOG"
 
 if [ $status -eq 0 ]; then

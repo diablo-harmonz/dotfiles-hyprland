@@ -131,9 +131,6 @@ swaync-client -rs
 # Restart the Vietnamese input method server (Lotus)
 systemctl restart "fcitx5-lotus-server@$USER"
 
-# Open the Control Center
-control-center
-
 % hyprland, window class, transparency
 
 # Window class of an app (for the translucent list in hypr/conf/windowrules.lua): focus the app within 3 seconds

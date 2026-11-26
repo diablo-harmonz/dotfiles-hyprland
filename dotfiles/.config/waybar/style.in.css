@@ -58,7 +58,6 @@ tooltip label {
 #workspaces,
 #status,
 #custom-settings,
-#custom-control,
 #custom-notification,
 #clock,
 #custom-power {
@@ -83,15 +82,13 @@ window#waybar > box {
     color: @primary;
 }
 
-/* Settings and Control Center icons: a slightly larger glyph */
-#custom-settings,
-#custom-control {
+/* Settings icon: a slightly larger glyph */
+#custom-settings {
     padding: 0 13px;
     font-size: 15px;
 }
 
-#custom-settings:hover,
-#custom-control:hover {
+#custom-settings:hover {
     color: @primary;
 }
 

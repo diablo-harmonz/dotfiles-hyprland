@@ -11,8 +11,8 @@
 #   rofi          every ~/.config/rofi/config*.rasi parses
 #   waybar        config is valid JSON (with the theme pack's waybar.json merged) and the
 #                 filled style (waybar-launch --render-style) parses as GTK 3 CSS
-#   gtk4          Control Center and swaync styles, the screenshot preview CSS (GTK 4)
-#   python        bin/control-center and bin/screenshot-preview compile; the GTK 4 and
+#   gtk4          swaync style, the screenshot preview CSS (GTK 4)
+#   python        bin/screenshot-preview compiles; the GTK 4 and
 #                 layer-shell libraries they need load
 #   kitty         kitty reads its config without complaints
 #   quickshell    Settings loads every section, the wallpaper picker loads (QS_SELFTEST=1,
@@ -110,10 +110,10 @@ if have waybar; then
     else warn "waybar $v: the bar may not start or look broken" <<<"$msgs"; fi
 fi
 
-# ---- GTK 4: Control Center, swaync, screenshot preview -------------------------------------
+# ---- GTK 4: swaync, screenshot preview -------------------------------------------------------
 if python3 -I -c 'import gi; gi.require_version("Gtk", "4.0")' 2>/dev/null; then
     files=()
-    for f in "$CONF/control-center/style.css" "$CONF/swaync/style.css"; do [ -f "$f" ] && files+=("$f"); done
+    for f in "$CONF/swaync/style.css"; do [ -f "$f" ] && files+=("$f"); done
     # the preview's CSS lives in the script: tokens.css + the CSS = b"""...""" string
     if [ -f "$BIN/screenshot-preview" ]; then
         { cat "$CONF/theme-tokens/tokens.css" 2>/dev/null
@@ -122,13 +122,13 @@ if python3 -I -c 'import gi; gi.require_version("Gtk", "4.0")' 2>/dev/null; then
         files+=("$tmp/preview.css")
     fi
     msgs=$(css_check 4 "${files[@]}")
-    if [ -z "$msgs" ]; then ok "GTK 4 styles OK (Control Center, swaync, screenshot preview)"
+    if [ -z "$msgs" ]; then ok "GTK 4 styles OK (swaync, screenshot preview)"
     else warn "GTK 4 rejects parts of a style" <<<"$msgs"; fi
 fi
 
 # ---- Python GTK scripts -------------------------------------------------------------------
 msgs=""
-for s in control-center screenshot-preview; do
+for s in screenshot-preview; do
     f=$(readlink -f "$BIN/$s" 2>/dev/null) || continue
     [ -f "$f" ] || continue
     python3 -I -c 'import ast,sys; ast.parse(open(sys.argv[1]).read())' "$f" 2>"$tmp/py" \
@@ -140,9 +140,9 @@ for name, ver in (("Gtk", "4.0"), ("Gdk", "4.0"), ("Gtk4LayerShell", "1.0")):
     gi.require_version(name, ver)
 from gi.repository import Gtk, Gdk, Gtk4LayerShell, GLib, Gio  # noqa: F401
 PY
-[ -e /usr/lib/libgtk4-layer-shell.so ] || msgs+="/usr/lib/libgtk4-layer-shell.so is missing (LD_PRELOAD of the Control Center)"$'\n'
-if [ -z "$msgs" ]; then ok "Python GTK scripts OK (Control Center, screenshot preview)"
-else warn "the Control Center or the screenshot preview may not start" <<<"$msgs"; fi
+[ -e /usr/lib/libgtk4-layer-shell.so ] || msgs+="/usr/lib/libgtk4-layer-shell.so is missing (LD_PRELOAD of the screenshot preview)"$'\n'
+if [ -z "$msgs" ]; then ok "Python GTK script OK (screenshot preview)"
+else warn "the screenshot preview may not start" <<<"$msgs"; fi
 
 # ---- kitty --------------------------------------------------------------------------------
 if have kitty; then
