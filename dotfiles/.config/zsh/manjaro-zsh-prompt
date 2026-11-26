@@ -24,8 +24,8 @@
     source "${ZDOTCFG}/p10k-portable.zsh"
     ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=black,bold'
   else
-    # Use 256 colors and UNICODE.
-    source "${ZDOTCFG}/p10k.zsh"
+    # Use 256 colors and UNICODE. The style comes from p10k-user.zsh, sourced by ~/.zshrc
+    # right after this file (Manjaro's p10k.zsh used to be loaded here first, then replaced).
     ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=244'
   fi
 }

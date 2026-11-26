@@ -49,18 +49,14 @@ USE_POWERLINE="true"
 # Example:
 #    is not a diamond
 HAS_WIDECHARS="false"
-# Manjaro's zsh setup: the system copy on Manjaro, the copy in ~/.config/zsh elsewhere (Arch)
+# Manjaro's zsh setup, a copy kept in ~/.config/zsh (this machine runs Arch)
 ZDOTCFG="$HOME/.config/zsh"
-if [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
-  source /usr/share/zsh/manjaro-zsh-config
-  source /usr/share/zsh/manjaro-zsh-prompt
-elif [[ -e "$ZDOTCFG/manjaro-zsh-config" ]]; then
-  source "$ZDOTCFG/manjaro-zsh-config"
-  source "$ZDOTCFG/manjaro-zsh-prompt"
-fi
+source "$ZDOTCFG/manjaro-zsh-config"
+source "$ZDOTCFG/manjaro-zsh-prompt"
 
 # Powerlevel10k style picked with `p10k configure`, kept in this repo
-# (dotfiles/.config/zsh/p10k-user.zsh); it replaces Manjaro's default p10k.zsh.
+# (dotfiles/.config/zsh/p10k-user.zsh); manjaro-zsh-prompt no longer loads Manjaro's
+# default p10k.zsh, which this file replaced right away.
 # The wizard writes to POWERLEVEL9K_CONFIG_FILE. Every p10k config unsets all
 # POWERLEVEL9K_* first, so the path is set after sourcing. The wizard finds the
 # `source` line below and the instant prompt line at the top, so it leaves this file
