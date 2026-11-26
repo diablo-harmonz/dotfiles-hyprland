@@ -8,8 +8,7 @@ colors follow the wallpaper, every corner, border and font comes from one design
 file per theme, and the repo also installs the system pieces (snapshots, zram, battery
 thresholds, keyring, hibernate, pacman hooks).
 
-Only Arch is supported. `setup/setup-fedora.sh`, `setup/setup-opensuse.sh` and the
-`.dotinst` file are left over from upstream and do not install this setup.
+Only Arch is supported.
 
 This README is meant to be enough to understand and change everything by hand. Start with
 [How it fits together](#how-it-fits-together), then [How do I…](#how-do-i) for recipes and
