@@ -180,8 +180,7 @@ quit when closed: nothing of them runs in the background.
 ### Wallpaper and colors
 
 `SUPER+W` opens the wallpaper picker (`bin/wallpaper select`: a Quickshell carousel,
-`~/.config/quickshell/wallpicker`; the rofi thumbnail row `wallpaper select-rofi` is the
-fallback), `SUPER+SHIFT+W` picks one at random. Wallpapers come from `~/Pictures/Wallpapers`;
+`~/.config/quickshell/wallpicker`), `SUPER+SHIFT+W` picks one at random. Wallpapers come from `~/Pictures/Wallpapers`;
 this repo ships none (they are third-party art, kept in a private repo). The fastfetch
 logo works the same way: put a picture named `logo.*` in `fastfetch/` of that repo (linked
 to `~/Pictures/fastfetch`) and fastfetch shows it in kitty instead of the distro logo.
@@ -661,7 +660,7 @@ explains its usage; read it with `head -30 bin/<name>`.
 | `theme` | Switch theme packs (`theme apply NAME`, `theme grub`, `theme list-tsv`) |
 | `tokens` | Write the design tokens (`tokens show` lists them) |
 | `colors` | Where Matugen starts from (`status`, `set`, `auto`, `apply`, `candidates`; no argument: Settings > Appearance) |
-| `wallpaper` | Pick, set and theme from the wallpaper (`select`, `select-rofi`, `random`, `set FILE`, `restore`) |
+| `wallpaper` | Pick, set and theme from the wallpaper (`select`, `random`, `set FILE`, `restore`) |
 | `waybar-launch` | (Re)start Waybar; `--render-style FILE` only writes the filled style |
 | `dotfiles-verify` | Check the bar, menus, panels and lock screen with the installed versions |
 | `screenshot`, `screenshot-preview` | Screenshots with file, clipboard and preview |

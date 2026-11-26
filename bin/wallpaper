@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 # wallpaper: pick, set and theme from the wallpaper.
-#   wallpaper select    picker (SUPER+W): the Quickshell carousel when quickshell is
-#                       installed (~/.config/quickshell/wallpicker), else rofi;
-#                       pressing SUPER+W again closes it
-#   wallpaper select-rofi  the rofi picker (thumbnail row), always
+#   wallpaper select    picker (SUPER+W): the Quickshell carousel
+#                       (~/.config/quickshell/wallpicker); pressing SUPER+W again closes it
 #   wallpaper list-thumbs  for the carousel: "image<TAB>thumbnail<TAB>1 if current" lines
 #   wallpaper random    random wallpaper (SUPER+SHIFT+W)
 #   wallpaper set FILE  set FILE with a transition, then regenerate the colors
@@ -12,7 +10,7 @@
 # The wallpaper is shown by awww; Matugen turns it into colors for rofi, waybar,
 # kitty, GTK 4 and the Hyprland borders (see ~/.config/matugen/config.toml); bin/colors
 # (Settings > Appearance) can pick another color from it or a fixed one instead.
-# ~/.cache/wallpaper/current links to the chosen file (used by rofi and hyprlock).
+# ~/.cache/wallpaper/current links to the chosen file (used by hyprlock, Settings, Firefox).
 set -euo pipefail
 
 DIRS=("$HOME/Pictures/Wallpapers")
@@ -81,19 +79,15 @@ set_wallpaper() {   # $1 = image, $2 = transition type
 
 case "${1:-select}" in
     select)
-        if command -v qs >/dev/null && [ -f "$HOME/.config/quickshell/wallpicker/shell.qml" ]; then
-            # Toggle: a running picker closes. It quits by itself after a choice or Esc.
-            if qs list -c wallpicker 2>/dev/null | grep -q "^Instance"; then
-                qs kill -c wallpicker >/dev/null 2>&1
-                exit 0
-            fi
-            pkill -x rofi || true
-            WALLPICKER_SCREEN=$(hyprctl monitors -j 2>/dev/null | jq -r '.[] | select(.focused) | .name') \
-            WALLPICKER_ACCENT=$(sed -n 's/^ *primary: *#\([0-9a-fA-F]\{6\}\).*/\1/p' "$HOME/.config/rofi/colors.rasi" 2>/dev/null | head -1) \
-                setsid -f qs -n -c wallpicker >/dev/null 2>&1
+        # Toggle: a running picker closes. It quits by itself after a choice or Esc.
+        if qs list -c wallpicker 2>/dev/null | grep -q "^Instance"; then
+            qs kill -c wallpicker >/dev/null 2>&1
             exit 0
         fi
-        exec "$0" select-rofi
+        pkill -x rofi || true
+        WALLPICKER_SCREEN=$(hyprctl monitors -j 2>/dev/null | jq -r '.[] | select(.focused) | .name') \
+        WALLPICKER_ACCENT=$(sed -n 's/^ *primary: *#\([0-9a-fA-F]\{6\}\).*/\1/p' "$HOME/.config/rofi/colors.rasi" 2>/dev/null | head -1) \
+            setsid -f qs -n -c wallpicker >/dev/null 2>&1
         ;;
     list-thumbs)
         current=$(readlink -f -- "$CURRENT" 2>/dev/null || true)
@@ -101,17 +95,6 @@ case "${1:-select}" in
             mark=0; [ "$(realpath -- "$f")" = "$current" ] && mark=1
             printf '%s\t%s\t%s\n' "$f" "$(thumb "$f")" "$mark"
         done
-        ;;
-    select-rofi)
-        pkill -x rofi && exit 0   # pressing the key again closes the picker
-        choice=$(
-            list | while IFS= read -r f; do
-                name=$(basename -- "${f%.*}")
-                printf '%s\0icon\x1f%s\n' "$name" "$(thumb "$f")"
-            done | rofi -dmenu -i -show-icons -p "" -config "$HOME/.config/rofi/config-wallpaper.rasi" -format i
-        ) || exit 0
-        [ -n "$choice" ] || exit 0
-        set_wallpaper "$(list | sed -n "$((choice + 1))p")"
         ;;
     random)
         mapfile -t all < <(list)
@@ -145,7 +128,7 @@ case "${1:-select}" in
         done
         ;;
     *)
-        echo "usage: wallpaper [select|select-rofi|random|set FILE|restore|list-thumbs]" >&2
+        echo "usage: wallpaper [select|random|set FILE|restore|list-thumbs]" >&2
         exit 2
         ;;
 esac
