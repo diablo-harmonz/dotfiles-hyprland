@@ -53,9 +53,6 @@
             "kitty": "kitty",
             "welcome": "kitty",
             "firefox": "Firefox",
-            "chromium": "Chromium",
-            "google-chrome": "Chrome",
-            "code": "VS Code",
             "org\\.gnome\\.nautilus": "Files",
             "org\\.telegram\\.desktop": "Telegram",
             "tui-wiremix": "Audio",
@@ -66,7 +63,6 @@
             "mpv": "mpv",
             "org\\.gnome\\.seahorse\\.application": "Passwords",
             "qt6ct": "Qt Settings",
-            "jetbrains-studio": "Android Studio",
             "libreoffice-.*": "LibreOffice"
         }
     },
