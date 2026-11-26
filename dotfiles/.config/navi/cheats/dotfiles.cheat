@@ -240,11 +240,8 @@ git -C ~/Documents/personal/dotfiles-hyprland status --short
 ~/Documents/personal/dotfiles-hyprland/setup/setup-git.sh <profile>
 $ profile: printf 'one\ntwo\npersonal\nwork\n'
 
-# Check SSH and identity for the personal GitHub account in this repo
-personal-verify
-
-# Check SSH and identity for the work GitHub account in this repo
-work-verify
+# Check the GitHub login (SSH key) and the identity used for commits here
+ssh -T git@github.com; git config user.name; git config user.email
 
 % timer, alarm, calculator
 

@@ -96,47 +96,8 @@ alias downloads='cd ~/Downloads'
 # eza: ls with icons (Nerd Font), only when installed
 command -v eza >/dev/null && alias ls='eza --icons=always'
 
-# GitHub with two accounts. SSH host aliases github-work / github-personal are in
-# ~/.ssh/config; the identity comes from ~/.gitconfig-work / ~/.gitconfig-personal
-# (includeIf by folder: ~/Documents/work, ~/Documents/personal).
-#   work-verify, personal-verify   check SSH login and the identity of this repo
-#   work-remote, personal-remote   point origin at that account and use its email here
-_gh_verify() {   # $1 = work | personal
-  print "SSH auth:"
-  ssh -T "git@github-$1" 2>&1
-  print "\nGit identity:"
-  print "  user.name  = $(git config user.name 2>/dev/null || print 'not in a repo')"
-  print "  user.email = $(git config user.email 2>/dev/null || print 'not in a repo')"
-  print "\nRemote:"
-  git remote -v 2>/dev/null || print "  not in a repo"
-  print "\nRepo path:"
-  git rev-parse --show-toplevel 2>/dev/null || print "  not in a repo"
-}
-
-_gh_remote() {   # $1 = work | personal
-  local current repo_path new_url email
-  current=$(git remote get-url origin 2>/dev/null)
-  if [[ -z $current ]]; then
-    print "No remote named origin"
-    return 1
-  fi
-  email=$(git config -f ~/.gitconfig-$1 user.email)
-  if [[ -z $email ]]; then
-    print "No user.email in ~/.gitconfig-$1"
-    return 1
-  fi
-  # user/repo from git@github.com:user/repo.git, git@github-xxx:user/repo.git or https
-  repo_path=$(print -r -- "$current" | sed -E 's#^(git@[^:]+:|https://[^/]+/)##')
-  new_url="git@github-$1:$repo_path"
-  git remote set-url origin "$new_url" && git config user.email "$email"
-  print "Remote: $new_url"
-  print "Email : $(git config user.email)"
-}
-
-work-verify()     { _gh_verify work }
-personal-verify() { _gh_verify personal }
-work-remote()     { _gh_remote work }
-personal-remote() { _gh_remote personal }
+# GitHub: one account (git@github.com, key ~/.ssh/id_ed25519_work, see ~/.ssh/config).
+# Check it: ssh -T git@github.com
 
 # Yazi file manager: `y` opens it, and the shell follows to the folder you leave in
 y() {
