@@ -48,7 +48,6 @@ packages=(
     "hyprsunset"
     "firefox"
     "woff2-font-awesome"
-    "vim"
     "zsh"
     "fastfetch"
     "ttf-fira-sans" 
@@ -134,7 +133,6 @@ packages=(
     "fcitx5-qt"
     "fcitx5-configtool"
     "fcitx5-lotus"
-    "fcitx5-bamboo"
     # Development: Node through nvm (.zshrc loads it), Python per project through uv
     "nvm"
     "uv"

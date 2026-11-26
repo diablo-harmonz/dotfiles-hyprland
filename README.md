@@ -323,7 +323,7 @@ tokens yet. Round things (`99px`, `width / 2`) are shapes, not radii.
 | Claude Code | Status line: folder, git branch, model, context bar, 5-hour / 7-day plan usage (`dotfiles/.claude/statusline.sh`; `setup/link-dotfiles.sh` adds the `statusLine` entry to `~/.claude/settings.json`) |
 | Wallpaper, colors | awww, Matugen |
 | Lock, idle, night light | hyprlock, hypridle, hyprsunset |
-| Input method | fcitx5 with Lotus (Vietnamese, Telex; a lone `w` types ư everywhere, `ww` types w), Bamboo as fallback |
+| Input method | fcitx5 with Lotus (Vietnamese, Telex; a lone `w` types ư everywhere, `ww` types w) |
 | Office | LibreOffice (still) with the Vietnamese UI, Liberation / Carlito / Caladea fonts (same metrics as Times, Arial, Calibri, Cambria). `bin/libreoffice` starts it with `GTK_IM_MODULE=fcitx`: over Wayland text-input-v3 Lotus lost the Vietnamese marks; Lotus uses Super Smooth for it (`soffice=3` in `fcitx5/conf/lotus-app-rules.conf`, the name fcitx reports, not `soffice.bin`) |
 | Clipboard | cliphist |
 | Screenshots, recording | grim, slurp, satty, wf-recorder |

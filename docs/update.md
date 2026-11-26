@@ -32,7 +32,7 @@ Lỗi **chặn công việc** và cách tạm để làm việc tiếp:
 |---|---|
 | Không vào được desktop (Hyprland) | Hook đã báo trước khi đăng xuất. Đã lỡ: Ctrl+Alt+F3, `sudo timeshift --restore` |
 | Không khởi động được (kernel, GRUB) | Menu GRUB → "… Linux snapshots" → vào máy → `sudo timeshift --restore` |
-| Không gõ được tiếng Việt | Chuyển sang Bamboo (dự phòng), hoặc `systemctl restart fcitx5-lotus-server@$USER` |
+| Không gõ được tiếng Việt | `systemctl restart fcitx5-lotus-server@$USER`, rồi `fcitx5 -rd` |
 | Mất Wi-Fi / mạng | Bấm icon Wi-Fi (nmtui), hoặc cắm dây LAN |
 | Tai nghe Bluetooth không kết nối | Mở Settings → Bluetooth hoặc `bluetui`, hoặc dùng loa laptop |
 
