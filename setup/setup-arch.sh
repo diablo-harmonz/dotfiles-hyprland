@@ -30,7 +30,7 @@ packages=(
     "sound-theme-freedesktop"   # alarm sound for bin/timer
     "python-gobject"
     "gtk4-layer-shell"
-    "network-manager-applet"   # nm-connection-editor (VPN, advanced settings); no tray icon
+    "nm-connection-editor"     # network editor (VPN, static IP, DNS, enterprise Wi-Fi); Waybar has the Wi-Fi icon
     "bluez"
     "bluez-utils"
     "nautilus"
