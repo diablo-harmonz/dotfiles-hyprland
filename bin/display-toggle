@@ -42,9 +42,13 @@ UNPLUGGED="$RUN/display-toggle.unplugged"  # time of the last real disconnect (m
 REPLUG_WINDOW=15
 mode="${1:-toggle}"
 
+# swaync runs as the systemd user unit swaync.service (hypr/conf/autostart.lua);
+# reset-failed in case repeated crashes hit its start limit
+swaync_start() { systemctl --user reset-failed swaync >/dev/null 2>&1; systemctl --user start swaync >/dev/null 2>&1; }
+
 notify() {
     # swaync can crash when a notification is on screen while outputs change; restart it
-    pgrep -x swaync >/dev/null || { setsid -f swaync >/dev/null 2>&1; sleep 0.5; }
+    pgrep -x swaync >/dev/null || { swaync_start; sleep 0.5; }
     # never let a missing notification daemon block the script
     timeout 3 notify-send -a display-toggle -h string:x-canonical-private-synchronous:display-toggle "$@" || true
 }
@@ -256,5 +260,5 @@ echo "$mode" > "$STATE"
 
 # Keep the busy mark until the monitor has settled (it may drop out briefly after a mode
 # change), and check swaync again in case it crashed a moment after the change
-( sleep 2; pgrep -x swaync >/dev/null || setsid -f swaync >/dev/null 2>&1
+( sleep 2; pgrep -x swaync >/dev/null || swaync_start
   sleep 8; rm -f "$BUSY" ) >/dev/null 2>&1 &

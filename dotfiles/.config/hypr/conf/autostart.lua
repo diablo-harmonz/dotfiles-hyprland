@@ -4,8 +4,9 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("~/.local/bin/waybar-launch")
     -- Wallpaper (awww) and its colors
     hl.exec_cmd("~/.local/bin/wallpaper restore")
-    -- Notifications (swaync)
-    hl.exec_cmd("swaync")
+    -- Notifications (swaync), through its systemd user unit: started directly as well, the
+    -- D-Bus activation of that unit raced it at login ("already running", unit failed)
+    hl.exec_cmd("systemctl --user start swaync")
     -- Password prompt for apps that need admin rights (polkit)
     hl.exec_cmd("systemctl --user start hyprpolkitagent")
     -- Clipboard history (SUPER+V): last 10 entries, each kept 5 minutes
