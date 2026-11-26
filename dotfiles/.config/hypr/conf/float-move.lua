@@ -104,7 +104,7 @@ M.stop = stop
 --   * Single arrow: Hyprland's own focus move, so tiled windows are visited exactly as
 --     before and floating windows never get in the way.
 --   * Two arrows pressed together, within CHORD_MS (e.g. mainMod + up + right): focus
---     the floating window in that corner of the screen. A window near the middle (cava) counts for every
+--     the floating window in that corner of the screen. A window near the middle counts for every
 --     corner. Order of the two keys does not matter.
 --   * From a floating window, if Hyprland finds nothing in that direction (it only
 --     looks for window centres in the direction, so a float sitting on a tiled window

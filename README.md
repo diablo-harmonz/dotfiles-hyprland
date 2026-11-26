@@ -36,7 +36,7 @@ This README is meant to be enough to understand and change everything by hand. S
 
 | Path | Contents |
 |---|---|
-| `dotfiles/.config/<app>/` | One folder per app, each linked whole to `~/.config/<app>`: btop, cava, fastfetch, fcitx5, firefox-chrome, hypr, kitty, matugen, ml4w (two small helper scripts kept from upstream), mpd, mpv, navi, nvim, pacman, quickshell, rmpc, rofi, swaync, waybar, yazi, yt-dlp, yt-x, zsh |
+| `dotfiles/.config/<app>/` | One folder per app, each linked whole to `~/.config/<app>`: btop, fastfetch, fcitx5, firefox-chrome, hypr, kitty, matugen, ml4w (two small helper scripts kept from upstream), mpd, mpv, navi, nvim, pacman, quickshell, rmpc, rofi, swaync, waybar, yazi, yt-dlp, yt-x, zsh |
 | `dotfiles/.zshrc`, `dotfiles/.zprofile` | zsh config; `.zprofile` starts Hyprland after a TTY1 login |
 | `dotfiles/icons/` | Dot-matrix icons of the volume / brightness / mic popup (`bin/osd`) |
 | `dotfiles/applications/` | Desktop entries for terminal apps (rmpc, yt-x) |
@@ -190,7 +190,7 @@ to `~/Pictures/fastfetch`) and fastfetch shows it in kitty instead of the distro
 After each change Matugen (`dotfiles/.config/matugen/config.toml`, one `[templates.X]` block
 per app) writes matching colors for rofi, Waybar, kitty, the Settings
 panel, the Hyprland borders, hyprlock, GTK 3, GTK 4, swaync, Qt (qt6ct), KDE apps, Firefox,
-yazi, cava, btop, rmpc, yt-x, navi and the zsh command colors. Some templates have a
+yazi, btop, rmpc, yt-x, navi and the zsh command colors. Some templates have a
 `post_hook` that reloads the app (kitty, swaync). Waybar picks up its new colors by itself
 (`reload_style_on_change`); it is never sent SIGUSR2, which crashed Waybar 0.15. The colors
 are made after the 1.2 s wallpaper transition so it stays smooth.
@@ -495,7 +495,6 @@ SUPER).
 | SUPER + = | Calculator (rofi-calc, also units and currencies): Enter copies the result |
 | SUPER + SHIFT + T | Timer or alarm: `10m tea`, `1h30m`, `07:30 wake up`; countdown on Waybar, pick one to cancel |
 | SUPER + W / SUPER + SHIFT + W | Pick a wallpaper / random wallpaper |
-| SUPER + A | Audio visualizer (cava) on/off |
 | SUPER + SHIFT + C | Caffeine: no idle lock or suspend |
 | SUPER + , | Settings panel (also the gear icon in Waybar); again closes it. Fully usable from the keyboard: ↑↓ sections, → into a page, Tab / ↑↓ controls, Enter / Space, Esc |
 | SUPER + Escape | Power menu; again closes it |
@@ -687,7 +686,6 @@ explains its usage; read it with `head -30 bin/<name>`.
 | `sysupdate` | Guided update (see [Updating](#updating)) |
 | `sysinfo-bar`, `sysmetrics`, `syslive` | CPU/RAM on Waybar, metrics, live status view |
 | `sysreport` | One-shot machine health report to `~/sysreport` |
-| `cava-toggle` | Floating audio visualizer |
 | `firefox-theme` | Link the Firefox theme into the default profile |
 | `navi` (Ctrl+G in zsh) | Command notebook of this setup; add your own in `dotfiles/.config/navi/cheats/dotfiles.cheat`. `tldr <command>` for common commands |
 

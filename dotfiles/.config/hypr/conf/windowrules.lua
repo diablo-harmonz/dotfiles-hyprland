@@ -41,16 +41,6 @@ for _, app in ipairs(translucent) do
     })
 end
 
--- cava audio visualizer (bin/cava-toggle, SUPER+A): tall floating panel
-hl.window_rule({
-    name  = "cava-visualizer",
-    match = { class = "^(cava)$" },
-
-    float  = true,
-    size   = "380 830",
-    center = true,
-})
-
 -- Phone link (bin/phone-link, Fn+F11): menu and QR code in a floating terminal
 hl.window_rule({
     name  = "phone-link",

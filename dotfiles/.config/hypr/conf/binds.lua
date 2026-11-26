@@ -40,7 +40,6 @@ hl.bind(mainMod .. " + V",              exec("~/.local/bin/clipboard"))         
 hl.bind(mainMod .. " + equal",          exec("~/.local/bin/calc"))                                         -- Calculator (rofi-calc): Enter copies the result
 hl.bind(mainMod .. " + SHIFT + T",      exec("~/.local/bin/timer"))                                        -- Timers and alarms (countdown on Waybar)
 hl.bind(mainMod .. " + SHIFT + C",      exec("~/.local/bin/caffeine toggle"))                              -- Keep awake on/off (no idle lock or suspend)
-hl.bind(mainMod .. " + A",              exec("~/.local/bin/cava-toggle"))                                  -- Audio visualizer on/off
 
 -- Lid. With an external monitor plugged in, display-toggle makes it the only screen while
 -- the lid is closed (logind does not suspend then). caffeine only acts while it is on

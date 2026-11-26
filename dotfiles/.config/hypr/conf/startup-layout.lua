@@ -1,7 +1,7 @@
 -- Startup layout: floating "widget" windows opened on workspace 1 at login.
 -- Each widget is a window rule (size/position in % of the monitor, so it fits the
 -- laptop and external screens) plus a command in M.start(), called by autostart.lua.
--- Add more widgets (clock, cava, ...) as new blocks below.
+-- Add more widgets (clock, ...) as new blocks below.
 local M = {}
 
 -- Welcome terminal: kitty, top-left, runs fastfetch once (see ~/.zshrc).

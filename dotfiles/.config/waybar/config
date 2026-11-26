@@ -52,7 +52,6 @@
         "rewrite": {
             "kitty": "kitty",
             "welcome": "kitty",
-            "cava": "Cava",
             "firefox": "Firefox",
             "chromium": "Chromium",
             "google-chrome": "Chrome",

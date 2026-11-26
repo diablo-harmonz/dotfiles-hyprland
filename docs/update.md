@@ -37,7 +37,7 @@ Lỗi **chặn công việc** và cách tạm để làm việc tiếp:
 | Tai nghe Bluetooth không kết nối | Mở Settings → Bluetooth hoặc `bluetui`, hoặc dùng loa laptop |
 
 Để được tới cuối tuần: Waybar, Settings, thông báo, màn khoá xấu đi (vẫn mở khoá
-được), màu không theo hình nền, rmpc / yt-x / cava / btop, thẻ xem trước ảnh chụp, đĩa than…
+được), màu không theo hình nền, rmpc / yt-x / btop, thẻ xem trước ảnh chụp, đĩa than…
 
 ---
 
