@@ -39,14 +39,16 @@ Page {
         else askFor = (askFor === n.name ? "" : n.name)
     }
 
-    // Scan only while the panel is open, through nmcli in its own process: toggling
-    // Quickshell's wifi.scannerEnabled is a blocking D-Bus call that froze the panel for up
-    // to 1.6 s. The network list still updates live from NetworkManager's signals.
-    Process { id: rescan; command: ["nmcli", "device", "wifi", "rescan"] }
+    // Scan while the panel is open with Quickshell's own scanner. It has to be on: Quickshell
+    // only lists the networks it scanned itself, so the earlier `nmcli device wifi rescan`
+    // left the list at the current network alone ("Looking for networks…" when not connected,
+    // 2026-11-26: nmcli saw 31 networks, the page 1). Switched on a moment after opening, so
+    // the D-Bus call does not hold up the open animation (it took 0 ms in a test, once 1.6 s).
     Timer {
-        interval: 15000; repeat: true; triggeredOnStart: true
-        running: Pal.open && Networking.wifiEnabled
-        onTriggered: { rescan.running = false; rescan.running = true }
+        id: scanOn
+        interval: 400
+        running: Pal.open && Networking.wifiEnabled && p.wifi !== null
+        onTriggered: p.wifi.scannerEnabled = true
     }
 
     // ---- live speed and IP of the active interface ------------------------------------------
