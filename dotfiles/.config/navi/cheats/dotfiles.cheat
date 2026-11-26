@@ -120,7 +120,7 @@ hyprctl reload
 lock-recover
 
 # Restart Waybar (also SUPER+SHIFT+B)
-~/.config/ml4w/scripts/reload-waybar.sh
+~/.local/bin/waybar-launch
 
 # Restart the notification daemon
 systemctl --user restart swaync

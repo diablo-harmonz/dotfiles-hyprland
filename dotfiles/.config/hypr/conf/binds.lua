@@ -9,7 +9,7 @@ local function exec(cmd) return hl.dsp.exec_cmd(cmd) end
 hl.bind(mainMod .. " + RETURN",         exec("kitty"))                                                     -- Open kitty
 hl.bind(mainMod .. " + Q",              hl.dsp.window.close())                                             -- Close current window
 hl.bind(mainMod .. " + M",              hl.dsp.exit())                                                     -- Exit Hyprland
-hl.bind(mainMod .. " + E",              exec("~/.config/ml4w/settings/filemanager.sh"))                    -- Opens the filemanager
+hl.bind(mainMod .. " + E",              exec("nautilus"))                                                  -- File manager (Nautilus)
 hl.bind(mainMod .. " + SHIFT + E",      exec("kitty yazi"))                                                -- Yazi file manager in kitty
 hl.bind(mainMod .. " + T",              hl.dsp.window.float({ action = "toggle" }))                        -- Toggle tiling/floating
 hl.bind(mainMod .. " + O",              hl.dsp.window.pin())                                               -- Pin floating window to every workspace (PiP)
@@ -17,8 +17,8 @@ hl.bind(mainMod .. " + F",              hl.dsp.window.fullscreen())             
 hl.bind(mainMod .. " + SPACE",          exec("~/.local/bin/launcher"))                                     -- Launcher: apps + web search (rofi)
 hl.bind(mainMod .. " + P",              hl.dsp.window.pseudo())                                            -- dwindle
 hl.bind(mainMod .. " + J",              hl.dsp.layout("togglesplit"))                                      -- dwindle
-hl.bind(mainMod .. " + B",              exec("~/.config/ml4w/settings/browser.sh"))                        -- Opens the browser
-hl.bind(mainMod .. " + SHIFT + B",      exec("~/.config/ml4w/scripts/reload-waybar.sh"))                   -- Reload Waybar
+hl.bind(mainMod .. " + B",              exec("firefox"))                                                   -- Browser (Firefox)
+hl.bind(mainMod .. " + SHIFT + B",      exec("~/.local/bin/waybar-launch"))                                -- Restart Waybar (one bar per screen; log: journalctl --user -t waybar)
 hl.bind(mainMod .. " + CTRL + R",       exec("hyprctl reload"))                                            -- Emergency: reload config, restores all screens
 hl.bind(mainMod .. " + W",              exec("~/.local/bin/wallpaper select"))                             -- Pick a wallpaper (colors follow it)
 hl.bind(mainMod .. " + SHIFT + W",      exec("~/.local/bin/wallpaper random"))                             -- Random wallpaper

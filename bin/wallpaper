@@ -15,7 +15,7 @@
 # ~/.cache/wallpaper/current links to the chosen file (used by rofi and hyprlock).
 set -euo pipefail
 
-DIRS=("$HOME/Pictures/Wallpapers" "$HOME/.config/ml4w/wallpapers")
+DIRS=("$HOME/Pictures/Wallpapers")
 CACHE="$HOME/.cache/wallpaper"
 CURRENT="$CACHE/current"
 THUMBS="$CACHE/thumbs"

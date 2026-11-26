@@ -36,7 +36,7 @@ This README is meant to be enough to understand and change everything by hand. S
 
 | Path | Contents |
 |---|---|
-| `dotfiles/.config/<app>/` | One folder per app, each linked whole to `~/.config/<app>`: btop, fastfetch, fcitx5, firefox-chrome, hypr, kitty, matugen, ml4w (two small helper scripts kept from upstream), mpd, mpv, navi, nvim, pacman, quickshell, rmpc, rofi, swaync, waybar, yazi, yt-dlp, yt-x, zsh |
+| `dotfiles/.config/<app>/` | One folder per app, each linked whole to `~/.config/<app>`: btop, fastfetch, fcitx5, firefox-chrome, hypr, kitty, matugen, mpd, mpv, navi, nvim, pacman, quickshell, rmpc, rofi, swaync, waybar, yazi, yt-dlp, yt-x, zsh |
 | `dotfiles/.zshrc`, `dotfiles/.zprofile` | zsh config; `.zprofile` starts Hyprland after a TTY1 login |
 | `dotfiles/icons/` | Dot-matrix icons of the volume / brightness / mic popup (`bin/osd`) |
 | `dotfiles/applications/` | Desktop entries for terminal apps (rmpc, yt-x) |
