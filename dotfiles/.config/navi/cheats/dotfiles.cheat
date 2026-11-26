@@ -141,8 +141,8 @@ hyprctl clients -j | jq -r '.[] | "\(.class)  \(.title)"'
 
 % system, info
 
-# Live system view (CPU, RAM, temperatures, battery)
-kitty ~/.local/bin/syslive
+# Live system view (CPU, RAM, processes, temperatures)
+btop
 
 # One-shot health report (SSD, battery, failed services, errors)
 sysreport

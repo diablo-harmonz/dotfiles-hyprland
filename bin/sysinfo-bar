@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # sysinfo-bar: waybar custom/sysinfo module. Shows CPU and RAM use on the bar; the
-# tooltip (hover) lists every value from sysmetrics. Click opens syslive.
+# tooltip (hover) lists every value from sysmetrics. Click opens btop.
 set -uo pipefail
 declare -A m
 while IFS='=' read -r k v; do m[$k]=$v; done < <("$HOME/.local/bin/sysmetrics")
@@ -28,7 +28,7 @@ SSD temp ${m[ssd_temp]:-?}°C
 Battery  ${m[bat_percent]:-?} ${m[bat_state]:-}, ${m[bat_power]:-?}, limit ${m[bat_limit]:-?}
 Failed   ${m[failed_units]:-?} systemd units
 
-Click: open syslive</tt>
+Click: open btop</tt>
 EOT
 )
 jq -cn --arg text "$text" --arg tooltip "$tip" --arg class "$class" '{text: $text, tooltip: $tooltip, class: $class}'

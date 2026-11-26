@@ -684,7 +684,7 @@ explains its usage; read it with `head -30 bin/<name>`.
 | `vinyl-cover` | Record picture for rmpc: square sleeve with a vinyl pulled half out |
 | `rmpc-notify` | rmpc song-change notification with the album art |
 | `sysupdate` | Guided update (see [Updating](#updating)) |
-| `sysinfo-bar`, `sysmetrics`, `syslive` | CPU/RAM on Waybar, metrics, live status view |
+| `sysinfo-bar`, `sysmetrics` | CPU/RAM on Waybar (click: btop), the metrics behind its tooltip |
 | `sysreport` | One-shot machine health report to `~/sysreport` |
 | `firefox-theme` | Link the Firefox theme into the default profile |
 | `navi` (Ctrl+G in zsh) | Command notebook of this setup; add your own in `dotfiles/.config/navi/cheats/dotfiles.cheat`. `tldr <command>` for common commands |

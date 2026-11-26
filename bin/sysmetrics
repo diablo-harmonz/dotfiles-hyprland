@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# sysmetrics: print key system metrics as name=value lines (used by syslive, later by Waybar)
+# sysmetrics: print key system metrics as name=value lines (used by sysinfo-bar on Waybar)
 export LC_ALL=C
 sens=$(sensors 2>/dev/null)
 sget() { awk -v k="$1" '$1==k {gsub(/[+°C]/,"",$2); print $2; exit}' <<<"$sens"; }

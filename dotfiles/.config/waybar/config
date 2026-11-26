@@ -124,12 +124,12 @@
         "tooltip-format": "Power menu",
         "on-click": "~/.local/bin/power-menu"
     },
-    // CPU and RAM in use, all system values in the tooltip; click opens syslive
+    // CPU and RAM in use, all system values in the tooltip; click opens btop
     "custom/sysinfo": {
         "exec": "~/.local/bin/sysinfo-bar",
         "return-type": "json",
         "interval": 5,
-        "on-click": "kitty ~/.local/bin/syslive"
+        "on-click": "kitty btop"
     },
     // Notification center (swaync): bell with a dot when there are notifications,
     // crossed bell in Do Not Disturb. Click: open/close, right click: DND on/off.
