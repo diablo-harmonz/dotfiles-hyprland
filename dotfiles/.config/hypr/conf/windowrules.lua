@@ -7,6 +7,8 @@ hl.layer_rule({ match = { namespace = "swaync-notification-window" }, blur = tru
 hl.layer_rule({ match = { namespace = "swaync-control-center" },      blur = true, ignore_alpha = 0.1 })
 -- Settings panel (quickshell/settings): only the panel is blurred, not its 0.30 dark backdrop
 hl.layer_rule({ match = { namespace = "settings" }, blur = true, ignore_alpha = 0.4 })
+-- Power menu (quickshell/power): blur the desktop behind its tiles and dim backdrop
+hl.layer_rule({ match = { namespace = "power-menu" }, blur = true })
 
 -- Translucent apps: add a line to make an app see-through (blur shows the wallpaper behind).
 -- class   = the window class: focus the app, then run `hyprctl activewindow -j | jq -r .class`

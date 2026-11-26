@@ -368,12 +368,14 @@ an entry (`me-accept-entry: MousePrimary`, `hover-select`).
 
 ### Power menu and Force quit
 
-`bin/power-menu` (SUPER+Escape, the Waybar power button): a 4 x 2 grid of tiles (rofi,
-`rofi/config-power.rasi`, icons in `rofi/power-icons/`): Lock, Suspend, Hibernate,
-Shutdown / Force quit, Logout, Reboot, BIOS. One highlighted tile follows both the mouse
-and the arrow keys; a click or Enter runs it; letter keys l u h s f e r b run a tile
-directly; Esc closes. The tiles and their commands are the `ITEMS` array at the top of the
-script (`label|icon|key|command`).
+`bin/power-menu` (SUPER+Escape, the Waybar power button, Settings > Power): a Quickshell
+panel (`quickshell/power/shell.qml`), a 4 x 2 grid of tiles over the blurred desktop: Lock,
+Suspend, Hibernate, Shutdown / Force quit, Logout, Reboot, BIOS. One highlighted tile follows
+both the mouse and the arrow keys; a click or Enter runs it; letter keys l u h s f e r b
+(shown in each tile's corner) run a tile directly; Esc or a click outside closes. The
+action runs after the close animation. The tiles, glyphs, keys and commands are the `items`
+list at the top of `shell.qml`; colors come from Matugen (`rofi/colors.rasi`), shapes and
+fonts from the tokens. Runs on demand and quits after a choice.
 
 `bin/force-quit` closes every window **outside workspace 1** after a macOS-style alert
 (`rofi/config-confirm.rasi`, Cancel selected first): a normal close request first, then

@@ -156,7 +156,7 @@ fi
 # ---- Quickshell (needs the Wayland session) -----------------------------------------------
 if have qs; then
     if [ -n "${WAYLAND_DISPLAY:-}" ] && [ -S "${XDG_RUNTIME_DIR:-/nonexistent}/$WAYLAND_DISPLAY" ]; then
-        for c in settings wallpicker; do
+        for c in settings wallpicker power; do
             [ -f "$CONF/quickshell/$c/shell.qml" ] || continue
             out=$(QS_SELFTEST=1 timeout 120 qs -n -c "$c" 2>&1 | sed 's/\x1b\[[0-9;]*m//g')
             # Noise that is not ours: accessibility bus, text input focus
@@ -167,7 +167,7 @@ if have qs; then
                 n=$(grep -c 'SELFTEST .* ok' <<<"$out")
                 ok "Quickshell $(qs --version 2>/dev/null | awk '{print $2}'): $c loads$([ "$n" -gt 0 ] && echo " ($n sections checked)")"
             else
-                warn "Quickshell: $c has problems (SUPER+, / SUPER+W may not open)" \
+                warn "Quickshell: $c has problems (SUPER+, / SUPER+W / SUPER+Escape may not open)" \
                     <<<"${errs:-it did not finish loading}"
             fi
         done
