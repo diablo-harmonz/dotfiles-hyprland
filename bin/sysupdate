@@ -353,7 +353,7 @@ if [ ! -d "/usr/lib/modules/$(uname -r)" ] || { $reboot_expected && [ $status -e
     warn "The kernel was updated: a reboot is needed to use it."
     reboot_needed=true
 elif grep -qE 'upgrading hyprland|installing hyprland' <<<"$plain"; then
-    warn "Hyprland was updated: log out and in (SUPER+M) to start the new version."
+    warn "Hyprland was updated: log out and in (SUPER+Esc, Logout) to start the new version."
 else
     good "No reboot needed."
 fi

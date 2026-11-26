@@ -2,7 +2,7 @@
  * Rofi launcher in the macOS Spotlight look: one column, a large light search line on top,
  * results below, sans-serif font, subtle border; Hyprland blurs what is behind it.
  * No picture, no mode buttons. Colors live in colors.rasi (Matugen).
- * bin/launcher (SUPER+SPACE, SUPER+S, Fn+F12, Waybar logo) shows apps and web search in one
+ * bin/launcher (SUPER+SPACE, Fn+F12, Waybar logo) shows apps and web search in one
  * list: Enter starts the app, or searches the web when nothing matches; Ctrl+Enter always
  * searches the web (bin/web-search). Also the default look of other rofi menus
  * (e.g. bin/force-quit), whose -mesg text shows above the list.

@@ -133,7 +133,7 @@ in `bin/` needs one more run of this script (or `ln -s` by hand) to appear in `~
 ## Login
 
 No display manager: log in on the console (TTY1) and `~/.zprofile` runs `start-hyprland`.
-Quitting Hyprland (SUPER+M) returns to the login prompt; other consoles (Ctrl+Alt+F2...)
+Quitting Hyprland (SUPER+Esc, Logout) returns to the login prompt; other consoles (Ctrl+Alt+F2...)
 stay plain shells for repairs. Logging in on TTY2-9 while the lock screen is stuck offers
 to run `lock-recover`. The keyring is unlocked through PAM (see [System files](#system-files)).
 
@@ -358,7 +358,7 @@ the config; Waybar only reloads the generated `style.css` by itself). Its log:
 
 ### Launcher
 
-`bin/launcher` (SUPER+Space, SUPER+S, Fn+F12, the Waybar launcher button): one rofi list of
+`bin/launcher` (SUPER+Space, Fn+F12, the Waybar launcher button): one rofi list of
 apps and web search, macOS Spotlight style. Enter starts the selected app; when nothing
 matches, Enter searches the web; Ctrl+Enter always searches or opens the typed address
 (`github.com`, `localhost:5173`, `192.168.1.1`, `https://…`) in Firefox. How: a rofi
@@ -485,7 +485,7 @@ SUPER).
 | Keys | Action |
 |---|---|
 | SUPER + Return | kitty |
-| SUPER + Space | Launcher (also Fn+F12 and SUPER+S): apps and web search in one list; Enter starts the app or, with no match, searches the web; Ctrl+Enter always searches / opens the address |
+| SUPER + Space | Launcher (also Fn+F12): apps and web search in one list; Enter starts the app or, with no match, searches the web; Ctrl+Enter always searches / opens the address |
 | SUPER + B | Browser |
 | SUPER + E | Nautilus |
 | SUPER + SHIFT + E | yazi in kitty |
@@ -502,7 +502,6 @@ SUPER).
 | SUPER + CTRL + R | Reload the Hyprland config, restores all screens |
 | SUPER + SHIFT + B | Restart Waybar |
 | SUPER + Q | Close window |
-| SUPER + M | Exit Hyprland |
 | SUPER + T | Toggle floating |
 | SUPER + O | Pin a floating window to every workspace (picture-in-picture), press again to unpin |
 | SUPER + F | Fullscreen |
@@ -517,7 +516,7 @@ SUPER).
 | SUPER + CTRL + SHIFT + ← / → | Take the window to the previous / next workspace and follow it |
 | SUPER + mouse wheel | Next / previous workspace |
 | SUPER + left / right drag | Move / resize window |
-| CTRL + SHIFT + Down | Show or hide the scratchpad workspace |
+| SUPER + S / SUPER + SHIFT + S | Show or hide the scratchpad workspace / send the window into it |
 | Print (Fn+F9) | Screenshot of the whole screen |
 | SHIFT + Print (Fn+F10) | Screenshot of a region |
 | SUPER + Print | Region screenshot, annotate in satty |

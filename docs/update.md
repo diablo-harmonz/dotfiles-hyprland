@@ -159,7 +159,7 @@ Script đọc lại toàn bộ log và chỉ ra:
 | `✘ A config check reported a problem` | Một hook báo lỗi, kèm file và dòng | Xem mục **Sự cố** bên dưới |
 | `! New default config files to merge (.pacnew)` | Có file cấu hình hệ thống mới | Xem mục **File .pacnew** |
 | `! The kernel was updated: a reboot is needed` | Kernel mới | Trả lời câu hỏi reboot ở cuối (hoặc sau: `systemctl reboot`) |
-| `! Hyprland was updated: log out and in` | Hyprland mới | SUPER + M rồi đăng nhập lại |
+| `! Hyprland was updated: log out and in` | Hyprland mới | SUPER + Esc → Logout, rồi đăng nhập lại |
 | `✔ No reboot needed` | Không cần làm gì | |
 
 Cuối bước 6 luôn có dòng **`━━ Done. sysupdate has finished; nothing is running any more.`**

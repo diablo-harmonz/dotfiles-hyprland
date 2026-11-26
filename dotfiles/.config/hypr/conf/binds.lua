@@ -8,7 +8,6 @@ local function exec(cmd) return hl.dsp.exec_cmd(cmd) end
 -- Actions
 hl.bind(mainMod .. " + RETURN",         exec("kitty"))                                                     -- Open kitty
 hl.bind(mainMod .. " + Q",              hl.dsp.window.close())                                             -- Close current window
-hl.bind(mainMod .. " + M",              hl.dsp.exit())                                                     -- Exit Hyprland
 hl.bind(mainMod .. " + E",              exec("nautilus"))                                                  -- File manager (Nautilus)
 hl.bind(mainMod .. " + SHIFT + E",      exec("kitty yazi"))                                                -- Yazi file manager in kitty
 hl.bind(mainMod .. " + T",              hl.dsp.window.float({ action = "toggle" }))                        -- Toggle tiling/floating
@@ -35,7 +34,6 @@ hl.bind(mainMod .. " + Escape",         exec("~/.local/bin/power-menu"))        
 hl.bind(mainMod .. " + CTRL + Escape",
     exec("hyprctl activewindow -j | jq -e '.fullscreen != 0' >/dev/null && hyprctl dispatch 'hl.dsp.window.fullscreen()'; hyprctl dispatch 'hl.dsp.focus({ workspace = \"previous\" })'"),
     { dont_inhibit = true })
-hl.bind(mainMod .. " + S",              exec("~/.local/bin/launcher"))                                     -- Same launcher: type, Ctrl+Enter = web search
 hl.bind(mainMod .. " + V",              exec("~/.local/bin/clipboard"))                                    -- Clipboard history: pick to paste (Shift+Enter: delete entry)
 hl.bind(mainMod .. " + equal",          exec("~/.local/bin/calc"))                                         -- Calculator (rofi-calc): Enter copies the result
 hl.bind(mainMod .. " + SHIFT + T",      exec("~/.local/bin/timer"))                                        -- Timers and alarms (countdown on Waybar)
@@ -122,8 +120,11 @@ for i = 1, 10 do
     hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
 end
 
--- Special workspace (scratchpad): slides in over the current workspace, again to hide it
-hl.bind("CTRL + SHIFT + down", hl.dsp.workspace.toggle_special("scratch"))
+-- Scratchpad (special workspace "scratch"): SUPER+S slides it in over the current
+-- workspace, again hides it; SUPER+SHIFT+S sends the active window into it.
+-- (Was Ctrl+Shift+Down, which took that key from text selection in apps.)
+hl.bind(mainMod .. " + S",         hl.dsp.workspace.toggle_special("scratch"))
+hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:scratch" }))
 
 -- Previous / next workspace in number order on this monitor (empty ones too):
 -- mainMod + CTRL + left / right

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# launcher: one rofi search for apps and the web (SUPER+SPACE, SUPER+S, Fn+F12, Waybar logo).
+# launcher: one rofi search for apps and the web (SUPER+SPACE, Fn+F12, Waybar logo).
 #   Enter        start the selected app; when nothing matches, search the web
 #   Ctrl+Enter   always search the web / open the address typed (bin/web-search)
 # How: rofi combi of a "web" script mode (no rows of its own) and drun. Text that matches
