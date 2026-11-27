@@ -84,7 +84,7 @@ packages=(
     "lazygit"
     "lua-language-server"     # Neovim LSP for Lua (init.lua, Hyprland config)
     "bash-language-server"    # Neovim LSP for shell scripts (bin/), uses shellcheck
-    "shellcheck"
+    "shellcheck-bin"          # shell linter, static build (AUR): the repo one pulls ~55 Haskell libs
     "shfmt"                   # shell formatter (bash-language-server formats with it)
     "ffmpegthumbnailer"
     "fd"
