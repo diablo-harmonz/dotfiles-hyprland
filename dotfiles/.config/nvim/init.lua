@@ -268,17 +268,23 @@ require("nvim-treesitter").install(ts_langs)  -- only fetches the missing ones
 vim.api.nvim_create_autocmd("FileType", {
     desc = "Tree-sitter colours and indent when a parser exists",
     callback = function(ev)
-        if pcall(vim.treesitter.start, ev.buf) then
+        if not pcall(vim.treesitter.start, ev.buf) then return end
+        -- Tree-sitter indenting only where the parser ships indent rules (bash, rust,
+        -- python...). qmljs and lua have none: there its indentexpr put every new line at
+        -- column 1, so those keep smartindent (copy the line above, deeper after {).
+        local lang = vim.treesitter.language.get_lang(vim.bo[ev.buf].filetype)
+        if lang and #vim.treesitter.query.get_files(lang, "indents") > 0 then
             vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
         end
     end,
 })
 
--- Format on save (stage 6): only where the formatter is the language's standard one
--- (rustfmt through rust-analyzer, qmlformat through qmlls). Other files: Space c f by hand.
+-- Format on save (stage 6): Rust only (rustfmt through rust-analyzer, the style every Rust
+-- project uses). Not QML: qmlformat rewrites what you type (drops the () of `signal clicked()`,
+-- adds ;) and that got in the way while learning. Other files: Space c f by hand.
 vim.api.nvim_create_autocmd("BufWritePre", {
-    desc = "Format Rust and QML before saving",
-    pattern = { "*.rs", "*.qml" },
+    desc = "Format Rust before saving",
+    pattern = { "*.rs" },
     callback = function(ev) vim.lsp.buf.format({ bufnr = ev.buf, timeout_ms = 2000 }) end,
 })
 
