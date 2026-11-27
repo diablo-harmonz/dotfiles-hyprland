@@ -98,8 +98,20 @@ thoại polkit). Tắt hyprlock chưa đủ (`Error closing device after disconn
 thiết bị); `sudo systemctl restart fprintd` mới chữa được.
 Cách sửa: drop-in `setup/system/fprintd-resume/fprintd.conf` cho `systemd-hibernate`,
 `systemd-hybrid-sleep`, `systemd-suspend-then-hibernate`: `ExecStartPost` khởi động lại fprintd
-khi cả lần ngủ đã xong (fprintd khởi động theo D-Bus, lần dùng sau nhận lại cảm biến). Màn khoá
-ngay sau lần dậy đó có thể phải gõ mật khẩu thay vì vân tay.
+khi cả lần ngủ đã xong (fprintd khởi động theo D-Bus, lần dùng sau nhận lại cảm biến).
+Sửa lần 2 (27/11 22:08): bản đầu dùng `--no-block`, lệnh restart chạy cùng lúc hyprlock nhận
+lại cảm biến (logind báo "đã dậy" ngay khi unit xong), nên hyprlock mất cảm biến: `Device was
+not claimed before use`, màn khoá không nhận vân tay. Giờ restart chạy xong rồi unit mới kết
+thúc (`timeout 15 systemctl restart`), hyprlock nhận cảm biến từ fprintd mới.
+
+### Ảnh ngủ đông quá lớn khi zram bật (2026-11-27)
+
+27/11 16:29 gập máy, 16:59 ngủ đông bỏ dở: `Normal pages needed: 1993511 + 1024, available
+pages: 1844928`, `Error -12 creating image`, máy ngủ nhẹ tiếp tới 22:08. Kiểu ngủ này giữ zram
+bật (xem trên), dữ liệu zram nằm trong RAM. Cách sửa: `/sys/power/image_size` từ mặc định
+~6 GiB (2/5 RAM) xuống 3 GiB qua `setup/system/zram-hibernate/hibernate-image-size.conf`
+(tmpfiles.d). Kernel phải ép ảnh dưới mức đó nên đẩy nhiều hơn ra `/swap/swapfile` trước khi
+tạo ảnh. Cái giá: vài giây đầu sau khi dậy chương trình đọc lại từ swapfile.
 
 ### Thử lại sau khi sửa (2026-11-25, khởi động lại sạch trước khi thử)
 

@@ -197,6 +197,13 @@ if grep -qE '^GRUB_CMDLINE_LINUX_DEFAULT=.*resume=' /etc/default/grub; then
     [ ! -e "$s2h/zram.conf" ] || { sudo rm -f "$s2h/zram.conf"; zchanged=1; }
     [ "$zchanged" = 0 ] || sudo systemctl daemon-reload
     echo ":: zram off around hibernate: /etc/systemd/system/systemd-{hibernate,hybrid-sleep}.service.d/zram.conf"
+    # Smaller hibernate image (3 GiB): the kernel swaps more out first, so suspend-then-hibernate
+    # with zram on stops failing with Error -12 (zram-hibernate/hibernate-image-size.conf)
+    if ! cmp -s "$zdir/hibernate-image-size.conf" /etc/tmpfiles.d/hibernate-image-size.conf; then
+        sudo install -D -m 644 "$zdir/hibernate-image-size.conf" /etc/tmpfiles.d/hibernate-image-size.conf
+        sudo systemd-tmpfiles --create /etc/tmpfiles.d/hibernate-image-size.conf
+    fi
+    echo ":: Hibernate image size: $(cat /sys/power/image_size) bytes"
     # Fingerprint sensor stuck after a hibernate: restart fprintd when the sleep is over
     # (setup/system/fprintd-resume/fprintd.conf, docs/sleep.md)
     fchanged=0
