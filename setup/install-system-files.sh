@@ -194,9 +194,20 @@ if grep -qE '^GRUB_CMDLINE_LINUX_DEFAULT=.*resume=' /etc/default/grub; then
     done
     [ ! -e /usr/lib/systemd/system-sleep/zram-hibernate ] || sudo rm -f /usr/lib/systemd/system-sleep/zram-hibernate
     s2h=/etc/systemd/system/systemd-suspend-then-hibernate.service.d
-    [ ! -e "$s2h/zram.conf" ] || { sudo rm -f "$s2h/zram.conf"; sudo rmdir "$s2h" 2>/dev/null; zchanged=1; }
+    [ ! -e "$s2h/zram.conf" ] || { sudo rm -f "$s2h/zram.conf"; zchanged=1; }
     [ "$zchanged" = 0 ] || sudo systemctl daemon-reload
     echo ":: zram off around hibernate: /etc/systemd/system/systemd-{hibernate,hybrid-sleep}.service.d/zram.conf"
+    # Fingerprint sensor stuck after a hibernate: restart fprintd when the sleep is over
+    # (setup/system/fprintd-resume/fprintd.conf, docs/sleep.md)
+    fchanged=0
+    for u in systemd-hibernate systemd-hybrid-sleep systemd-suspend-then-hibernate; do
+        f="/etc/systemd/system/$u.service.d/fprintd.conf"
+        if ! cmp -s "$DIR/system/fprintd-resume/fprintd.conf" "$f"; then
+            sudo install -D -m 644 "$DIR/system/fprintd-resume/fprintd.conf" "$f"
+            fchanged=1
+        fi
+    done
+    [ "$fchanged" = 0 ] || sudo systemctl daemon-reload
 else
     echo ":: No resume= on the kernel command line, lid hibernate skipped (setup/enable-hibernate.sh)"
 fi

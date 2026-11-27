@@ -88,6 +88,19 @@ nếu zram đang chứa nhiều, lần ngủ đông có thể bỏ dở với `E
 ngủ nhẹ (như 24/11 22:32), không mất gì, chỉ tốn pin. Ngủ đông bằng tay vẫn tắt zram trước
 (25/11 12:10, 12:16 đều ổn).
 
+### Vân tay kẹt sau khi ngủ đông (2026-11-27)
+
+Gập máy là hyprlock bắt đầu đọc vân tay, nên cảm biến Synaptics vào giấc ngủ khi đang "bận"
+(fprintd: `Unexpected error while suspending device: The device is still busy`). Sau lần ngủ
+đông 26/11 17:01 → 27/11 11:01, hyprlock không thoát dù đã mở khoá bằng mật khẩu, và mọi lần
+đọc vân tay sau đó hỏng: `Device was already claimed` (KeePassXC Quick Unlock treo trong hộp
+thoại polkit). Tắt hyprlock chưa đủ (`Error closing device after disconnect`, fprintd thấy 3
+thiết bị); `sudo systemctl restart fprintd` mới chữa được.
+Cách sửa: drop-in `setup/system/fprintd-resume/fprintd.conf` cho `systemd-hibernate`,
+`systemd-hybrid-sleep`, `systemd-suspend-then-hibernate`: `ExecStartPost` khởi động lại fprintd
+khi cả lần ngủ đã xong (fprintd khởi động theo D-Bus, lần dùng sau nhận lại cảm biến). Màn khoá
+ngay sau lần dậy đó có thể phải gõ mật khẩu thay vì vân tay.
+
 ### Thử lại sau khi sửa (2026-11-25, khởi động lại sạch trước khi thử)
 
 | Lần | Tình trạng máy | Hook | Ảnh RAM | GPU |
