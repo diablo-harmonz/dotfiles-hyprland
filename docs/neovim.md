@@ -50,13 +50,13 @@ help: `:help` rồi `/từ khoá`.
 - Thêm: Space Space tìm file, Space / tìm chữ trong cả dự án (ripgrep đã cài), Space b
   danh sách buffer.
 
-### Giai đoạn 3 · Tree-sitter (tô màu cú pháp chính xác)
+### Giai đoạn 3 · Tree-sitter (tô màu cú pháp chính xác) (xong 2026-11-27: nvim-treesitter nhánh main, 15 parser)
 
 - Học: Tree-sitter phân tích cú pháp; cài parser cho các ngôn ngữ dùng (lua, python,
   javascript, typescript, tsx, json, bash, markdown).
 - Kiểm tra: `:InspectTree` xem cây cú pháp của file đang mở.
 
-### Giai đoạn 4 · LSP (hiểu code: lỗi, gợi ý, nhảy tới định nghĩa) (xong 2026-11-17: rust-analyzer qua nvim-lspconfig)
+### Giai đoạn 4 · LSP (hiểu code: lỗi, gợi ý, nhảy tới định nghĩa) (xong 2026-11-17: rust-analyzer qua nvim-lspconfig; 2026-11-27: qmlls, lua_ls, bashls)
 
 - Học: Neovim 0.12 có sẵn client LSP; khai báo bằng `vim.lsp.config(...)` rồi
   `vim.lsp.enable({...})`. Server cài bằng pacman / npm (ví dụ `lua-language-server`,
@@ -70,12 +70,12 @@ help: `:help` rồi `/từ khoá`.
 - Học: completion có sẵn của LSP (`vim.lsp.completion`) hoặc plugin blink.cmp.
 - Thêm: Tab / Enter chọn gợi ý, snippet.
 
-### Giai đoạn 6 · Format và kiểm lỗi theo dự án
+### Giai đoạn 6 · Format và kiểm lỗi theo dự án (một phần 2026-11-27: Space c f qua LSP, tự format khi lưu Rust và QML; chưa có Prettier/ESLint vì chưa có dự án web)
 
 - Học: chạy Prettier, ESLint, Ruff… theo cấu hình của từng dự án (plugin conform.nvim).
 - Thêm: format khi lưu.
 
-### Giai đoạn 7 · Git
+### Giai đoạn 7 · Git (xong 2026-11-27: gitsigns, Space g g mở lazygit)
 
 - Thêm: gitsigns (dòng thay đổi bên lề, xem / hoàn tác từng đoạn), mở lazygit trong
   Neovim (Space g g).
@@ -84,7 +84,7 @@ help: `:help` rồi `/từ khoá`.
 
 - Thay netrw bằng oil.nvim (sửa thư mục như sửa file) hoặc neo-tree (cây bên trái).
 
-### Giai đoạn 9 · Thanh trạng thái và menu phím (thanh trạng thái + tab xong 2026-11-17: lualine, incline; còn which-key)
+### Giai đoạn 9 · Thanh trạng thái và menu phím (xong: lualine, incline 2026-11-17; which-key 2026-11-27)
 
 - Thêm: thanh trạng thái (mini.statusline hoặc lualine), which-key (bấm Space hiện menu
   các phím đã đặt).

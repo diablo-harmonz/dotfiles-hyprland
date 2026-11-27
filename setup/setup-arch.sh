@@ -82,6 +82,10 @@ packages=(
     "yazi"
     "neovim"
     "lazygit"
+    "lua-language-server"     # Neovim LSP for Lua (init.lua, Hyprland config)
+    "bash-language-server"    # Neovim LSP for shell scripts (bin/), uses shellcheck
+    "shellcheck"
+    "shfmt"                   # shell formatter (bash-language-server formats with it)
     "ffmpegthumbnailer"
     "fd"
     "fzf"

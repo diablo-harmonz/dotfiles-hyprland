@@ -93,6 +93,9 @@ vim.pack.add({
     "https://github.com/nvim-tree/nvim-tree.lua",      -- File tree on the left
     "https://github.com/nvim-lualine/lualine.nvim",    -- Status line and buffer tabs
     "https://github.com/b0o/incline.nvim",             -- File name in each window's corner
+    { src = "https://github.com/nvim-treesitter/nvim-treesitter", version = "main" },  -- Parsers
+    "https://github.com/folke/which-key.nvim",         -- Menu of keys after Space
+    "https://github.com/lewis6991/gitsigns.nvim",      -- Git changes beside the line numbers
 })
 
 
@@ -156,7 +159,18 @@ vim.lsp.config("qmlls", {
     cmd = { "/usr/lib/qt6/bin/qmlls" },
     root_markers = { ".qmlls.ini", ".git" },
 })
-vim.lsp.enable({ "rust_analyzer", "qmlls" })
+-- Lua (this file, Hyprland's config) and shell scripts (bin/). bashls runs shellcheck for
+-- its warnings. Packages: lua-language-server, bash-language-server, shellcheck, shfmt.
+-- lua_ls: tell it about Neovim's own `vim` API so this file has no "undefined global vim".
+vim.lsp.config("lua_ls", {
+    settings = {
+        Lua = {
+            runtime = { version = "LuaJIT" },
+            workspace = { library = { vim.env.VIMRUNTIME }, checkThirdParty = false },
+        },
+    },
+})
+vim.lsp.enable({ "rust_analyzer", "qmlls", "lua_ls", "bashls" })
 
 -- Errors and warnings: a mark in the sign column and the message at the end of the line
 vim.diagnostic.config({
@@ -240,3 +254,67 @@ vim.keymap.set("n", "<leader>x", "<cmd>bdelete<CR>", { desc = "Close buffer" })
 -- File name in the top-right corner of each window (incline); hidden when the cursor
 -- is on that line, so it never covers code
 require("incline").setup({ hide = { cursorline = true } })
+
+-- Tree-sitter (stage 3): a real parser per language instead of regex colours, so code is
+-- coloured by what it is (function, property, string), and folds / selections follow the
+-- code's structure. nvim-treesitter (main branch) builds the parsers with tree-sitter-cli
+-- and gcc; Neovim ships c, lua, markdown, query, vim, vimdoc already. :InspectTree shows
+-- the tree of the open file; :TSUpdate rebuilds the parsers after a plugin update.
+local ts_langs = {
+    "bash", "css", "diff", "html", "javascript", "json", "python", "qmljs", "rust",
+    "toml", "typescript", "yaml", "gitcommit", "git_rebase", "regex",
+}
+require("nvim-treesitter").install(ts_langs)  -- only fetches the missing ones
+vim.api.nvim_create_autocmd("FileType", {
+    desc = "Tree-sitter colours and indent when a parser exists",
+    callback = function(ev)
+        if pcall(vim.treesitter.start, ev.buf) then
+            vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        end
+    end,
+})
+
+-- Format on save (stage 6): only where the formatter is the language's standard one
+-- (rustfmt through rust-analyzer, qmlformat through qmlls). Other files: Space c f by hand.
+vim.api.nvim_create_autocmd("BufWritePre", {
+    desc = "Format Rust and QML before saving",
+    pattern = { "*.rs", "*.qml" },
+    callback = function(ev) vim.lsp.buf.format({ bufnr = ev.buf, timeout_ms = 2000 }) end,
+})
+
+-- Git (stage 7): gitsigns marks added / changed / deleted lines beside the numbers.
+-- ]h / [h next / previous change, Space g p preview it, Space g r undo it (reset),
+-- Space g b who wrote this line. Space g g opens lazygit full screen (q quits it).
+local gitsigns = require("gitsigns")
+gitsigns.setup({
+    on_attach = function(buf)
+        local map = function(keys, fn, desc)
+            vim.keymap.set("n", keys, fn, { buffer = buf, desc = desc })
+        end
+        map("]h", function() gitsigns.nav_hunk("next") end, "Next git change")
+        map("[h", function() gitsigns.nav_hunk("prev") end, "Previous git change")
+        map("<leader>gp", gitsigns.preview_hunk, "Preview this change")
+        map("<leader>gr", gitsigns.reset_hunk, "Undo this change")
+        map("<leader>gb", gitsigns.blame_line, "Who changed this line")
+    end,
+})
+vim.keymap.set("n", "<leader>gg", function()
+    vim.cmd("tabnew | terminal lazygit")
+    vim.cmd("startinsert")
+    -- Close the tab when lazygit quits
+    vim.api.nvim_create_autocmd("TermClose", {
+        buffer = 0, once = true,
+        callback = function() vim.cmd("bdelete!") end,
+    })
+end, { desc = "Lazygit" })
+
+-- Key menu (stage 9): press Space (or g, ], [ ...) and wait: a popup lists what can
+-- follow, with the desc of each keymap. The groups below name the Space prefixes.
+local wk = require("which-key")
+wk.setup({ delay = 400 })   -- ms before the menu shows (fast typists never see it)
+wk.add({
+    { "<leader>c", group = "Code" },
+    { "<leader>f", group = "Find" },
+    { "<leader>g", group = "Git" },
+    { "<leader>t", group = "Toggle" },
+})
