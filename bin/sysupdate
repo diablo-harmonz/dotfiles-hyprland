@@ -84,8 +84,8 @@ mirror_speed() {
     local url
     url=$(mirror_url | sed 's/\$repo/extra/; s/\$arch/x86_64/')
     [ -n "$url" ] || { echo 0; return; }
-    local best=0 try v
-    for try in 1 2; do
+    local best=0 v
+    for _ in 1 2; do
         v=$(curl -s -o /dev/null -r 0-2097151 --max-time 8 -w '%{speed_download}' \
             "$url/extra.db" 2>/dev/null | cut -d. -f1)
         (( ${v:-0} > best )) && best=${v:-0}
@@ -155,6 +155,7 @@ PART_DIR="${CHECKUPDATES_DB:-${TMPDIR:-/tmp}/checkup-db-${UID}}/sync"
 spin repo "Checking official packages (this does not change the system)..." checkupdates
 unset PART_DIR
 spin aur "Checking AUR packages..." yay -Qua
+# shellcheck disable=SC2154  # repo and aur are set by spin (printf -v into the name given)
 all=$(printf '%s\n%s\n' "$repo" "$aur" | sed '/^$/d')
 if [ -z "$all" ]; then
     good "Everything is up to date. Nothing to do."

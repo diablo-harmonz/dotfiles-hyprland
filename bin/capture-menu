@@ -14,7 +14,6 @@ WIN=$'\U000F05AF'      # window
 SCREEN=$'\U000F0379'   # monitor
 PEN=$'\U000F03EB'      # annotate
 TIMER=$'\U000F051B'    # timer
-REC=$'\U000F044A'      # record
 SOUND=$'\U000F057E'    # sound
 STOP=$'\U000F04DB'     # stop
 

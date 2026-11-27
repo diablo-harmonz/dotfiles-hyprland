@@ -113,7 +113,7 @@ fi
 # ---- GTK 4: swaync, screenshot preview -------------------------------------------------------
 if python3 -I -c 'import gi; gi.require_version("Gtk", "4.0")' 2>/dev/null; then
     files=()
-    for f in "$CONF/swaync/style.css"; do [ -f "$f" ] && files+=("$f"); done
+    [ -f "$CONF/swaync/style.css" ] && files+=("$CONF/swaync/style.css")
     # the preview's CSS lives in the script: tokens.css + the CSS = b"""...""" string
     if [ -f "$BIN/screenshot-preview" ]; then
         { cat "$CONF/theme-tokens/tokens.css" 2>/dev/null
@@ -128,12 +128,11 @@ fi
 
 # ---- Python GTK scripts -------------------------------------------------------------------
 msgs=""
-for s in screenshot-preview; do
-    f=$(readlink -f "$BIN/$s" 2>/dev/null) || continue
-    [ -f "$f" ] || continue
+f=$(readlink -f "$BIN/screenshot-preview" 2>/dev/null) || f=""
+if [ -f "$f" ]; then
     python3 -I -c 'import ast,sys; ast.parse(open(sys.argv[1]).read())' "$f" 2>"$tmp/py" \
-        || msgs+="$s: $(tail -1 "$tmp/py")"$'\n'
-done
+        || msgs+="screenshot-preview: $(tail -1 "$tmp/py")"$'\n'
+fi
 python3 -I - 2>"$tmp/py" <<'PY' || msgs+="libraries: $(tail -1 "$tmp/py")"$'\n'
 import gi
 for name, ver in (("Gtk", "4.0"), ("Gdk", "4.0"), ("Gtk4LayerShell", "1.0")):

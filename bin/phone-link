@@ -39,6 +39,7 @@ list_apps() {
     for conf in "$APPS"/*.conf; do
         [ -f "$conf" ] || continue
         id=$(basename "$conf" .conf)
+        # shellcheck source=/dev/null  # an app file in ~/.config/phone-link/apps
         label=$(label=""; . "$conf"; echo "$label")
         if [ -f "$STATE/$id.path" ]; then
             file=$(cat "$STATE/$id.path")
@@ -52,6 +53,7 @@ list_apps() {
 # First use: ask for the path (default from the conf), keep it
 setup_app() {
     local id=$1 label="" file="" upload="" path
+    # shellcheck source=/dev/null  # sets label, file, upload
     . "$APPS/$id.conf"
     printf '\n  Set up: %s\n\n' "$label"
     read -r -e -p "  File to share [${file/#$HOME/\~}]: " -i "" path
@@ -77,6 +79,7 @@ if [ "$key" = ctrl-e ] || [ ! -f "$STATE/$id.path" ]; then
 fi
 
 label="" upload=""
+# shellcheck source=/dev/null  # sets label, file, upload
 . "$APPS/$id.conf"
 file=$(cat "$STATE/$id.path")
 [ -f "$file" ] || die "The file is gone: $file (Ctrl+E in the menu to pick it again)"

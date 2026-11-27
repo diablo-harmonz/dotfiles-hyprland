@@ -28,7 +28,10 @@ REQUIRED=(theme.conf hyprland.lua hyprlock.conf waybar.json waybar.css rofi.rasi
 active() { basename -- "$(readlink -- "$LINK" 2>/dev/null || echo none)"; }
 
 conf() {   # $1 = pack dir, $2 = key -> value from theme.conf (sourced in a subshell)
-    ( DESCRIPTION="" WALLPAPER="" GRUB=""; . "$1/theme.conf"; eval "printf '%s' \"\${$2}\"" )
+    # shellcheck disable=SC2034  # cleared so a pack without a key reads "", used through eval
+    ( DESCRIPTION="" WALLPAPER="" GRUB=""
+      # shellcheck source=/dev/null
+      . "$1/theme.conf"; eval "printf '%s' \"\${$2}\"" )
 }
 
 list() {
