@@ -150,7 +150,13 @@ vim.api.nvim_create_autocmd("TermOpen", {
 vim.lsp.config("rust_analyzer", {
     cmd = { "rustup", "run", "stable", "rust-analyzer" },
 })
-vim.lsp.enable({ "rust_analyzer" })
+-- QML (Quickshell): Qt's qmlls is not in PATH on Arch. A folder is one project when it
+-- holds .qmlls.ini (Quickshell fills that file with its import paths when it exists).
+vim.lsp.config("qmlls", {
+    cmd = { "/usr/lib/qt6/bin/qmlls" },
+    root_markers = { ".qmlls.ini", ".git" },
+})
+vim.lsp.enable({ "rust_analyzer", "qmlls" })
 
 -- Errors and warnings: a mark in the sign column and the message at the end of the line
 vim.diagnostic.config({
@@ -182,6 +188,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
             vim.keymap.set("n", keys, fn, { buffer = ev.buf, desc = desc })
         end
         map("gd", vim.lsp.buf.definition, "Go to definition")
+        map("<leader>cf", function() vim.lsp.buf.format({ async = false }) end, "Format the file")
         map("<leader>th", function()
             vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = ev.buf }),
                 { bufnr = ev.buf })
